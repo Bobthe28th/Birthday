@@ -1,0 +1,10 @@
+name: birthday
+version: 0.1
+author: Bobthe28th
+main: me.bobthe28th.birthday.Main
+description: deez
+api-version: 1.19
+commands:
+  test:
+    description: for debug
+    usage: /<command>
