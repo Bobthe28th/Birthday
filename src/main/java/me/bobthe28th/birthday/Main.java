@@ -63,6 +63,9 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " left");
+        if (GamePlayers.get(event.getPlayer()) != null) {
+            GamePlayers.remove(event.getPlayer());
+        }
     }
 
     @EventHandler
