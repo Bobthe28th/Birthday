@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class Main extends JavaPlugin implements Listener {
 
     public static HashMap<Player,GamePlayer> GamePlayers;
-    public static boolean pvp = false; //todo breakblocks
+    public static boolean pvp = true; //todo breakblocks
 
     @Override
     public void onEnable() {
@@ -55,7 +55,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) { //todo oh a new player joined
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
         GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
     }
