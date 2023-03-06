@@ -77,4 +77,7 @@ public class GamePlayer implements Listener {
         }
     }
 
+    public Player getPlayer() {
+        return player;
+    }
 }

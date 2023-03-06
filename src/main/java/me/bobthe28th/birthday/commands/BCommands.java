@@ -1,6 +1,7 @@
 package me.bobthe28th.birthday.commands;
 
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.games.GameController;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -31,6 +32,15 @@ public class BCommands implements CommandExecutor {
             case "pvp":
                 Main.pvp = !Main.pvp;
                 player.sendMessage(Main.pvp ? ChatColor.GREEN + "PVP Enabled" : ChatColor.RED + "PVP Disabled");
+                return true;
+            case "start":
+                if (GameController.minigames.containsKey(args[0])) {
+                    GameController.setMinigame(GameController.minigames.get(args[0]),plugin);
+                    player.sendMessage(ChatColor.GREEN + "Starting " + args[0]);
+                } else {
+                    player.sendMessage(ChatColor.RED + "Minigame not found.");
+                }
+
                 return true;
         }
 
