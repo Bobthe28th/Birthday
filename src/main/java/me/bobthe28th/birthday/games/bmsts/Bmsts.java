@@ -5,15 +5,29 @@ import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GameStatus;
 import me.bobthe28th.birthday.games.Minigame;
 import me.bobthe28th.birthday.games.bmsts.bonusrounds.BonusRound;
-import me.bobthe28th.birthday.games.bmsts.minions.*;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.MinionEntity;
+import me.bobthe28th.birthday.games.bmsts.minions.t0.ChickenMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t0.LlamaMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t0.SilverfishMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t1.ZombieMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t2.PillagerMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t3.BlazeMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t3.WitherSkeletonMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t4.EvokerMinion;
+import net.minecraft.world.entity.Entity;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
+import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
@@ -31,7 +45,12 @@ public class Bmsts extends Minigame implements Listener {
     public static ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD};
     public static ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
 
-    public static Class<?>[][] minionTypes = new Class<?>[][]{{SilverfishMinion.class, LlamaMinion.class, ChickenMinion.class},{ZombieMinion.class},{PillagerMinion.class}};
+    public static Class<?>[][] minionTypes = new Class<?>[][]{
+            {SilverfishMinion.class, LlamaMinion.class, ChickenMinion.class},
+            {ZombieMinion.class},{PillagerMinion.class},
+            {WitherSkeletonMinion.class, BlazeMinion.class},
+            {EvokerMinion.class}
+    };
 
     static int round = 1;
     public static BonusRound currentBonusRound;
@@ -65,7 +84,7 @@ public class Bmsts extends Minigame implements Listener {
 
         bmMaps = new BmMap[]{new BmMap("temp",new Location(w,-173, 99, -326),minionSpawn)};
         currentMap = bmMaps[0];
-
+        status = GameStatus.READY;
     }
 
     public static BmMap getCurrentMap() {
@@ -75,7 +94,7 @@ public class Bmsts extends Minigame implements Listener {
     @Override
     public void start() {
         //todo team select
-        status = GameStatus.TEAMSELECT;
+        status = GameStatus.PLAYING;
     }
 
     @Override
@@ -103,13 +122,46 @@ public class Bmsts extends Minigame implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (status == GameStatus.TEAMSELECT && event.getTo() != null) {
+        if (event.getTo() != null) { //todo player not on team
             if (BmPlayers.containsKey(event.getPlayer())) {
                 for (BmTeam team : BmTeams.values()) {
                     if (team.getJoinPortal().contains(event.getTo().toVector())) {
                         BmPlayers.get(event.getPlayer()).setTeam(team); //todo check if all in teams
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getHitEntity() != null) {
+            if (event.getEntity().getShooter() instanceof org.bukkit.entity.Entity pe) {
+                if (((CraftEntity)pe).getHandle() instanceof MinionEntity minion && ((CraftEntity)event.getHitEntity()).getHandle() instanceof MinionEntity hitMinion) {
+                    if (minion.getGameTeam() == hitMinion.getGameTeam()) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        Entity damager;
+        if (event.getDamager() instanceof Projectile p && p.getShooter() instanceof org.bukkit.entity.Entity pe) {
+            damager = ((CraftEntity)pe).getHandle();
+        } else {
+            if (event.getDamager() instanceof EvokerFangs fangs) {
+                damager = ((CraftEntity)fangs.getOwner()).getHandle();
+            } else {
+                damager = ((CraftEntity) event.getDamager()).getHandle();
+            }
+        }
+
+        if (((CraftEntity)event.getEntity()).getHandle() instanceof MinionEntity e && damager instanceof MinionEntity d) {
+            if (e.getGameTeam() == d.getGameTeam()) {
+                event.setCancelled(true);
             }
         }
     }
@@ -123,6 +175,9 @@ public class Bmsts extends Minigame implements Listener {
     }
 
     public static String getHealthString(double health, ChatColor fullColor, ChatColor halfColor) {
+        if (health <= 0) {
+            return ChatColor.WHITE + "☠";
+        }
         int fullHearts = (int) Math.floor(health / 2);
         boolean halfHeart = health - (fullHearts * 2) >= 1;
         StringBuilder healthString = new StringBuilder();

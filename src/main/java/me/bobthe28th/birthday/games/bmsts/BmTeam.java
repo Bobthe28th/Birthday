@@ -4,7 +4,7 @@ import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.bmsts.bonusrounds.survive.SurviveRound;
 import me.bobthe28th.birthday.games.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.bmsts.minions.Rarity;
-import me.bobthe28th.birthday.games.bmsts.minions.SilverfishMinion;
+import me.bobthe28th.birthday.games.bmsts.minions.t0.SilverfishMinion;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -172,7 +172,7 @@ public class BmTeam {
         }
         for (Minion m : minions) {
             if (m.getPlacedLoc() != null && spawners.contains(m.getPlacedLoc())) {
-                m.spawnGroup(l); //TODO suffocate
+                m.spawnGroup(l.clone()); //TODO suffocate
             }
         }
     }

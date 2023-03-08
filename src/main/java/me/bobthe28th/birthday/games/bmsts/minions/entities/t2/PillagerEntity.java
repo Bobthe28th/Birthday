@@ -1,17 +1,20 @@
-package me.bobthe28th.birthday.games.bmsts.minions.entities;
+package me.bobthe28th.birthday.games.bmsts.minions.entities.t2;
 
 import me.bobthe28th.birthday.games.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.MinionEntity;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.RangedCrossbowAttackGoal;
+import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
@@ -19,20 +22,24 @@ import org.bukkit.event.entity.EntityTargetEvent;
 
 import java.util.Objects;
 
-public class ChickenEntity extends Chicken implements MinionEntity {
+public class PillagerEntity extends Pillager implements MinionEntity {
 
     BmTeam team;
     Rarity rarity;
     Boolean preview;
 
-    public ChickenEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
-        super(EntityType.CHICKEN, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+    public PillagerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+        super(EntityType.PILLAGER, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+//        DifficultyInstance d = ((CraftWorld) loc.getWorld()).getHandle().getCurrentDifficultyAt(new BlockPos(loc.getX(),loc.getY(),loc.getZ()));
         this.team = team;
         this.rarity = rarity;
         this.preview = preview;
-        this.setOnGround(true);
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
+        this.setPersistenceRequired(true);
+        this.setPatrolLeader(false);
+//        this.populateDefaultEquipmentSlots(this.getRandom(),d);
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.CROSSBOW));
         if (!preview) {
             this.setCustomNameVisible(true);
         }
@@ -40,10 +47,10 @@ public class ChickenEntity extends Chicken implements MinionEntity {
 
     @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(2, new PassiveMeleeAttackGoal(this, 1.0));
-        this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
+        this.goalSelector.addGoal(3, new RangedCrossbowAttackGoal<>(this, 1.0, 8.0F));
+        this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(3, new NearestEnemyTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
 
     public boolean hurt(DamageSource damagesource, float f) {
@@ -80,6 +87,8 @@ public class ChickenEntity extends Chicken implements MinionEntity {
         }
     }
 
+    protected void enchantSpawnedWeapon(RandomSource var0, float var1) {}
+
     @Override
     public BmTeam getGameTeam() {
         return team;
@@ -89,4 +98,5 @@ public class ChickenEntity extends Chicken implements MinionEntity {
     public boolean isPreview() {
         return preview;
     }
+
 }

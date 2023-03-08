@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Ravager;
@@ -21,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class SurviveRound extends BonusRound implements Listener {
 
@@ -83,7 +85,8 @@ public class SurviveRound extends BonusRound implements Listener {
                 if (players.containsKey(p)) {
                     players.get(p).setAlive(false);
                 }
-                event.getEntity().teleport(getMap().getPlayerRespawn());
+                p.setHealth(Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getBaseValue());
+                p.teleport(getMap().getPlayerRespawn());
                 boolean allDead = true;
                 for (SurvivePlayer s : players.values()) {
                     if (s.isAlive()) {

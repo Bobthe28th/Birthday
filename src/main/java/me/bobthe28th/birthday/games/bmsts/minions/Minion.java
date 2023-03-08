@@ -19,6 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -202,13 +203,13 @@ public class Minion implements Listener {
         switch (amount) {
             case 1 -> spawn(loc,false);
             case 2 -> {
-                spawn(loc.clone().add(-groupSpawnDist / 2, 0, 0),false);
-                spawn(loc.clone().add(groupSpawnDist / 2, 0, 0),false);
+                spawn(loc.add(-groupSpawnDist / 2, 0, 0),false);
+                spawn(loc.add(groupSpawnDist / 2, 0, 0),false);
             }
             case 3 -> {
-                spawn(loc.clone().add(-groupSpawnDist / 2, 0, 0),false);
-                spawn(loc.clone().add(groupSpawnDist / 2, 0, 0),false);
-                spawn(loc.clone().add(0, 0, groupSpawnDist * 0.866),false);
+                spawn(loc.add(-groupSpawnDist / 2, 0, 0),false);
+                spawn(loc.add(groupSpawnDist / 2, 0, 0),false);
+                spawn(loc.add(0, 0, groupSpawnDist * 0.866),false);
             }
         }
     }
@@ -240,17 +241,17 @@ public class Minion implements Listener {
         return entities;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob)l).getHandle())) {
-            if (l.getHealth() - event.getDamage() <= 0) {
+            if (l.getHealth() - event.getFinalDamage() <= 0) {
                 entities.remove(((CraftMob)l).getHandle());
                 l.setCustomName(ChatColor.WHITE + "☠");
                 if (entities.size() == 0) {
                     team.minionDeath();
                 }
             } else {
-                l.setCustomName(Bmsts.getHealthString(l.getHealth() - event.getDamage(), team.getColor(), team.getDarkColor()));
+                l.setCustomName(Bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
             }
         }
     }

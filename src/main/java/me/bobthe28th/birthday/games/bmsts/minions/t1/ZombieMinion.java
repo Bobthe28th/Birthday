@@ -1,8 +1,10 @@
-package me.bobthe28th.birthday.games.bmsts.minions;
+package me.bobthe28th.birthday.games.bmsts.minions.t1;
 
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.bmsts.minions.entities.ZombieEntity;
+import me.bobthe28th.birthday.games.bmsts.minions.Minion;
+import me.bobthe28th.birthday.games.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.t1.ZombieEntity;
 
 public class ZombieMinion extends Minion {
 

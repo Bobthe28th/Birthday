@@ -1,7 +1,9 @@
-package me.bobthe28th.birthday.games.bmsts.minions.entities;
+package me.bobthe28th.birthday.games.bmsts.minions.entities.t1;
 
 import me.bobthe28th.birthday.games.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.MinionEntity;
+import me.bobthe28th.birthday.games.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
@@ -35,6 +37,7 @@ public class ZombieEntity extends Zombie implements MinionEntity {
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
+        this.setPersistenceRequired(true);
         if (!preview) {
             this.setCustomNameVisible(true);
         }
