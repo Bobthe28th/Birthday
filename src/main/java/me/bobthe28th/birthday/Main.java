@@ -2,6 +2,7 @@ package me.bobthe28th.birthday;
 
 import me.bobthe28th.birthday.commands.BCommands;
 import me.bobthe28th.birthday.commands.BTabCompleter;
+import me.bobthe28th.birthday.games.GameController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -13,20 +14,25 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
 
 public class Main extends JavaPlugin implements Listener {
 
+    public static Scoreboard board;
     public static HashMap<Player,GamePlayer> GamePlayers;
     public static boolean pvp = true; //todo breakblocks
+
+    public static GameController gameController;
 
     @Override
     public void onEnable() {
         Bukkit.broadcastMessage("Man");
         getServer().getPluginManager().registerEvents(this, this);
 
-        String[] commandNames = new String[]{"test","pvp"};
+        String[] commandNames = new String[]{"test","pvp","start"};
         BCommands commands = new BCommands(this);
         BTabCompleter tabCompleter = new BTabCompleter();
         for (String commandName : commandNames) {
@@ -37,6 +43,18 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
 
+        if (Bukkit.getScoreboardManager() != null) {
+            board = Bukkit.getScoreboardManager().getMainScoreboard();
+        }
+
+        for (Team t : board.getTeams()) {
+            if (t.getName().startsWith("bday")) {
+                t.unregister();
+            }
+        }
+
+        gameController = new GameController(this);
+
         GamePlayers = new HashMap<>();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
@@ -46,6 +64,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        gameController.disable();
         if (GamePlayers != null) {
             for (GamePlayer gamePlayer : GamePlayers.values()) {
                 gamePlayer.removeNotMap();
@@ -57,7 +76,7 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) { //todo oh a new player joined
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-        GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
+        GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer())); //todo if current game add game player for that minigame
     }
 
     @EventHandler
@@ -75,7 +94,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (!pvp && event.getCause() != EntityDamageEvent.DamageCause.VOID) {
+        if (!pvp && event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
             event.setCancelled(true);
         }
     }

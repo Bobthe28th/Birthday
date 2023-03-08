@@ -11,3 +11,6 @@ commands:
   pvp:
     description: Toggles pvp
     usage: /<command>
+  start:
+    description: Starts a minigame
+    usage: /<command> <minigame>
