@@ -40,6 +40,7 @@ public class ChickenEntity extends Chicken implements MinionEntity {
         if (!preview) {
             this.setCustomNameVisible(true);
         }
+        this.eggTime = Integer.MAX_VALUE;
     }
 
     @Override

@@ -74,15 +74,17 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) { //todo oh a new player joined
+    public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-        GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer())); //todo if current game add game player for that minigame
+        GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
+        GameController.playerJoin(GamePlayers.get(event.getPlayer()));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " left");
         if (GamePlayers.get(event.getPlayer()) != null) {
+            GameController.playerLeave(GamePlayers.get(event.getPlayer()));
             GamePlayers.remove(event.getPlayer());
         }
     }

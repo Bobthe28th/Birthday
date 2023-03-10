@@ -79,7 +79,7 @@ public class BmTeam {
         this.researchPoints += amount;
     }
 
-    public void minionDeath() {
+    public void minionDeath() { //todo none spawn
         for (Minion m : minions) {
             if (m.getEntities().size() != 0) return;
         }

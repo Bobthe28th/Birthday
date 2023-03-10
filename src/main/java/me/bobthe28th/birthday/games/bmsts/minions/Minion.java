@@ -243,15 +243,17 @@ public class Minion implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob)l).getHandle())) {
-            if (l.getHealth() - event.getFinalDamage() <= 0) {
-                entities.remove(((CraftMob)l).getHandle());
-                l.setCustomName(ChatColor.WHITE + "☠");
-                if (entities.size() == 0) {
-                    team.minionDeath();
+        if (!event.isCancelled()) {
+            if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
+                if (l.getHealth() - event.getFinalDamage() <= 0) {
+                    entities.remove(((CraftMob) l).getHandle());
+                    l.setCustomName(ChatColor.WHITE + "☠");
+                    if (entities.size() == 0) {
+                        team.minionDeath();
+                    }
+                } else {
+                    l.setCustomName(Bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
                 }
-            } else {
-                l.setCustomName(Bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
             }
         }
     }

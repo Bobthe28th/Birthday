@@ -8,6 +8,6 @@ import me.bobthe28th.birthday.games.bmsts.minions.entities.t4.EvokerEntity;
 
 public class EvokerMinion extends Minion {
     public EvokerMinion(Main plugin, BmTeam team, Rarity rarity, Integer strength) {
-        super(plugin, "Evoker", EvokerEntity.class, team, 4, rarity, strength, 3); //todo model
+        super(plugin, "Evoker", EvokerEntity.class, team, 4, rarity, strength, 8);
     }
 }

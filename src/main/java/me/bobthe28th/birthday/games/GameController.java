@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games;
 
+import me.bobthe28th.birthday.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.test.test;
@@ -30,6 +31,18 @@ public class GameController { //todo move gameplayers here?
             currentGame.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void playerJoin(GamePlayer player) {
+        if (currentGame != null) {
+            currentGame.onPlayerJoin(player);
+        }
+    }
+
+    public static void playerLeave(GamePlayer player) {
+        if (currentGame != null) {
+            currentGame.onPlayerLeave(player);
         }
     }
 

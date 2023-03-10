@@ -15,10 +15,7 @@ import me.bobthe28th.birthday.games.bmsts.minions.t3.BlazeMinion;
 import me.bobthe28th.birthday.games.bmsts.minions.t3.WitherSkeletonMinion;
 import me.bobthe28th.birthday.games.bmsts.minions.t4.EvokerMinion;
 import net.minecraft.world.entity.Entity;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
 import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.Player;
@@ -55,8 +52,10 @@ public class Bmsts extends Minigame implements Listener {
     static int round = 1;
     public static BonusRound currentBonusRound;
     static BmMap currentMap;
+    Main plugin;
 
     public Bmsts(Main plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         for (GamePlayer player : Main.GamePlayers.values()) {
             BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
@@ -117,7 +116,22 @@ public class Bmsts extends Minigame implements Listener {
             }
             BmPlayers.clear();
         }
-        //todo
+
+    }
+
+    @Override
+    public void onPlayerJoin(GamePlayer player) {
+        BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
+        //todo teleport
+        player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(),"playerjoin", SoundCategory.MASTER,0.2F,1F);
+    }
+
+    @Override
+    public void onPlayerLeave(GamePlayer player) {
+        if (BmPlayers.containsKey(player.getPlayer())) {
+            BmPlayers.get(player.getPlayer()).remove(); //todo players can leave game with minions
+        }
+        player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(),"playerleave", SoundCategory.MASTER,0.2F,1F);
     }
 
     @EventHandler
@@ -152,7 +166,7 @@ public class Bmsts extends Minigame implements Listener {
         if (event.getDamager() instanceof Projectile p && p.getShooter() instanceof org.bukkit.entity.Entity pe) {
             damager = ((CraftEntity)pe).getHandle();
         } else {
-            if (event.getDamager() instanceof EvokerFangs fangs) {
+            if (event.getDamager() instanceof EvokerFangs fangs && fangs.getOwner() != null) {
                 damager = ((CraftEntity)fangs.getOwner()).getHandle();
             } else {
                 damager = ((CraftEntity) event.getDamager()).getHandle();

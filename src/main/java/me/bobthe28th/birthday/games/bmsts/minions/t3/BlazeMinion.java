@@ -8,6 +8,6 @@ import me.bobthe28th.birthday.games.bmsts.minions.entities.t3.BlazeEntity;
 
 public class BlazeMinion extends Minion {
     public BlazeMinion(Main plugin, BmTeam team, Rarity rarity, Integer strength) {
-        super(plugin, "Blaze", BlazeEntity.class, team, 3, rarity, strength, 3); //todo model
+        super(plugin, "Blaze", BlazeEntity.class, team, 3, rarity, strength, 6);
     }
 }
