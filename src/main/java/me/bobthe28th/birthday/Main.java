@@ -6,10 +6,12 @@ import me.bobthe28th.birthday.games.GameController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -100,5 +102,23 @@ public class Main extends JavaPlugin implements Listener {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onSpawn(SpawnerSpawnEvent event) {
+        if (event.getEntityType().equals(EntityType.CHICKEN)) {
+            if (event.getEntity().getPassengers().size() > 0) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+//    @EventHandler
+//    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {
+//        Player player = event.getPlayer();
+//        Advancement advancement = event.getAdvancement();
+//        for(String criteria: advancement.getCriteria()) {
+//            player.getAdvancementProgress(advancement).revokeCriteria(criteria);
+//        }
+//    }
 
 }

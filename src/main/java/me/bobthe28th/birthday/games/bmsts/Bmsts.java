@@ -129,7 +129,7 @@ public class Bmsts extends Minigame implements Listener {
     @Override
     public void onPlayerLeave(GamePlayer player) {
         if (BmPlayers.containsKey(player.getPlayer())) {
-            BmPlayers.get(player.getPlayer()).remove(); //todo players can leave game with minions
+            BmPlayers.get(player.getPlayer()).remove();
         }
         player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(),"playerleave", SoundCategory.MASTER,0.2F,1F);
     }
@@ -140,7 +140,7 @@ public class Bmsts extends Minigame implements Listener {
             if (BmPlayers.containsKey(event.getPlayer())) {
                 for (BmTeam team : BmTeams.values()) {
                     if (team.getJoinPortal().contains(event.getTo().toVector())) {
-                        BmPlayers.get(event.getPlayer()).setTeam(team); //todo check if all in teams
+                        BmPlayers.get(event.getPlayer()).setTeam(team);
                     }
                 }
             }

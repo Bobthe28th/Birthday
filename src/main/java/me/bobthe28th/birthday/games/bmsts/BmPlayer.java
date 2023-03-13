@@ -39,7 +39,7 @@ public class BmPlayer implements Listener {
     public void removeNotMap() {
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
-            this.team.getTeam().removeEntry(player.getPlayer().getName());
+//            this.team.getTeam().removeEntry(player.getPlayer().getName()); //todo ?
         }
         HandlerList.unregisterAll(this);
     }

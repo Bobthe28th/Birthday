@@ -5,6 +5,7 @@ import me.bobthe28th.birthday.games.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.games.bmsts.bonusrounds.BonusRoundMap;
+import me.bobthe28th.birthday.games.bmsts.bonusrounds.ghosts.GhostPlayer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
@@ -48,7 +49,6 @@ public class SurviveRound extends BonusRound implements Listener {
                 p.getPlayer().teleport(new Location(w, -214, 92, -327));
                 players.put(p.getPlayer(),new SurvivePlayer(p));
             }
-//            Random srand = new Random();
             spawn = new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -67,7 +67,12 @@ public class SurviveRound extends BonusRound implements Listener {
                             p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.LIGHT_PURPLE + "" + time));
                         }
                         if (time <= 0) {
-                            this.cancel(); //todo award points
+                            this.cancel();
+                            for (SurvivePlayer p : players.values()) {
+                                if (p.isAlive()) {
+                                    p.getPlayer().getTeam().addResearchPoints(5);
+                                }
+                            }
                             end(true);
                         }
                         time--;
@@ -102,18 +107,12 @@ public class SurviveRound extends BonusRound implements Listener {
     }
 
     @Override
-    public void end(boolean teleport) {
-        running = false;
+    public void endRound() {
         timer.cancel();
         spawn.cancel();
         for (Ravager r : ravagers) {
             r.remove();
         }
         ravagers.clear();
-        if (teleport) {
-            for (BmPlayer p : Bmsts.BmPlayers.values()) {
-                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5, 0, 0.5));
-            }
-        }
     }
 }

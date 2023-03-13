@@ -123,6 +123,8 @@ public class Minion implements Listener {
 
     public void drop(Location l) {
         if (l.getWorld() == null) return;
+        if (placedArmorStand != null) placedArmorStand.remove();
+        if (previewEntity != null) previewEntity.remove(Entity.RemovalReason.DISCARDED);
         if (itemStack == null) getItem();
         droppedItem = l.getWorld().dropItem(l, itemStack);
         droppedItem.setUnlimitedLifetime(true);

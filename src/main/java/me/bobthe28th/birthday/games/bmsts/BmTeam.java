@@ -1,7 +1,7 @@
 package me.bobthe28th.birthday.games.bmsts;
 
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.games.bmsts.bonusrounds.survive.SurviveRound;
+import me.bobthe28th.birthday.games.bmsts.bonusrounds.ghosts.GhostsRound;
 import me.bobthe28th.birthday.games.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.bmsts.minions.t0.SilverfishMinion;
@@ -64,7 +64,7 @@ public class BmTeam {
         team.setCanSeeFriendlyInvisibles(true);
         team.setPrefix(ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "]" + " ");
 
-        new SilverfishMinion(plugin, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5)); //todo on game ready
+        new SilverfishMinion(plugin, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
         new SilverfishMinion(plugin, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
         new SilverfishMinion(plugin, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
         new SilverfishMinion(plugin, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
@@ -79,7 +79,7 @@ public class BmTeam {
         this.researchPoints += amount;
     }
 
-    public void minionDeath() { //todo none spawn
+    public void minionDeath() { //todo none spawn can only ready when all minions in
         for (Minion m : minions) {
             if (m.getEntities().size() != 0) return;
         }
@@ -105,11 +105,11 @@ public class BmTeam {
             Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getTeam().getDisplayName() + " won the round");
             for (BmPlayer p : Bmsts.BmPlayers.values()) {
                 p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getTeam().getDisplayName() + " won the round", 10, 20, 10);
-                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5));
+                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5)); //todo dont if bonus round
             }
             Bmsts.setRound(Bmsts.getRound() + 1);
             if (Bmsts.getRound() % 2 == 1) {
-                Bmsts.currentBonusRound = new SurviveRound(plugin);
+                Bmsts.currentBonusRound = new GhostsRound(plugin);
                 Bmsts.currentBonusRound.start();
             }
         }
@@ -174,6 +174,16 @@ public class BmTeam {
             if (m.getPlacedLoc() != null && spawners.contains(m.getPlacedLoc())) {
                 m.spawnGroup(l.clone()); //TODO suffocate
             }
+        }
+    }
+
+    public void dropAll() { //todo add button
+        int offset = 0;
+        for (Minion m : minions) {
+            if (!m.dropKept(minionItemSpawn.clone().add(0.5 - offset * 2,0,0.5))) {
+                m.drop(minionItemSpawn.clone().add(0.5 - offset * 2, 0, 0.5));
+            }
+            offset ++;
         }
     }
 

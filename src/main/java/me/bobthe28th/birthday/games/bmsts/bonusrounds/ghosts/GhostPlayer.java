@@ -1,14 +1,14 @@
-package me.bobthe28th.birthday.games.bmsts.bonusrounds.survive;
+package me.bobthe28th.birthday.games.bmsts.bonusrounds.ghosts;
 
 import me.bobthe28th.birthday.games.bmsts.BmPlayer;
 
-public class SurvivePlayer {
+public class GhostPlayer {
 
     BmPlayer player;
 
     boolean alive = true;
 
-    public SurvivePlayer(BmPlayer player) {
+    public GhostPlayer(BmPlayer player) {
         this.player = player;
     }
 
