@@ -4,12 +4,11 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.EvokerFangs;
 import net.minecraft.world.level.Level;
-import org.bukkit.craftbukkit.v1_19_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_19_R3.event.CraftEventFactory;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -114,14 +113,14 @@ public class EvokerFangsEntity extends EvokerFangs {
         if (entityliving.isAlive() && !entityliving.isInvulnerable() && entityliving != entityliving1) {
             if (entityliving1 == null) {
                 CraftEventFactory.entityDamage = this;
-                entityliving.hurt(DamageSource.MAGIC, 6.0F);
+                entityliving.hurt(this.damageSources().magic(), 6.0F);
                 CraftEventFactory.entityDamage = null;
             } else {
 //                if (entityliving1.isAlliedTo(entityliving)) {
 //                    return;
 //                }
 
-                entityliving.hurt(DamageSource.indirectMagic(this, entityliving1), 6.0F);
+                entityliving.hurt(this.damageSources().indirectMagic(this, entityliving1), 6.0F);
             }
         }
 

@@ -16,7 +16,7 @@ import me.bobthe28th.birthday.games.bmsts.minions.t3.WitherSkeletonMinion;
 import me.bobthe28th.birthday.games.bmsts.minions.t4.EvokerMinion;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -57,9 +57,6 @@ public class Bmsts extends Minigame implements Listener {
     public Bmsts(Main plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        for (GamePlayer player : Main.GamePlayers.values()) {
-            BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
-        }
 
         for (Team t : Main.board.getTeams()) {
             if (t.getName().startsWith("bday")) {
@@ -92,6 +89,9 @@ public class Bmsts extends Minigame implements Listener {
 
     @Override
     public void start() {
+        for (GamePlayer player : Main.GamePlayers.values()) {
+            BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
+        }
         //todo team select
         status = GameStatus.PLAYING;
     }
@@ -121,17 +121,22 @@ public class Bmsts extends Minigame implements Listener {
 
     @Override
     public void onPlayerJoin(GamePlayer player) {
-        BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
-        //todo teleport
-        player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(),"playerjoin", SoundCategory.MASTER,0.2F,1F);
+        if (status == GameStatus.PLAYING) {
+            BmPlayers.put(player.getPlayer(), new BmPlayer(player, plugin));
+
+            //todo teleport
+            player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(), "playerjoin", SoundCategory.MASTER, 0.2F, 1F);
+        }
     }
 
     @Override
     public void onPlayerLeave(GamePlayer player) {
-        if (BmPlayers.containsKey(player.getPlayer())) {
-            BmPlayers.get(player.getPlayer()).remove();
+        if (status == GameStatus.PLAYING) {
+            if (BmPlayers.containsKey(player.getPlayer())) {
+                BmPlayers.get(player.getPlayer()).remove();
+            }
+            player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(), "playerleave", SoundCategory.MASTER, 0.2F, 1F);
         }
-        player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(),"playerleave", SoundCategory.MASTER,0.2F,1F);
     }
 
     @EventHandler

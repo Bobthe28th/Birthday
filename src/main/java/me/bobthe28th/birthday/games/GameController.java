@@ -3,7 +3,7 @@ package me.bobthe28th.birthday.games;
 import me.bobthe28th.birthday.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.bmsts.Bmsts;
-import me.bobthe28th.birthday.games.test.test;
+import me.bobthe28th.birthday.games.oitc.Oitc;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -17,8 +17,8 @@ public class GameController { //todo move gameplayers here?
 
     public GameController(Main plugin) {
         this.plugin = plugin;
-        minigames.put("bm_sts",Bmsts.class);
-        minigames.put("test",test.class);
+        minigames.put("bm_sts", Bmsts.class);
+        minigames.put("oitc", Oitc.class);
     }
 
     public static void setMinigame(Class<? extends Minigame> minigame,Main plugin) {

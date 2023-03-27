@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.event.entity.EntityTargetEvent;
 
 import java.util.Objects;
@@ -147,7 +147,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
         }
 
         private void createSpellEntity(double d0, double d1, double d2, double d3, float f, int i) {
-            BlockPos blockposition = new BlockPos(d0, d3, d1);
+            BlockPos blockposition = BlockPos.containing(d0, d3, d1);
             boolean flag = false;
             double d4 = 0.0;
 
