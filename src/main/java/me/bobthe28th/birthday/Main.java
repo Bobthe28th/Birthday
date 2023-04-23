@@ -29,6 +29,24 @@ public class Main extends JavaPlugin implements Listener {
 
     public static GameController gameController;
 
+    static char[] rainbowChars = "c6ea9b5".toCharArray();
+    static int rainbowCharPos = 0;
+    public static ChatColor randomColor() {
+        rainbowCharPos++;
+        if (rainbowCharPos >= rainbowChars.length) {
+            rainbowCharPos = 0;
+        }
+        return ChatColor.getByChar(rainbowChars[rainbowCharPos]);
+    }
+
+    public static String rainbow(String s) {
+        StringBuilder newString = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            newString.append(randomColor()).append(c);
+        }
+        return newString.toString();
+    }
+
     @Override
     public void onEnable() {
         Bukkit.broadcastMessage("Man");
@@ -93,7 +111,11 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        event.setFormat(event.getPlayer().getDisplayName() + ": " + event.getMessage());
+        if (event.getPlayer().getName().equals("Bobthe29th")) {
+            event.setFormat(rainbow(event.getPlayer().getDisplayName()) + ChatColor.RESET + ": " + event.getMessage());
+        } else {
+            event.setFormat(event.getPlayer().getDisplayName() + ": " + event.getMessage());
+        }
     }
 
     @EventHandler

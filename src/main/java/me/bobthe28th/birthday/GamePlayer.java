@@ -10,7 +10,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
 public class GamePlayer implements Listener {
@@ -37,12 +36,12 @@ public class GamePlayer implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    @EventHandler
-    public void onPlacePickupArrow(PlayerPickupArrowEvent event) {
-        if (event.getPlayer() != player) return;
-        if (player.getGameMode() == GameMode.CREATIVE) return;
-        event.setCancelled(true);
-    }
+//    @EventHandler
+//    public void onPlacePickupArrow(PlayerPickupArrowEvent event) {
+//        if (event.getPlayer() != player) return;
+//        if (player.getGameMode() == GameMode.CREATIVE) return;
+//        event.setCancelled(true);
+//    }
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {

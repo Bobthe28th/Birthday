@@ -21,7 +21,7 @@ public class BmPlayer implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    public void setTeam(BmTeam team) {
+    public void setTeam(BmTeam team) { //todo refactor teams to own scoreboard
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
             this.team.getTeam().removeEntry(player.getPlayer().getName());

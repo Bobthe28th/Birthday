@@ -97,10 +97,10 @@ public class Minion implements Listener {
         if (item.getItemMeta() != null) {
             ItemMeta meta = item.getItemMeta();
             meta.setCustomModelData(customModel);
-            meta.setDisplayName(ChatColor.RESET + "" + Bmsts.strengthColor[strength - 1] + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Bmsts.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
+            meta.setDisplayName(ChatColor.RESET + "" + Bmsts.strengthColor[strength - 1] + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
             List<String> lore = new ArrayList<>();
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Techlevel: " + Bmsts.techLevelColor[techLevel] + techLevel);
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Bmsts.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
+            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Strength: " + Bmsts.strengthColor[strength - 1] + strength);
             lore.add(ChatColor.RESET + "" + team.getTeam().getColor() + team.getTeam().getDisplayName());
             meta.setLore(lore);

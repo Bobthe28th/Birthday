@@ -108,7 +108,7 @@ public class GhostsRound extends BonusRound implements Listener {
                 PacketContainer packet = new PacketContainer(PacketType.Play.Server.SCOREBOARD_TEAM);
                 packet.getModifier().write(0, 3).write(1, p.getTeam().getTeam().getName()).write(2, Collections.singletonList(ghost.getUniqueId().toString()));
                 try {
-                    ProtocolLibrary.getProtocolManager().sendServerPacket(p.getPlayer(), packet);
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(p.getPlayer(), packet); //todo if scoreboard then just use the players scoreboard
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
