@@ -46,8 +46,11 @@ public class Oitc extends Minigame implements Listener {
         this.plugin = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        oiMaps = new OiMap[]{new OiMap("temp",new BoundingBox(-15, 109, -328, 26, 131, -377))};
-        currentMap = oiMaps[0];
+        oiMaps = new OiMap[]{
+                new OiMap("temp",new BoundingBox(-15, 109, -328, 26, 131, -377)),
+                new OiMap("temp2",new BoundingBox(28, 109, -328, 69, 131, -377))
+        };
+        currentMap = oiMaps[1];
         status = GameStatus.READY;
         removeArrows();
 
@@ -72,7 +75,7 @@ public class Oitc extends Minigame implements Listener {
         }
     }
 
-    public static void setKing(OiPlayer king) { //todo message to chat
+    public static void setKing(OiPlayer king) {
         for (OiPlayer p : OiPlayers.values()) {
             Team t = p.scoreboard.getTeam("bdayoitcbad");
             if (t != null) {
@@ -200,7 +203,14 @@ public class Oitc extends Minigame implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.getTo() == null) return;
-        if (!currentMap.spawnArea.contains(event.getTo().toVector())) {
+        if (event.getTo().getBlockY() <= -60) {
+            if (OiPlayers.containsKey(event.getPlayer())) {
+                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + event.getPlayer().getDisplayName() + ChatColor.GRAY + " fell down the idiot hole");
+                OiPlayers.get(event.getPlayer()).death(null);
+                event.getPlayer().teleport(new Location(plugin.getServer().getWorld("world"), currentMap.spawnArea.getCenterX(),currentMap.spawnArea.getCenterY(),currentMap.spawnArea.getCenterZ()));
+            }
+        }
+        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR && !currentMap.spawnArea.contains(event.getTo().toVector())) {
             event.setCancelled(true);
         }
     }
@@ -212,6 +222,9 @@ public class Oitc extends Minigame implements Listener {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 event.setCancelled(true);
                 return;
+            }
+            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                player.teleport(new Location(plugin.getServer().getWorld("world"), currentMap.spawnArea.getCenterX(),currentMap.spawnArea.getCenterY(),currentMap.spawnArea.getCenterZ()));
             }
             if (event instanceof EntityDamageByEntityEvent ebeEvent) {
                 Player damager = null;

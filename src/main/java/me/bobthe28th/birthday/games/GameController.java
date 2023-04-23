@@ -11,9 +11,9 @@ import java.util.HashMap;
 public class GameController { //todo move gameplayers here?
 
     Main plugin;
-    static Minigame currentGame;
+    Minigame currentGame;
 
-    public static HashMap<String,Class<? extends Minigame>> minigames = new HashMap<>();
+    public HashMap<String,Class<? extends Minigame>> minigames = new HashMap<>();
 
     public GameController(Main plugin) {
         this.plugin = plugin;
@@ -21,7 +21,7 @@ public class GameController { //todo move gameplayers here?
         minigames.put("oitc", Oitc.class);
     }
 
-    public static void setMinigame(Class<? extends Minigame> minigame,Main plugin) {
+    public void setMinigame(Class<? extends Minigame> minigame,Main plugin) {
         if (currentGame != null) {
             currentGame.disable();
         }
@@ -34,13 +34,13 @@ public class GameController { //todo move gameplayers here?
         }
     }
 
-    public static void playerJoin(GamePlayer player) {
+    public void playerJoin(GamePlayer player) {
         if (currentGame != null) {
             currentGame.onPlayerJoin(player);
         }
     }
 
-    public static void playerLeave(GamePlayer player) {
+    public void playerLeave(GamePlayer player) {
         if (currentGame != null) {
             currentGame.onPlayerLeave(player);
         }

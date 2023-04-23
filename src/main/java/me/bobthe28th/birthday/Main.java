@@ -3,6 +3,7 @@ package me.bobthe28th.birthday;
 import me.bobthe28th.birthday.commands.BCommands;
 import me.bobthe28th.birthday.commands.BTabCompleter;
 import me.bobthe28th.birthday.games.GameController;
+import me.bobthe28th.birthday.music.MusicController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -28,6 +29,7 @@ public class Main extends JavaPlugin implements Listener {
     public static boolean pvp = true; //todo breakblocks
 
     public static GameController gameController;
+    public static MusicController musicController;
 
     static char[] rainbowChars = "c6ea9b5".toCharArray();
     static int rainbowCharPos = 0;
@@ -52,7 +54,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.broadcastMessage("Man");
         getServer().getPluginManager().registerEvents(this, this);
 
-        String[] commandNames = new String[]{"test","pvp","start"};
+        String[] commandNames = new String[]{"test","pvp","start","music"};
         BCommands commands = new BCommands(this);
         BTabCompleter tabCompleter = new BTabCompleter();
         for (String commandName : commandNames) {
@@ -74,6 +76,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         gameController = new GameController(this);
+        musicController = new MusicController(this);
 
         GamePlayers = new HashMap<>();
 
@@ -85,6 +88,7 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         gameController.disable();
+        musicController.disable();
         if (GamePlayers != null) {
             for (GamePlayer gamePlayer : GamePlayers.values()) {
                 gamePlayer.removeNotMap();
@@ -97,14 +101,14 @@ public class Main extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
         GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-        GameController.playerJoin(GamePlayers.get(event.getPlayer()));
+        gameController.playerJoin(GamePlayers.get(event.getPlayer()));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " left");
         if (GamePlayers.get(event.getPlayer()) != null) {
-            GameController.playerLeave(GamePlayers.get(event.getPlayer()));
+            gameController.playerLeave(GamePlayers.get(event.getPlayer()));
             GamePlayers.remove(event.getPlayer());
         }
     }

@@ -31,6 +31,7 @@ public class OiPlayer implements Listener { //todo remove listener?
 
     Main plugin;
     ArrayList<Material> blackListedSpawnBlocks = new ArrayList<>();
+    ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();
     Scoreboard scoreboard;
     Objective scores;
     int points = 0;
@@ -43,6 +44,8 @@ public class OiPlayer implements Listener { //todo remove listener?
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         alive = true;
         blackListedSpawnBlocks.add(Material.OAK_STAIRS);
+        blackListedSpawnInBlocks.add(Material.LAVA);
+        blackListedSpawnInBlocks.add(Material.FIRE);
         if (Bukkit.getScoreboardManager() != null) {
             scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
             scores = scoreboard.registerNewObjective("score", Criteria.DUMMY,"One in the Chamber");
@@ -117,7 +120,7 @@ public class OiPlayer implements Listener { //todo remove listener?
         BlockIterator blockIterator = new BlockIterator(w, start, new Vector(0, -1, 0), 0, (int) spawnZone.getHeight());
         while (blockIterator.hasNext()) {
             Block b = blockIterator.next();
-            if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
+            if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnInBlocks.contains(b.getType()) && !blackListedSpawnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
                 double distToPlayerSqared = Integer.MAX_VALUE;
                 for (OiPlayer p : Oitc.OiPlayers.values()) {
                     if (p.isAlive()) {
@@ -127,7 +130,7 @@ public class OiPlayer implements Listener { //todo remove listener?
                         }
                     }
                 }
-                if (!checkPlayerDist || distToPlayerSqared >= 25) { //todo longer range
+                if (!checkPlayerDist || distToPlayerSqared >= 100) { //todo longer range
                     return b.getLocation().add(0.5,0,0.5);
                 } else {
                     break;
@@ -157,7 +160,9 @@ public class OiPlayer implements Listener { //todo remove listener?
     public void removeNotMap() {
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
-        scores.unregister();
+        if (scores != null) {
+            scores.unregister();
+        }
         scoreboard.clearSlot(DisplaySlot.SIDEBAR);
         HandlerList.unregisterAll(this);
     }
@@ -209,7 +214,19 @@ public class OiPlayer implements Listener { //todo remove listener?
                 player.getPlayer().getInventory().setHeldItemSlot(3);
             }
         } else {
-            //todo bow king
+            ItemStack crossbow = new ItemStack(Material.CROSSBOW);
+            if (crossbow.getType() == Material.CROSSBOW) {
+                CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
+                if (meta != null) {
+                    meta.addEnchant(Enchantment.MULTISHOT, 3, true);
+                    meta.setChargedProjectiles(Arrays.asList(Oitc.firework.clone(),Oitc.firework.clone(),Oitc.firework.clone()));
+                    meta.setLore(List.of("Reloads an arrow on kill"));
+
+                }
+                crossbow.setItemMeta(meta);
+                inventory.setItem(4, crossbow);
+                player.getPlayer().getInventory().setHeldItemSlot(4);
+            }
         }
         
         player.getPlayer().updateInventory();
@@ -240,7 +257,7 @@ public class OiPlayer implements Listener { //todo remove listener?
         player.getPlayer().updateInventory();
     }
 
-    public void kill(Player killed) { //todo top player fun mode
+    public void kill(Player killed) {
         if (Oitc.cross) {
             PlayerInventory inventory = player.getPlayer().getInventory();
             ItemStack crossbow = inventory.getItem(3);
@@ -263,6 +280,9 @@ public class OiPlayer implements Listener { //todo remove listener?
                 crossbow.setItemMeta(meta);
             }
         } else {
+            if (king) {
+                giveFirework(1);
+            }
             giveArrow(false,1);
         }
         player.getPlayer().sendTitle("",ChatColor.RED + "☠",0,10,10);
@@ -275,6 +295,7 @@ public class OiPlayer implements Listener { //todo remove listener?
             Oitc.setKing(this);
         }
         if (points >= Oitc.maxKills + Oitc.killsPostMax) {
+            Bukkit.broadcastMessage(player.getPlayer().getDisplayName() + " wins.");
             //todo win
         }
     }
