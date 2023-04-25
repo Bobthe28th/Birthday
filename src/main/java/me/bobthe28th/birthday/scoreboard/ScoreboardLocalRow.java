@@ -4,7 +4,7 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.HashMap;
 
-public class ScoreboardLocalRow extends ScoreboardRow {
+public class ScoreboardLocalRow implements ScoreboardRow {
 
     HashMap<ScoreboardController, String> data = new HashMap<>();
     int value;

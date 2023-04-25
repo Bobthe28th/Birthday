@@ -2,7 +2,7 @@ package me.bobthe28th.birthday.scoreboard;
 
 import org.bukkit.scoreboard.Objective;
 
-public class ScoreboardGlobalRow extends ScoreboardRow {
+public class ScoreboardGlobalRow implements ScoreboardRow {
 
     String data;
     int value;

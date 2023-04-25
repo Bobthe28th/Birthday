@@ -6,6 +6,7 @@ import me.bobthe28th.birthday.games.GameStatus;
 import me.bobthe28th.birthday.games.Minigame;
 import me.bobthe28th.birthday.games.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.bmsts.bonusrounds.BonusRound;
+import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -29,21 +30,23 @@ import java.util.List;
 
 public class Oitc extends Minigame implements Listener, BonusRound {
 
-    public static HashMap<Player, OiPlayer> OiPlayers = new HashMap<>();
-    public static OiMap[] oiMaps;
-    public static OiMap currentMap;
+    public HashMap<Player, OiPlayer> OiPlayers = new HashMap<>();
+    public OiMap[] oiMaps;
+    public OiMap currentMap;
 
-    public static int maxKills = 10;
-    public static int killsPostMax = 5;
-    public static int kingDeathKills = 5;
+    public int maxKills = 10;
+    public int killsPostMax = 5;
+    public int kingDeathKills = 5;
 
-    public static boolean cross = true;
-    public static boolean pickup = false;
+    public boolean cross = true;
+    public boolean pickup = false;
 
-    public static ItemStack firework;
+    public ItemStack firework;
 
     Main plugin;
     Bmsts bmsts;
+
+    ScoreboardObjective objective;
 
     public Oitc(Main plugin) {
         this.plugin = plugin;
@@ -64,6 +67,11 @@ public class Oitc extends Minigame implements Listener, BonusRound {
             meta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BURST).withColor(Color.RED,Color.ORANGE,Color.YELLOW,Color.GREEN,Color.BLUE,Color.PURPLE).withTrail().build());
         }
         firework.setItemMeta(meta);
+        objective = new ScoreboardObjective("otic","One in the Chamber");
+        objective.addRow(4, ChatColor.GOLD + String.valueOf(ChatColor.BOLD) + "Your Stats:",true);
+        objective.addRow(3,"Points: 0",false);
+        objective.addRow(2,"Kills: 0",false);
+        objective.addRow(1,"Deaths: 0",false);
     }
 
     void removeArrows() {
@@ -78,7 +86,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         }
     }
 
-    public static void setKing(OiPlayer king) { //todo soundl
+    public void setKing(OiPlayer king) { //todo soundl
         for (OiPlayer p : OiPlayers.values()) {
             Team t = p.scoreboard.getTeam("bdayoitcbad");
             if (t != null) {
@@ -95,7 +103,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
     }
 
-    public static void kingDeath(OiPlayer king) { //todo soundl
+    public void kingDeath(OiPlayer king) { //todo soundl
         for (OiPlayer p : OiPlayers.values()) {
             Team t = p.scoreboard.getTeam("bdayoitc");
             if (t != null) {
@@ -108,12 +116,12 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         king.king = false;
         king.getPlayer().setGlowing(false);
         king.points = kingDeathKills;
-        king.updateScoreboard(OiScoreboardRow.POINTS);
+        objective.updateRow(2,"Points: " + king.points, king.getGamePlayer());
         Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is no longer the king!");
     }
 
-    public static void addToTeams(OiPlayer toAdd) {
-        for (OiPlayer p : Oitc.OiPlayers.values()) {
+    public void addToTeams(OiPlayer toAdd) {
+        for (OiPlayer p : OiPlayers.values()) {
             if (toAdd != p) {
                 Team ot = p.scoreboard.getTeam("bdayoitc");
                 if (ot != null) {
@@ -123,8 +131,8 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         }
     }
 
-    public static void setTeams() {
-        for (OiPlayer p : Oitc.OiPlayers.values()) {
+    public void setTeams() {
+        for (OiPlayer p : OiPlayers.values()) {
             addToTeams(p);
         }
     }
@@ -132,7 +140,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     @Override
     public void start() {
         for (GamePlayer player : plugin.getGamePlayers().values()) {
-            OiPlayers.put(player.getPlayer(),new OiPlayer(player,plugin));
+            OiPlayers.put(player.getPlayer(),new OiPlayer(player,plugin,objective,this));
         }
         setTeams();
         status = GameStatus.PLAYING;
@@ -156,7 +164,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     @Override
     public void onPlayerJoin(GamePlayer player) {
         if (status == GameStatus.PLAYING) {
-            OiPlayers.put(player.getPlayer(), new OiPlayer(player, plugin));
+            OiPlayers.put(player.getPlayer(), new OiPlayer(player, plugin,objective,this));
             OiPlayers.get(player.getPlayer()).respawn();
         }
     }

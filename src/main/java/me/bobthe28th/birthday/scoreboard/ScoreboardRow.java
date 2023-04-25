@@ -1,6 +1,6 @@
 package me.bobthe28th.birthday.scoreboard;
 
-public abstract class ScoreboardRow {
+public interface ScoreboardRow {
 
-    public abstract void addPlayer(ScoreboardController p);
+    void addPlayer(ScoreboardController p);
 }

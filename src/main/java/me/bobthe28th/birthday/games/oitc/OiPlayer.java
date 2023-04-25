@@ -2,6 +2,7 @@ package me.bobthe28th.birthday.games.oitc;
 
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -27,66 +28,28 @@ public class OiPlayer {
     boolean king = false;
 
     Main plugin;
+    Oitc oitc;
     ArrayList<Material> blackListedSpawnBlocks = new ArrayList<>();
     ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();
     Scoreboard scoreboard;
-    Objective scores;
+    ScoreboardObjective objective;
     int points = 0;
     int kills = 0;
     int deaths = 0;
 
-    public OiPlayer(GamePlayer player, Main plugin) {
+    public OiPlayer(GamePlayer player, Main plugin, ScoreboardObjective objective, Oitc oitc) {
         this.player = player;
         this.plugin = plugin;
+        this.oitc = oitc;
         alive = true;
         blackListedSpawnBlocks.add(Material.OAK_STAIRS);
         blackListedSpawnBlocks.add(Material.CACTUS);
+        blackListedSpawnBlocks.add(Material.WHITE_WOOL);
+        blackListedSpawnBlocks.add(Material.RED_WOOL);
         blackListedSpawnInBlocks.add(Material.LAVA);
         blackListedSpawnInBlocks.add(Material.FIRE);
-        if (Bukkit.getScoreboardManager() != null) {
-            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-            scores = scoreboard.registerNewObjective("score", Criteria.DUMMY,"One in the Chamber");
-            scores.setDisplaySlot(DisplaySlot.SIDEBAR);
-            scores.getScore(ChatColor.GOLD + "" + ChatColor.BOLD + "Your Stats:").setScore(4);
-            scores.getScore("Points: " + points).setScore(3);
-            scores.getScore("Kills: " + kills).setScore(2); //todo top players
-            scores.getScore("Deaths: " + deaths).setScore(1); //todo redo scoreboard to basic for all
-            Team t = scoreboard.registerNewTeam("bdayoitc");
-            t.setDisplayName("One in the Chamber");
-            t.setAllowFriendlyFire(true);
-            t.setCanSeeFriendlyInvisibles(false);
-            t.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-            t.addEntry(player.getPlayer().getName());
-
-            Team tBad = scoreboard.registerNewTeam("bdayoitcbad");
-            tBad.setDisplayName("KING");
-            tBad.setColor(ChatColor.RED);
-            tBad.setAllowFriendlyFire(true);
-            tBad.setCanSeeFriendlyInvisibles(false);
-            tBad.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-
-            player.getPlayer().setScoreboard(scoreboard);
-        }
-    }
-
-    public void updateScoreboard(OiScoreboardRow row) {
-        if (scoreboard != null) {
-            if (scores != null) {
-                for (String e : scoreboard.getEntries()) {
-                    if (scores.getScore(e).getScore() != 0) {
-                        if (scores.getScore(e).getScore() == row.getRow()) {
-                            scoreboard.resetScores(e);
-                            break;
-                        }
-                    }
-                }
-                switch (row) {
-                    case POINTS -> scores.getScore("Points: " + points).setScore(row.getRow());
-                    case KILLS -> scores.getScore("Kills: " + kills).setScore(row.getRow());
-                    case DEATHS -> scores.getScore("Deaths: " + deaths).setScore(row.getRow());
-                }
-            }
-        }
+        player.getScoreboardController().addSetObjective(objective);
+        this.objective = objective;
     }
 
     public void respawn() {
@@ -96,7 +59,7 @@ public class OiPlayer {
         alive = true;
 
         World w = plugin.getServer().getWorld("world");
-        BoundingBox spawnZone = Oitc.currentMap.spawnArea;
+        BoundingBox spawnZone = oitc.currentMap.spawnArea;
         int maxAttempts = 5;
 
         Random random = new Random();
@@ -119,7 +82,7 @@ public class OiPlayer {
             Block b = blockIterator.next();
             if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnInBlocks.contains(b.getType()) && !blackListedSpawnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
                 double distToPlayerSqared = Integer.MAX_VALUE;
-                for (OiPlayer p : Oitc.OiPlayers.values()) {
+                for (OiPlayer p : oitc.OiPlayers.values()) {
                     if (p.isAlive()) {
                         double pDist = b.getLocation().distanceSquared(p.getPlayer().getLocation());
                         if (distToPlayerSqared > pDist) {
@@ -158,18 +121,12 @@ public class OiPlayer {
     public void removeNotMap() {
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
-        if (scores != null) {
-            scores.unregister();
-        }
-        if (scoreboard != null) {
-            scoreboard.clearSlot(DisplaySlot.SIDEBAR);
-        }
     }
     
     public void giveItems() {
         PlayerInventory inventory = player.getPlayer().getInventory();
         inventory.clear();
-        if (Oitc.cross) {
+        if (oitc.cross) {
             ItemStack crossbow = new ItemStack(Material.CROSSBOW);
             CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
             if (meta != null) {
@@ -198,13 +155,13 @@ public class OiPlayer {
     
     public void giveKingItem() {
         PlayerInventory inventory = player.getPlayer().getInventory();
-        if (Oitc.cross) {
+        if (oitc.cross) {
             ItemStack crossbow = inventory.getItem(3);
             if (crossbow != null && crossbow.getType() == Material.CROSSBOW) {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
-                    meta.setChargedProjectiles(Arrays.asList(Oitc.firework.clone(),Oitc.firework.clone(),Oitc.firework.clone()));
+                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
                     meta.setLore(List.of("Reloads an arrow on kill"));
 
                 }
@@ -218,7 +175,7 @@ public class OiPlayer {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
-                    meta.setChargedProjectiles(Arrays.asList(Oitc.firework.clone(),Oitc.firework.clone(),Oitc.firework.clone()));
+                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
                     meta.setLore(List.of("Reloads an arrow on kill"));
 
                 }
@@ -249,7 +206,7 @@ public class OiPlayer {
         PlayerInventory inventory = player.getPlayer().getInventory();
         ItemStack fireworks = inventory.getItemInOffHand();
         if (fireworks.getType() != Material.FIREWORK_ROCKET) {
-            inventory.setItem(5,Oitc.firework);
+            inventory.setItem(5,oitc.firework);
         } else {
             fireworks.setAmount(fireworks.getAmount() + amount);
         }
@@ -257,7 +214,7 @@ public class OiPlayer {
     }
 
     public void kill(Player killed) {
-        if (Oitc.cross) {
+        if (oitc.cross) {
             PlayerInventory inventory = player.getPlayer().getInventory();
             ItemStack crossbow = inventory.getItem(3);
             if (crossbow != null && crossbow.getType() == Material.CROSSBOW) {
@@ -270,7 +227,7 @@ public class OiPlayer {
                         giveArrow(false,1);
                     } else {
                         if (king) {
-                            meta.setChargedProjectiles(Arrays.asList(Oitc.firework.clone(),Oitc.firework.clone(),Oitc.firework.clone()));
+                            meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
                         } else {
                             meta.addChargedProjectile(new ItemStack(Material.ARROW));
                         }
@@ -287,13 +244,14 @@ public class OiPlayer {
         player.getPlayer().sendTitle("",ChatColor.RED + "☠",0,10,10);
         kills ++;
         points ++;
-        updateScoreboard(OiScoreboardRow.KILLS);
-        updateScoreboard(OiScoreboardRow.POINTS);
 
-        if (points >= Oitc.maxKills && !king) {
-            Oitc.setKing(this);
+        objective.updateRow(2,"Kills: " + kills, player);
+        objective.updateRow(3, "Points: " + points, player);
+
+        if (points >= oitc.maxKills && !king) {
+            oitc.setKing(this);
         }
-        if (points >= Oitc.maxKills + Oitc.killsPostMax) {
+        if (points >= oitc.maxKills + oitc.killsPostMax) {
             Bukkit.broadcastMessage(player.getPlayer().getDisplayName() + " wins.");
             //todo win
         }
@@ -306,11 +264,11 @@ public class OiPlayer {
     public void death(Player killer) {
         alive = false;
         deaths ++;
-        updateScoreboard(OiScoreboardRow.DEATHS);
+        objective.updateRow(1,"Deaths: " + deaths, player);
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
         player.getPlayer().getInventory().clear();
         if (king) {
-            Oitc.kingDeath(this);
+            oitc.kingDeath(this);
         }
         new BukkitRunnable() {
             int time = 3;
