@@ -1,9 +1,11 @@
 package me.bobthe28th.birthday.games.oitc;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GameStatus;
 import me.bobthe28th.birthday.games.Minigame;
+import me.bobthe28th.birthday.games.bmsts.Bmsts;
+import me.bobthe28th.birthday.games.bmsts.bonusrounds.BonusRound;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -25,7 +27,7 @@ import org.bukkit.util.BoundingBox;
 import java.util.HashMap;
 import java.util.List;
 
-public class Oitc extends Minigame implements Listener {
+public class Oitc extends Minigame implements Listener, BonusRound {
 
     public static HashMap<Player, OiPlayer> OiPlayers = new HashMap<>();
     public static OiMap[] oiMaps;
@@ -41,6 +43,7 @@ public class Oitc extends Minigame implements Listener {
     public static ItemStack firework;
 
     Main plugin;
+    Bmsts bmsts;
 
     public Oitc(Main plugin) {
         this.plugin = plugin;
@@ -48,7 +51,7 @@ public class Oitc extends Minigame implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         oiMaps = new OiMap[]{
                 new OiMap("temp",new BoundingBox(-15, 109, -328, 26, 131, -377)),
-                new OiMap("temp2",new BoundingBox(28, 109, -328, 69, 131, -377))
+                new OiMap("temp2",new BoundingBox(28, 104, -328, 69, 131, -377))
         };
         currentMap = oiMaps[1];
         status = GameStatus.READY;
@@ -75,7 +78,7 @@ public class Oitc extends Minigame implements Listener {
         }
     }
 
-    public static void setKing(OiPlayer king) {
+    public static void setKing(OiPlayer king) { //todo soundl
         for (OiPlayer p : OiPlayers.values()) {
             Team t = p.scoreboard.getTeam("bdayoitcbad");
             if (t != null) {
@@ -92,7 +95,7 @@ public class Oitc extends Minigame implements Listener {
         Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
     }
 
-    public static void kingDeath(OiPlayer king) {
+    public static void kingDeath(OiPlayer king) { //todo soundl
         for (OiPlayer p : OiPlayers.values()) {
             Team t = p.scoreboard.getTeam("bdayoitc");
             if (t != null) {
@@ -128,7 +131,7 @@ public class Oitc extends Minigame implements Listener {
 
     @Override
     public void start() {
-        for (GamePlayer player : Main.GamePlayers.values()) {
+        for (GamePlayer player : plugin.getGamePlayers().values()) {
             OiPlayers.put(player.getPlayer(),new OiPlayer(player,plugin));
         }
         setTeams();
@@ -259,5 +262,17 @@ public class Oitc extends Minigame implements Listener {
             }
             event.setCancelled(true);
         }
+    }
+
+    @Override
+    public void startBonusRound(Bmsts bmsts) {
+        this.bmsts = bmsts;
+        this.isBonusRound = true;
+        start();
+    }
+
+    @Override
+    public void endBonusRound(boolean points) {
+
     }
 }

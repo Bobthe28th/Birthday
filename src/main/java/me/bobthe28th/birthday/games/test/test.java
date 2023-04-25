@@ -1,6 +1,6 @@
 package me.bobthe28th.birthday.games.test;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.Minigame;
 
 public class test extends Minigame {

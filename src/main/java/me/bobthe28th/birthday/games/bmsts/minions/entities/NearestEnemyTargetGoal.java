@@ -39,7 +39,7 @@ public class NearestEnemyTargetGoal extends TargetGoal {
             if (eE instanceof LivingEntity e) {
                 if (e instanceof MinionEntity t && !t.isPreview() && this.mob instanceof MinionEntity mt && mt.getGameTeam() != t.getGameTeam()) {
                     double tDist = e.distanceToSqr(this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
-                    if ((dist == -1.0 || tDist < dist)) { //TODO and random range
+                    if ((dist == -1.0 || tDist < dist)) { //TODOl and random range
                         dist = tDist;
                         closest = e;
                     }

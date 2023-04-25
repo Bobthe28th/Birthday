@@ -2,13 +2,13 @@ package me.bobthe28th.birthday.games.bmsts.bonusrounds.ghosts;
 
 import me.bobthe28th.birthday.games.bmsts.BmPlayer;
 
-public class GhostPlayer {
+public class GhostPlayerOld {
 
     BmPlayer player;
 
     boolean alive = true;
 
-    public GhostPlayer(BmPlayer player) {
+    public GhostPlayerOld(BmPlayer player) {
         this.player = player;
     }
 

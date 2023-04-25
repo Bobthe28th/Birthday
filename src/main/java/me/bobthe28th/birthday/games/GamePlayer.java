@@ -1,5 +1,7 @@
-package me.bobthe28th.birthday;
+package me.bobthe28th.birthday.games;
 
+import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.scoreboard.ScoreboardController;
 import org.bukkit.GameMode;
 import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
@@ -15,28 +17,40 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 public class GamePlayer implements Listener {
 
     Player player;
+    Main plugin;
+    ScoreboardController scoreboardController;
 
     public GamePlayer(Main plugin, Player player) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.player = player;
+        this.plugin = plugin;
         this.player.setLevel(0);
         this.player.setExp(0.0F);
         this.player.setFoodLevel(20);
         this.player.setSaturation(0F);
         this.player.setGlowing(false);
-        this.player.setPlayerListHeaderFooter("test","test");
+        this.player.setPlayerListHeaderFooter("Deez","Nuts");
+        scoreboardController = new ScoreboardController(this);
+//        if (Bukkit.getScoreboardManager() != null) {
+//            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+//            player.setScoreboard(scoreboard);
+//        }
     }
 
     public void remove() {
         removeNotMap();
-        Main.GamePlayers.remove(player);
+        plugin.getGamePlayers().remove(player);
     }
 
     public void removeNotMap() {
         HandlerList.unregisterAll(this);
     }
 
-//    @EventHandler
+    public ScoreboardController getScoreboardController() {
+        return scoreboardController;
+    }
+
+    //    @EventHandler
 //    public void onPlacePickupArrow(PlayerPickupArrowEvent event) {
 //        if (event.getPlayer() != player) return;
 //        if (player.getGameMode() == GameMode.CREATIVE) return;

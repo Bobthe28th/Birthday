@@ -1,6 +1,6 @@
 package me.bobthe28th.birthday.games.bmsts;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import org.bukkit.Material;
 import org.bukkit.block.data.Powerable;
@@ -14,14 +14,16 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class BmPlayer implements Listener {
     GamePlayer player;
+    Bmsts bmsts;
     BmTeam team;
 
-    public BmPlayer(GamePlayer player, Main plugin) {
+    public BmPlayer(GamePlayer player, Main plugin, Bmsts bmsts) {
         this.player = player;
+        this.bmsts = bmsts;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    public void setTeam(BmTeam team) { //todo refactor teams to own scoreboard
+    public void setTeam(BmTeam team) { //todos refactor teams to own scoreboard
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
             this.team.getTeam().removeEntry(player.getPlayer().getName());
@@ -33,13 +35,13 @@ public class BmPlayer implements Listener {
 
     public void remove() {
         removeNotMap();
-        Bmsts.BmPlayers.remove(player.getPlayer());
+        bmsts.getPlayers().remove(player.getPlayer());
     }
 
     public void removeNotMap() {
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
-//            this.team.getTeam().removeEntry(player.getPlayer().getName()); //todo ?
+//            this.team.getTeam().removeEntry(player.getPlayer().getName()); //todol ?
         }
         HandlerList.unregisterAll(this);
     }
@@ -65,5 +67,9 @@ public class BmPlayer implements Listener {
             }
             event.getClickedBlock().getState().update(true, true);
         }
+    }
+
+    public GamePlayer getGamePlayer() {
+        return player;
     }
 }

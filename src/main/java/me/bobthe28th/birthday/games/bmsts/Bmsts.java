@@ -1,6 +1,6 @@
 package me.bobthe28th.birthday.games.bmsts;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GameStatus;
 import me.bobthe28th.birthday.games.Minigame;
@@ -35,23 +35,23 @@ import java.util.HashMap;
 
 public class Bmsts extends Minigame implements Listener {
 
-    public static HashMap<String, BmTeam> BmTeams = new HashMap<>();
-    public static HashMap<Player, BmPlayer> BmPlayers = new HashMap<>();
-    public static BmMap[] bmMaps;
+    public HashMap<String, BmTeam> BmTeams = new HashMap<>();
+    public HashMap<Player, BmPlayer> BmPlayers = new HashMap<>();
+    public BmMap[] bmMaps;
 
-    public static ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD};
-    public static ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
+    public ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD};
+    public ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
 
-    public static Class<?>[][] minionTypes = new Class<?>[][]{
+    public Class<?>[][] minionTypes = new Class<?>[][]{
             {SilverfishMinion.class, LlamaMinion.class, ChickenMinion.class},
             {ZombieMinion.class},{PillagerMinion.class},
             {WitherSkeletonMinion.class, BlazeMinion.class},
             {EvokerMinion.class}
     };
 
-    static int round = 1;
-    public static BonusRound currentBonusRound;
-    static BmMap currentMap;
+    int round = 1;
+    BonusRound currentBonusRound;
+    BmMap currentMap;
     Main plugin;
 
     public Bmsts(Main plugin) {
@@ -64,14 +64,14 @@ public class Bmsts extends Minigame implements Listener {
             }
         }
 
-        World w = plugin.getServer().getWorld("world"); //todo different world?
+        World w = plugin.getServer().getWorld("world");
 
         Location[] l = new Location[4];
         l[0] = new Location(w,-148, 92, -320);
         for (int i = 1; i < l.length; i++) {
             l[i] = l[i-1].clone().add(-6,0,0);
         }
-        BmTeams.put("blue",new BmTeam("blue", Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Location(w,-168, 92, -316,-90,0),new Location(w,-146, 92, -318),new Location(w,-146, 92, -314), Arrays.asList(l),new Location(w,-146, 92, -316),new Location(w,-152, 92, -312),new BoundingBox(-142, 92, -311,-141.5, 94, -313)));
+        BmTeams.put("blue",new BmTeam(this,"blue", Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Location(w,-168, 92, -316,-90,0),new Location(w,-146, 92, -318),new Location(w,-146, 92, -314), Arrays.asList(l),new Location(w,-146, 92, -316),new Location(w,-152, 92, -312),new BoundingBox(-142, 92, -311,-141.5, 94, -313)));
         BmTeams.put("red",BmTeams.get("blue").copy("red",Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,-15),new BoundingBox(-142, 92, -316,-141.5, 94, -318)));
 
         HashMap<BmTeam,Location> minionSpawn = new HashMap<>();
@@ -83,16 +83,16 @@ public class Bmsts extends Minigame implements Listener {
         status = GameStatus.READY;
     }
 
-    public static BmMap getCurrentMap() {
+    public BmMap getCurrentMap() {
         return currentMap;
     }
 
     @Override
     public void start() {
-        for (GamePlayer player : Main.GamePlayers.values()) {
-            BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin));
+        for (GamePlayer player : plugin.getGamePlayers().values()) {
+            BmPlayers.put(player.getPlayer(),new BmPlayer(player,plugin,this));
         }
-        //todo team select
+        //todol team select
         status = GameStatus.PLAYING;
     }
 
@@ -101,8 +101,8 @@ public class Bmsts extends Minigame implements Listener {
         for (BmTeam team : BmTeams.values()) {
             team.removeMinions();
         }
-        if (currentBonusRound != null && currentBonusRound.isRunning()) {
-            currentBonusRound.end(false);
+        if (currentBonusRound != null) {
+            currentBonusRound.endBonusRound(false);
         }
         for (Team t : Main.board.getTeams()) {
             if (t.getName().startsWith("bdaybmsts")) {
@@ -122,9 +122,9 @@ public class Bmsts extends Minigame implements Listener {
     @Override
     public void onPlayerJoin(GamePlayer player) {
         if (status == GameStatus.PLAYING) {
-            BmPlayers.put(player.getPlayer(), new BmPlayer(player, plugin));
+            BmPlayers.put(player.getPlayer(), new BmPlayer(player, plugin, this));
 
-            //todo teleport
+            //todol teleport
             player.getPlayer().getWorld().playSound(player.getPlayer().getLocation(), "playerjoin", SoundCategory.MASTER, 0.2F, 1F);
         }
     }
@@ -141,7 +141,7 @@ public class Bmsts extends Minigame implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (event.getTo() != null) { //todo player not on team
+        if (event.getTo() != null) { //todol player not on team
             if (BmPlayers.containsKey(event.getPlayer())) {
                 for (BmTeam team : BmTeams.values()) {
                     if (team.getJoinPortal().contains(event.getTo().toVector())) {
@@ -185,15 +185,43 @@ public class Bmsts extends Minigame implements Listener {
         }
     }
 
-    public static void setRound(int round) {
-        Bmsts.round = round;
+    public void setRound(int round) {
+        this.round = round;
     }
 
-    public static int getRound() {
+    public int getRound() {
         return round;
     }
 
-    public static String getHealthString(double health, ChatColor fullColor, ChatColor halfColor) {
+    public HashMap<Player, BmPlayer> getPlayers() {
+        return BmPlayers;
+    }
+
+    public HashMap<String, BmTeam> getTeams() {
+        return BmTeams;
+    }
+
+    public ChatColor[] getStrengthColor() {
+        return strengthColor;
+    }
+
+    public ChatColor[] getTechLevelColor() {
+        return techLevelColor;
+    }
+
+    public Class<?>[][] getMinionTypes() {
+        return minionTypes;
+    }
+
+    public void setBonusRound(BonusRound currentBonusRound) {
+        this.currentBonusRound = currentBonusRound;
+    }
+
+    public BonusRound getBonusRound() {
+        return currentBonusRound;
+    }
+
+    public String getHealthString(double health, ChatColor fullColor, ChatColor halfColor) {
         if (health <= 0) {
             return ChatColor.WHITE + "☠";
         }

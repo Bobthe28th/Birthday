@@ -57,7 +57,7 @@ public class MusicQueue {
     public void clearQueue() {
         Main.musicController.stopCurrent();
         queue.clear();
-        loopIndex = 0; //todo clear loop queue
+        loopIndex = 0;
         loopQueue.clear();
     }
 

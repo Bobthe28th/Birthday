@@ -1,6 +1,6 @@
 package me.bobthe28th.birthday.music;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -58,7 +58,7 @@ public class MusicController {
     public void playCurrent() {
         if (currentlyPlaying != null) {
             Bukkit.broadcastMessage(ChatColor.YELLOW + "Now playing: " + ChatColor.RED + currentlyPlaying.getName());
-            for (GamePlayer p : Main.GamePlayers.values()) {
+            for (GamePlayer p : plugin.getGamePlayers().values()) {
                 p.getPlayer().playSound(p.getPlayer().getLocation(), currentlyPlaying.getName(), SoundCategory.MUSIC, 1f, 1);
             }
             musicLength = new BukkitRunnable() {
@@ -84,7 +84,7 @@ public class MusicController {
             musicLength.cancel();
         }
         if (currentlyPlaying != null) {
-            for (GamePlayer p : Main.GamePlayers.values()) {
+            for (GamePlayer p : plugin.getGamePlayers().values()) {
                 p.getPlayer().stopSound(currentlyPlaying.getName(),SoundCategory.MUSIC);
                 musicLength.cancel();
             }

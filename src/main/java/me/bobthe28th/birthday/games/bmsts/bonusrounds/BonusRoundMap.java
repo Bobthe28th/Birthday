@@ -8,7 +8,7 @@ public class BonusRoundMap {
 
     public BonusRoundMap(Location playerRespawn) {
         this.playerRespawn = playerRespawn;
-    } //todo mutiple teams
+    }
 
     public Location getPlayerRespawn() {
         return playerRespawn;

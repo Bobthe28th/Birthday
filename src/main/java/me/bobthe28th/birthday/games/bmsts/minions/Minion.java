@@ -39,6 +39,7 @@ import java.util.*;
 public class Minion implements Listener {
 
     Main plugin;
+    Bmsts bmsts;
     String name;
     Class<? extends MinionEntity> entityType;
     BmTeam team;
@@ -57,9 +58,10 @@ public class Minion implements Listener {
     ArmorStand placedArmorStand;
     Location placedLoc;
 
-    public Minion(Main plugin, String name, Class<? extends MinionEntity> entityType, BmTeam team, Integer techLevel, Rarity rarity, Integer strength, Integer customModel) {
+    public Minion(Main plugin, Bmsts bmsts, String name, Class<? extends MinionEntity> entityType, BmTeam team, Integer techLevel, Rarity rarity, Integer strength, Integer customModel) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+        this.bmsts = bmsts;
         this.name = name;
         this.entityType = entityType;
         this.team = team;
@@ -67,7 +69,7 @@ public class Minion implements Listener {
         this.rarity = rarity;
         this.strength = strength;
         this.customModel = customModel;
-        team.addMinion(this); //todo add place y offset (when it moves up)
+        team.addMinion(this); //todol add place y offset (when it moves up)
     }
 
     public void remove(boolean fromList) {
@@ -97,11 +99,11 @@ public class Minion implements Listener {
         if (item.getItemMeta() != null) {
             ItemMeta meta = item.getItemMeta();
             meta.setCustomModelData(customModel);
-            meta.setDisplayName(ChatColor.RESET + "" + Bmsts.strengthColor[strength - 1] + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
+            meta.setDisplayName(ChatColor.RESET + "" + bmsts.getStrengthColor()[strength - 1] + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
             List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Techlevel: " + Bmsts.techLevelColor[techLevel] + techLevel);
+            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Techlevel: " + bmsts.getTechLevelColor()[techLevel] + techLevel);
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Strength: " + Bmsts.strengthColor[strength - 1] + strength);
+            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Strength: " + bmsts.getStrengthColor()[strength - 1] + strength);
             lore.add(ChatColor.RESET + "" + team.getTeam().getColor() + team.getTeam().getDisplayName());
             meta.setLore(lore);
             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "minionitem"), PersistentDataType.BYTE, (byte) 1);
@@ -193,7 +195,7 @@ public class Minion implements Listener {
             }
             w.addFreshEntity(e);
             if (!preview) {
-                e.getBukkitEntity().setCustomName(Bmsts.getHealthString(e.getHealth(), team.getColor(), team.getDarkColor()));
+                e.getBukkitEntity().setCustomName(bmsts.getHealthString(e.getHealth(), team.getColor(), team.getDarkColor()));
                 entities.add(e);
             }
         } catch (Exception ignored) {}
@@ -254,7 +256,7 @@ public class Minion implements Listener {
                         team.minionDeath();
                     }
                 } else {
-                    l.setCustomName(Bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
+                    l.setCustomName(bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
                 }
             }
         }
@@ -263,7 +265,7 @@ public class Minion implements Listener {
     @EventHandler
     public void onEntityRegainHealth(EntityRegainHealthEvent event) {
         if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob)l).getHandle()) && l.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
-            l.setCustomName(Bmsts.getHealthString(Math.min(Objects.requireNonNull(l.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getBaseValue(),l.getHealth() + event.getAmount()),team.getColor(), team.getDarkColor()));
+            l.setCustomName(bmsts.getHealthString(Math.min(Objects.requireNonNull(l.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getBaseValue(),l.getHealth() + event.getAmount()),team.getColor(), team.getDarkColor()));
         }
     }
 
@@ -275,25 +277,25 @@ public class Minion implements Listener {
                 place(placedLocation.clone().add(0.5,0,0.5),true); //TODO can place in same spot
             } else if (team.getRandomizer().equals(placedLocation) && team.getResearchPoints() >= 1) {
                 Random rand = new Random();
-                Class<?> mClass = Bmsts.minionTypes[techLevel][rand.nextInt(Bmsts.minionTypes[techLevel].length)];
+                Class<?> mClass = bmsts.getMinionTypes()[techLevel][rand.nextInt(bmsts.getMinionTypes()[techLevel].length)];
                 try {
-                    Constructor<?> constructor = mClass.getConstructor(Main.class, BmTeam.class, Rarity.class, Integer.class);
-                    Minion c = (Minion) constructor.newInstance(plugin, team, Rarity.values()[rand.nextInt(Rarity.values().length)], rand.nextInt(3) + 1);
-                    Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5,0,0.5),c.getItem()); //TODO particles
+                    Constructor<?> constructor = mClass.getConstructor(Main.class, Bmsts.class, BmTeam.class, Rarity.class, Integer.class);
+                    Minion c = (Minion) constructor.newInstance(plugin,bmsts, team, Rarity.values()[rand.nextInt(Rarity.values().length)], rand.nextInt(3) + 1);
+                    Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5,0,0.5),c.getItem()); //TODOl particles
                     i.setVelocity(new Vector(0,0.2,0));
                 } catch (Exception ignored) {}
                 team.addResearchPoints(-1);
                 remove(true);
-            } else if (team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= 1) { //TODO values
+            } else if (team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= 1) { //TODOl values
                 if (techLevel < 5) {
-                    Class<?> mClass = Bmsts.minionTypes[techLevel + 1][0];
+                    Class<?> mClass = bmsts.getMinionTypes()[techLevel + 1][0];
                     try {
-                        Constructor<?> constructor = mClass.getConstructor(Main.class, BmTeam.class, Rarity.class, Integer.class);
-                        Minion c = (Minion) constructor.newInstance(plugin, team, Rarity.COMMON, 1);
-                        Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5, 0, 0.5), c.getItem()); //TODO particles
+                        Constructor<?> constructor = mClass.getConstructor(Main.class, Bmsts.class, BmTeam.class, Rarity.class, Integer.class);
+                        Minion c = (Minion) constructor.newInstance(plugin, bmsts, team, Rarity.COMMON, 1);
+                        Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5, 0, 0.5), c.getItem()); //TODOl particles
                         i.setVelocity(new Vector(0, 0.2, 0));
                     } catch (Exception ignored) {}
-                    team.addResearchPoints(-1); //TODO values
+                    team.addResearchPoints(-1); //TODOl values
                     remove(true);
                 }
             }
@@ -311,7 +313,7 @@ public class Minion implements Listener {
     @EventHandler
     public void onPlayerPickupItem(EntityPickupItemEvent event) {
         if (event.getItem().equals(droppedItem)) {
-            if (event.getEntity() instanceof Player p && Bmsts.BmPlayers.containsKey(p) && Bmsts.BmPlayers.get(p).getTeam() == team) {
+            if (event.getEntity() instanceof Player p && bmsts.getPlayers().containsKey(p) && bmsts.getPlayers().get(p).getTeam() == team) {
                 droppedItem = null;
             } else {
                 event.setCancelled(true);

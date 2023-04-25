@@ -3,6 +3,7 @@ package me.bobthe28th.birthday;
 import me.bobthe28th.birthday.commands.BCommands;
 import me.bobthe28th.birthday.commands.BTabCompleter;
 import me.bobthe28th.birthday.games.GameController;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.music.MusicController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,8 +26,8 @@ import java.util.HashMap;
 public class Main extends JavaPlugin implements Listener {
 
     public static Scoreboard board;
-    public static HashMap<Player,GamePlayer> GamePlayers;
-    public static boolean pvp = true; //todo breakblocks
+//    public static HashMap<Player,GamePlayer> GamePlayers;
+    public static boolean pvp = true; //todol breakblocks
 
     public static GameController gameController;
     public static MusicController musicController;
@@ -78,10 +79,11 @@ public class Main extends JavaPlugin implements Listener {
         gameController = new GameController(this);
         musicController = new MusicController(this);
 
-        GamePlayers = new HashMap<>();
+//        GamePlayers = new HashMap<>();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            GamePlayers.put(player,new GamePlayer(this,player));
+            gameController.addNewPlayer(player);
+//            GamePlayers.put(player,new GamePlayer(this,player));
         }
     }
 
@@ -89,27 +91,27 @@ public class Main extends JavaPlugin implements Listener {
     public void onDisable() {
         gameController.disable();
         musicController.disable();
-        if (GamePlayers != null) {
-            for (GamePlayer gamePlayer : GamePlayers.values()) {
+        if (getGamePlayers() != null) {
+            for (GamePlayer gamePlayer : getGamePlayers().values()) {
                 gamePlayer.removeNotMap();
             }
-            GamePlayers.clear();
+            getGamePlayers().clear();
         }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-        GamePlayers.put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-        gameController.playerJoin(GamePlayers.get(event.getPlayer()));
+        getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
+        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " left");
-        if (GamePlayers.get(event.getPlayer()) != null) {
-            gameController.playerLeave(GamePlayers.get(event.getPlayer()));
-            GamePlayers.remove(event.getPlayer());
+        if (getGamePlayers().get(event.getPlayer()) != null) {
+            gameController.playerLeave(getGamePlayers().get(event.getPlayer()));
+            getGamePlayers().remove(event.getPlayer());
         }
     }
 
@@ -136,6 +138,10 @@ public class Main extends JavaPlugin implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    public HashMap<Player, GamePlayer> getGamePlayers() {
+        return gameController.getGamePlayers();
     }
 
 //    @EventHandler

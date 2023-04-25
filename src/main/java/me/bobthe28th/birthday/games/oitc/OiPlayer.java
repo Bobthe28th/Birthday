@@ -1,16 +1,13 @@
 package me.bobthe28th.birthday.games.oitc;
 
-import me.bobthe28th.birthday.GamePlayer;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.games.bmsts.Bmsts;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
@@ -23,7 +20,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class OiPlayer implements Listener { //todo remove listener?
+public class OiPlayer {
 
     GamePlayer player;
     boolean alive;
@@ -41,9 +38,9 @@ public class OiPlayer implements Listener { //todo remove listener?
     public OiPlayer(GamePlayer player, Main plugin) {
         this.player = player;
         this.plugin = plugin;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         alive = true;
         blackListedSpawnBlocks.add(Material.OAK_STAIRS);
+        blackListedSpawnBlocks.add(Material.CACTUS);
         blackListedSpawnInBlocks.add(Material.LAVA);
         blackListedSpawnInBlocks.add(Material.FIRE);
         if (Bukkit.getScoreboardManager() != null) {
@@ -52,8 +49,8 @@ public class OiPlayer implements Listener { //todo remove listener?
             scores.setDisplaySlot(DisplaySlot.SIDEBAR);
             scores.getScore(ChatColor.GOLD + "" + ChatColor.BOLD + "Your Stats:").setScore(4);
             scores.getScore("Points: " + points).setScore(3);
-            scores.getScore("Kills: " + kills).setScore(2);
-            scores.getScore("Deaths: " + deaths).setScore(1);
+            scores.getScore("Kills: " + kills).setScore(2); //todo top players
+            scores.getScore("Deaths: " + deaths).setScore(1); //todo redo scoreboard to basic for all
             Team t = scoreboard.registerNewTeam("bdayoitc");
             t.setDisplayName("One in the Chamber");
             t.setAllowFriendlyFire(true);
@@ -130,7 +127,7 @@ public class OiPlayer implements Listener { //todo remove listener?
                         }
                     }
                 }
-                if (!checkPlayerDist || distToPlayerSqared >= 100) { //todo longer range
+                if (!checkPlayerDist || distToPlayerSqared >= 100) {
                     return b.getLocation().add(0.5,0,0.5);
                 } else {
                     break;
@@ -154,7 +151,8 @@ public class OiPlayer implements Listener { //todo remove listener?
 
     public void remove() {
         removeNotMap();
-        Bmsts.BmPlayers.remove(player.getPlayer());
+        // todo important
+        // Bmsts.BmPlayers.remove(player.getPlayer());
     }
 
     public void removeNotMap() {
@@ -163,8 +161,9 @@ public class OiPlayer implements Listener { //todo remove listener?
         if (scores != null) {
             scores.unregister();
         }
-        scoreboard.clearSlot(DisplaySlot.SIDEBAR);
-        HandlerList.unregisterAll(this);
+        if (scoreboard != null) {
+            scoreboard.clearSlot(DisplaySlot.SIDEBAR);
+        }
     }
     
     public void giveItems() {
@@ -242,7 +241,7 @@ public class OiPlayer implements Listener { //todo remove listener?
         }
         player.getPlayer().updateInventory();
         if (pickup) {
-            player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1.0f, 1.0f); //todo better
+            player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1.0f, 1.0f);
         }
     }
 

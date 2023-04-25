@@ -49,7 +49,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
     @Override
     public void registerGoals() {
-        //todo new goal so it stays in range close
+        //todol new goal so it stays in range close
         this.goalSelector.addGoal(1, new EvokerCastingSpellGoal());
         this.goalSelector.addGoal(5, new EvokerAttackSpellGoal());
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
