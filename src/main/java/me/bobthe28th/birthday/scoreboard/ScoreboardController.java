@@ -22,6 +22,7 @@ public class ScoreboardController {
     }
 
     public void addObjective(ScoreboardObjective o) {
+        o.addPlayer(this);
         objectives.add(o);
     }
 
@@ -32,6 +33,11 @@ public class ScoreboardController {
 
     public void setObjective(ScoreboardObjective o) {
         o.getObjective(player).setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+
+    public void removeObjective(ScoreboardObjective o) {
+        objectives.remove(o);
+        o.getObjective(this).unregister();
     }
 
     public Scoreboard getScoreboard() {

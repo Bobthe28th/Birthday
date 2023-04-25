@@ -2,6 +2,7 @@ package me.bobthe28th.birthday.games;
 
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.bmsts.Bmsts;
+import me.bobthe28th.birthday.games.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.oitc.Oitc;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,7 @@ public class GameController { //todo move gameplayers here?
     Main plugin;
     Minigame currentGame;
 
-    public HashMap<Player,GamePlayer> GamePlayers;
+    public HashMap<Player,GamePlayer> GamePlayers = new HashMap<>();
 
     public HashMap<String,Class<? extends Minigame>> minigames = new HashMap<>();
 
@@ -21,6 +22,7 @@ public class GameController { //todo move gameplayers here?
         this.plugin = plugin;
         minigames.put("bm_sts", Bmsts.class);
         minigames.put("oitc", Oitc.class);
+        minigames.put("ghosts", Ghosts.class);
     }
 
     public void addNewPlayer(Player p) {

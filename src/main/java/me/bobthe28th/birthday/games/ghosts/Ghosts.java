@@ -47,9 +47,11 @@ public class Ghosts extends Minigame implements BonusRound {
 
     public Ghosts(Main plugin) {
         this.plugin = plugin;
-        spawnZone = new BoundingBox(-228, 92, -368,-201, 97, -341);
+        spawnZone = new BoundingBox(-261, 98, -382,-228, 91, -349);
         status = GameStatus.READY;
         objective = new ScoreboardObjective("test","TEST");
+        objective.addRow(1,"Time: " + time,true);
+        objective.addRow(0,"TestLocal",false);
     }
 
     public Location getSpawnLoc(World w) {
@@ -65,7 +67,7 @@ public class Ghosts extends Minigame implements BonusRound {
         return getPossibleSpawnLoc(w,false,random);
     }
 
-    public Location getPossibleSpawnLoc(World w, boolean checkPlayerDist, Random random) {
+    public Location getPossibleSpawnLoc(World w, boolean checkPlayerDist, Random random) { //todo move to util class
 
         Vector start = new Vector(random.nextInt((int) spawnZone.getWidthX()) + spawnZone.getMinX(), spawnZone.getMaxY(), random.nextInt((int) spawnZone.getWidthZ()) + spawnZone.getMinZ());
 
@@ -119,6 +121,9 @@ public class Ghosts extends Minigame implements BonusRound {
                         ghost.setInvisible(true);
                         ghost.setAdult();
                         ghost.setSilent(true);
+                        if (ghost.getEquipment() != null) ghost.getEquipment().clear();
+                        if (ghost.getVehicle() != null) ghost.getVehicle().remove();
+
                         Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue(5);
                         Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)).setBaseValue(10);
                         ghosts.add(ghost);
@@ -135,7 +140,9 @@ public class Ghosts extends Minigame implements BonusRound {
                 public void run() {
                     if (!this.isCancelled()) {
                         for (GhostPlayer p : players.values()) {
-                            p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + "" + time));
+                            p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + String.valueOf(time)));
+                            objective.updateRow(1,"Time: " + time);
+                            objective.updateRow(0,p.getPlayer().getDisplayName(),p.getGamePlayer());
                         }
                         if (time <= 0) {
                             this.cancel();
@@ -155,7 +162,12 @@ public class Ghosts extends Minigame implements BonusRound {
 
     @Override
     public void disable() {
-
+        spawnTask.cancel();
+        timerTask.cancel();
+        objective.remove();
+        for (Husk h : ghosts) {
+            h.remove();
+        }
     }
 
     @Override

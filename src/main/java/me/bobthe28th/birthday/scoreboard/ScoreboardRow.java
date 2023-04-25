@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.scoreboard;
 
-public class ScoreboardRow {
+public abstract class ScoreboardRow {
 
+    public abstract void addPlayer(ScoreboardController p);
 }
