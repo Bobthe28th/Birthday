@@ -12,6 +12,7 @@ public class ScoreboardController {
     GamePlayer player;
     Scoreboard scoreboard;
     ArrayList<ScoreboardObjective> objectives = new ArrayList<>();
+    ArrayList<ScoreboardTeam> teams = new ArrayList<>();
 
     public ScoreboardController(GamePlayer player) {
         this.player = player;
@@ -19,6 +20,11 @@ public class ScoreboardController {
             scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
             player.getPlayer().setScoreboard(scoreboard);
         }
+    }
+
+    public void addTeam(ScoreboardTeam t) {
+        t.addPlayer(this);
+        teams.add(t);
     }
 
     public void addObjective(ScoreboardObjective o) {
@@ -38,6 +44,11 @@ public class ScoreboardController {
     public void removeObjective(ScoreboardObjective o) {
         objectives.remove(o);
         o.getObjective(this).unregister();
+    }
+
+    public void removeTeam(ScoreboardTeam t) {
+        teams.remove(t);
+        t.getTeam(this).unregister();
     }
 
     public Scoreboard getScoreboard() {

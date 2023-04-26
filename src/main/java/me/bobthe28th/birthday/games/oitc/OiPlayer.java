@@ -1,8 +1,7 @@
 package me.bobthe28th.birthday.games.oitc;
 
-import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
+import me.bobthe28th.birthday.games.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.*;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
@@ -31,13 +29,11 @@ public class OiPlayer {
     Oitc oitc;
     ArrayList<Material> blackListedSpawnBlocks = new ArrayList<>();
     ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();
-    Scoreboard scoreboard;
-    ScoreboardObjective objective;
     int points = 0;
     int kills = 0;
     int deaths = 0;
 
-    public OiPlayer(GamePlayer player, Main plugin, ScoreboardObjective objective, Oitc oitc) {
+    public OiPlayer(GamePlayer player, Main plugin, Oitc oitc) {
         this.player = player;
         this.plugin = plugin;
         this.oitc = oitc;
@@ -48,8 +44,25 @@ public class OiPlayer {
         blackListedSpawnBlocks.add(Material.RED_WOOL);
         blackListedSpawnInBlocks.add(Material.LAVA);
         blackListedSpawnInBlocks.add(Material.FIRE);
-        player.getScoreboardController().addSetObjective(objective);
-        this.objective = objective;
+        blackListedSpawnBlocks.add(Material.SPRUCE_FENCE);
+        player.getScoreboardController().addSetObjective(oitc.getObjective());
+        player.getScoreboardController().addTeam(oitc.getGTeam());
+        player.getScoreboardController().addTeam(oitc.getKTeam());
+        oitc.getGTeam().addMemberGlobal(player.getPlayer());
+        oitc.updateTopPoints(this);
+//        Team t = player.getScoreboardController().addTeam("oitc");
+//        t.setDisplayName("One in the Chamber");
+//        t.setAllowFriendlyFire(true);
+//        t.setCanSeeFriendlyInvisibles(true);
+//        t.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+//        t.addEntry(player.getPlayer().getName());
+//
+//        Team tKing = player.getScoreboardController().addTeam("oitcking");
+//        tKing.setDisplayName("KING");
+//        tKing.setColor(ChatColor.RED);
+//        tKing.setAllowFriendlyFire(true);
+//        tKing.setCanSeeFriendlyInvisibles(false);
+//        tKing.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
     }
 
     public void respawn() {
@@ -114,13 +127,16 @@ public class OiPlayer {
 
     public void remove() {
         removeNotMap();
-        // todo important
-        // Bmsts.BmPlayers.remove(player.getPlayer());
     }
 
     public void removeNotMap() {
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
+        player.getScoreboardController().removeObjective(oitc.getObjective());
+        player.getScoreboardController().removeTeam(oitc.getGTeam());
+        player.getScoreboardController().removeTeam(oitc.getKTeam());
+//        player.getScoreboardController().removeTeam("oitc");
+//        player.getScoreboardController().removeTeam("oitcking");
     }
     
     public void giveItems() {
@@ -244,9 +260,10 @@ public class OiPlayer {
         player.getPlayer().sendTitle("",ChatColor.RED + "☠",0,10,10);
         kills ++;
         points ++;
+        oitc.updateTopPoints(this);
 
-        objective.updateRow(2,"Kills: " + kills, player);
-        objective.updateRow(3, "Points: " + points, player);
+        oitc.getObjective().updateRow(2,"Kills: " + kills, player);
+        oitc.getObjective().updateRow(3, "Points: " + points, player);
 
         if (points >= oitc.maxKills && !king) {
             oitc.setKing(this);
@@ -257,14 +274,10 @@ public class OiPlayer {
         }
     }
 
-    public Scoreboard getScoreboard() {
-        return scoreboard;
-    }
-
     public void death(Player killer) {
         alive = false;
         deaths ++;
-        objective.updateRow(1,"Deaths: " + deaths, player);
+        oitc.getObjective().updateRow(1,"Deaths: " + deaths, player);
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
         player.getPlayer().getInventory().clear();
         if (king) {

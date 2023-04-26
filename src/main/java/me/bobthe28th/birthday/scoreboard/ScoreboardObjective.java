@@ -20,10 +20,15 @@ public class ScoreboardObjective {
 
     public void addRow(int value, String data, boolean global) {
         //todos override
+        ScoreboardRow row;
         if (global) {
-            rows.put(value,new ScoreboardGlobalRow(value,data,this));
+            row = new ScoreboardGlobalRow(value,data,this);
         } else {
-            rows.put(value,new ScoreboardLocalRow(value,data,this));
+            row = new ScoreboardLocalRow(value,data,this);
+        }
+        rows.put(value,row);
+        for (ScoreboardController p : objectives.keySet()) {
+            row.addPlayer(p);
         }
     }
 
@@ -33,6 +38,10 @@ public class ScoreboardObjective {
         for (ScoreboardRow r : rows.values()) {
             r.addPlayer(p);
         }
+    }
+
+    public boolean hasRow(int value) {
+        return rows.containsKey(value);
     }
 
     public Objective getObjective(GamePlayer p) {
