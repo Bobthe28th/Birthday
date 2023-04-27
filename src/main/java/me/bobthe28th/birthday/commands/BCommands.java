@@ -25,38 +25,19 @@ public class BCommands implements CommandExecutor {
             return true;
         }
 
-        if (!player.getName().equals("Bobthe29th")) return true;
+//        if (!player.getName().equals("Bobthe29th")) return true;
 
         switch (cmd.getName().toLowerCase()) {
+            case "join":
+                if (!plugin.getGamePlayers().containsKey(player)) {
+                    Main.gameController.addNewPlayer(player);
+                    Main.gameController.playerJoin(plugin.getGamePlayers().get(player));
+                    player.sendMessage(ChatColor.GREEN + "Joined!");
+                } else {
+                    player.sendMessage(ChatColor.RED + "You are already joined.");
+                }
+                return true;
             case "test":
-                //todo stuff
-
-//                ItemStack item = new ItemStack(Material.TOTEM_OF_UNDYING);
-//                if (item.getItemMeta() != null) {
-//                    ItemMeta meta = item.getItemMeta();
-//                    meta.setCustomModelData(1);
-//                    item.setItemMeta(meta);
-//                }
-//                ItemStack itemBefore = player.getInventory().getItemInOffHand();
-//
-//                player.getInventory().setItemInOffHand(item);
-//                player.playEffect(EntityEffect.TOTEM_RESURRECT);
-//                player.getInventory().setItemInOffHand(itemBefore);
-
-//                Husk husk = player.getWorld().spawn(player.getLocation(), Husk.class);
-//                husk.setAI(false);
-//                husk.setInvisible(true);
-//                husk.setInvulnerable(true);
-//
-//                PacketContainer packet = new PacketContainer(PacketType.Play.Server.SCOREBOARD_TEAM);
-//
-//                packet.getModifier().write(0,3).write(1,"test").write(2, Collections.singletonList(husk.getUniqueId().toString()));
-//
-//                try {
-//                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
 
                 return true;
             case "pvp":

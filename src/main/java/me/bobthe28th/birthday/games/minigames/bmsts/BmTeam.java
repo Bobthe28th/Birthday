@@ -59,12 +59,12 @@ public class BmTeam {
             readySwitch.getBlock().setBlockData(readySwitch.getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
         }
 
-        team = Main.board.registerNewTeam("bdaybmsts" + name);
-        team.setDisplayName(name.substring(0, 1).toUpperCase() + name.substring(1) + " Team");
-        team.setColor(color);
-        team.setAllowFriendlyFire(false);
-        team.setCanSeeFriendlyInvisibles(true);
-        team.setPrefix(ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "]" + " ");
+//        team = Main.board.registerNewTeam("bdaybmsts" + name);
+//        team.setDisplayName(name.substring(0, 1).toUpperCase() + name.substring(1) + " Team");
+//        team.setColor(color); //todo udpdate to new teams
+//        team.setAllowFriendlyFire(false);
+//        team.setCanSeeFriendlyInvisibles(true);
+//        team.setPrefix(ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "]" + " ");
 
         new SilverfishMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));

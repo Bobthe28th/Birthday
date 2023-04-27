@@ -1,9 +1,9 @@
 package me.bobthe28th.birthday.games.minigames.bmsts;
 
-import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.games.minigames.MinigameStatus;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
+import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.ChickenMinion;
@@ -26,7 +26,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
@@ -52,17 +51,16 @@ public class Bmsts extends Minigame implements Listener {
     int round = 1;
     BonusRound currentBonusRound;
     BmMap currentMap;
-    Main plugin;
 
     public Bmsts(Main plugin) {
-        this.plugin = plugin;
+        super(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
-        for (Team t : Main.board.getTeams()) {
-            if (t.getName().startsWith("bday")) {
-                t.unregister();
-            }
-        }
+//        for (Team t : Main.board.getTeams()) {
+//            if (t.getName().startsWith("bday")) {
+//                t.unregister();
+//            }
+//        }
 
         World w = plugin.getServer().getWorld("world");
 
@@ -104,11 +102,11 @@ public class Bmsts extends Minigame implements Listener {
         if (currentBonusRound != null) {
             currentBonusRound.endBonusRound(false);
         }
-        for (Team t : Main.board.getTeams()) {
-            if (t.getName().startsWith("bdaybmsts")) {
-                t.unregister();
-            }
-        }
+//        for (Team t : Main.board.getTeams()) {
+//            if (t.getName().startsWith("bdaybmsts")) {
+//                t.unregister();
+//            }
+//        }
         HandlerList.unregisterAll(this);
         if (BmPlayers != null) {
             for (BmPlayer bmPlayer : BmPlayers.values()) {

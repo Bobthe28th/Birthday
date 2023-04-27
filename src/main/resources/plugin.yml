@@ -17,3 +17,6 @@ commands:
   music:
     description: Plays music
     usage: /<command>
+  join:
+    description: Temporary join in game.
+    usage: /<command>

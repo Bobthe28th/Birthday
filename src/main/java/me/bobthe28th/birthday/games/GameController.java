@@ -5,6 +5,8 @@ import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
+import me.bobthe28th.birthday.games.minigames.prophunt.PropHunt;
+import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
@@ -24,6 +26,8 @@ public class GameController { //todo move gameplayers here?
         minigames.put("bm_sts", Bmsts.class);
         minigames.put("oitc", Oitc.class);
         minigames.put("ghosts", Ghosts.class);
+        minigames.put("spleef", Spleef.class);
+        minigames.put("prophunt", PropHunt.class);
     }
 
     public void addNewPlayer(Player p) {

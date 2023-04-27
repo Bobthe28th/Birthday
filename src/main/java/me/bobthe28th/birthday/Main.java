@@ -8,25 +8,20 @@ import me.bobthe28th.birthday.music.MusicController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
 
 public class Main extends JavaPlugin implements Listener {
 
-    public static Scoreboard board;
-//    public static HashMap<Player,GamePlayer> GamePlayers;
+//    public static Scoreboard board;
     public static boolean pvp = true; //todol breakblocks
 
     public static GameController gameController;
@@ -55,7 +50,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.broadcastMessage("Man");
         getServer().getPluginManager().registerEvents(this, this);
 
-        String[] commandNames = new String[]{"test","pvp","start","music"};
+        String[] commandNames = new String[]{"test","pvp","start","music","join"};
         BCommands commands = new BCommands(this);
         BTabCompleter tabCompleter = new BTabCompleter();
         for (String commandName : commandNames) {
@@ -65,26 +60,8 @@ public class Main extends JavaPlugin implements Listener {
                 command.setTabCompleter(tabCompleter);
             }
         }
-
-        if (Bukkit.getScoreboardManager() != null) {
-            board = Bukkit.getScoreboardManager().getMainScoreboard();
-        }
-
-        for (Team t : board.getTeams()) {
-            if (t.getName().startsWith("bday")) {
-                t.unregister();
-            }
-        }
-
         gameController = new GameController(this);
         musicController = new MusicController(this);
-
-//        GamePlayers = new HashMap<>();
-
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            gameController.addNewPlayer(player);
-//            GamePlayers.put(player,new GamePlayer(this,player));
-        }
     }
 
     @Override
@@ -102,8 +79,8 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-        getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
+//        getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
+//        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
     }
 
     @EventHandler
@@ -131,14 +108,14 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    @EventHandler
-    public void onSpawn(SpawnerSpawnEvent event) {
-        if (event.getEntityType().equals(EntityType.CHICKEN)) {
-            if (event.getEntity().getPassengers().size() > 0) {
-                event.setCancelled(true);
-            }
-        }
-    }
+//    @EventHandler
+//    public void onSpawn(SpawnerSpawnEvent event) {
+//        if (event.getEntityType().equals(EntityType.CHICKEN)) {
+//            if (event.getEntity().getPassengers().size() > 0) {
+//                event.setCancelled(true);
+//            }
+//        }
+//    }
 
     public HashMap<Player, GamePlayer> getGamePlayers() {
         return gameController.getGamePlayers();

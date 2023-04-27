@@ -22,8 +22,6 @@ public class OiPlayer extends MinigamePlayer {
 
     Oitc oitc;
     boolean king = false;
-    ArrayList<Material> blackListedSpawnBlocks = new ArrayList<>();
-    ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();
     int points = 0;
     int kills = 0;
     int deaths = 0;
@@ -31,14 +29,6 @@ public class OiPlayer extends MinigamePlayer {
     public OiPlayer(GamePlayer player, Main plugin, Oitc oitc) {
         super(plugin,player,oitc);
         this.oitc = oitc;
-        blackListedSpawnBlocks.add(Material.OAK_STAIRS);
-        blackListedSpawnBlocks.add(Material.CACTUS);
-        blackListedSpawnBlocks.add(Material.WHITE_WOOL);
-        blackListedSpawnBlocks.add(Material.RED_WOOL);
-        blackListedSpawnInBlocks.add(Material.LAVA);
-        blackListedSpawnInBlocks.add(Material.FIRE);
-        blackListedSpawnBlocks.add(Material.SPRUCE_FENCE);
-        blackListedSpawnBlocks.add(Material.COBWEB);
         player.getScoreboardController().addSetObjective(oitc.getObjective());
         player.getScoreboardController().addTeam(oitc.getGTeam());
         player.getScoreboardController().addTeam(oitc.getKTeam());
@@ -107,7 +97,7 @@ public class OiPlayer extends MinigamePlayer {
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
                     meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
-                    meta.setLore(List.of("Reloads an arrow on kill"));
+                    meta.setLore(List.of("Reloads a firework on kill"));
 
                 }
                 crossbow.setItemMeta(meta);
@@ -121,7 +111,7 @@ public class OiPlayer extends MinigamePlayer {
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
                     meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
-                    meta.setLore(List.of("Reloads an arrow on kill"));
+                    meta.setLore(List.of("Reloads a firework on kill"));
 
                 }
                 crossbow.setItemMeta(meta);
@@ -151,7 +141,7 @@ public class OiPlayer extends MinigamePlayer {
         PlayerInventory inventory = player.getPlayer().getInventory();
         ItemStack fireworks = inventory.getItemInOffHand();
         if (fireworks.getType() != Material.FIREWORK_ROCKET) {
-            inventory.setItem(5,oitc.firework);
+            inventory.setItem(5,oitc.firework.clone());
         } else {
             fireworks.setAmount(fireworks.getAmount() + amount);
         }
@@ -167,9 +157,10 @@ public class OiPlayer extends MinigamePlayer {
                 if (meta != null) {
                     if (meta.hasChargedProjectiles()) {
                         if (king) {
-                            giveFirework(1);
+                            giveFirework(1); //todo doesnt work?
+                        } else {
+                            giveArrow(false, 1);
                         }
-                        giveArrow(false,1);
                     } else {
                         if (king) {
                             meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
@@ -183,8 +174,9 @@ public class OiPlayer extends MinigamePlayer {
         } else {
             if (king) {
                 giveFirework(1);
+            } else {
+                giveArrow(false, 1);
             }
-            giveArrow(false,1);
         }
         player.getPlayer().sendTitle("",ChatColor.RED + "☠",0,10,10);
         kills ++;

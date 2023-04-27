@@ -45,8 +45,6 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     public boolean pickup = false;
 
     public ItemStack firework;
-
-    Main plugin;
     Bmsts bmsts;
 
     ScoreboardObjective objective;
@@ -54,15 +52,16 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     ScoreboardTeam kTeam;
 
     public Oitc(Main plugin) {
-        this.plugin = plugin;
+        super(plugin);
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         World w = plugin.getServer().getWorld("world");
-        oiMaps = new OiMap[]{
+        oiMaps = new OiMap[]{ //todo dont need custom
                 new OiMap("temp",w,new BoundingBox(-15, 109, -328, 26, 131, -377)),
                 new OiMap("temp2",w,new BoundingBox(28, 104, -328, 69, 131, -377))
         };
+        oiMaps[1].addBlackListedSpawnOnBlocks(new Material[]{Material.WHITE_WOOL,Material.RED_WOOL,Material.CACTUS,Material.SPRUCE_FENCE,Material.OAK_STAIRS});
         currentMap = oiMaps[1];
         status = MinigameStatus.READY;
         removeArrows();
@@ -111,7 +110,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     void removeArrows() {
         World w = plugin.getServer().getWorld("world");
         if (w != null) {
-            List<Entity> inSpawn = (List<Entity>) w.getNearbyEntities(currentMap.spawnArea);
+            List<Entity> inSpawn = (List<Entity>) w.getNearbyEntities(currentMap.getSpawnArea());
             for (Entity e : inSpawn) {
                 if (e.getType() == EntityType.ARROW) {
                     e.remove();
@@ -120,7 +119,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         }
     }
 
-    public void setKing(OiPlayer king) { //todo soundl
+    public void setKing(OiPlayer king) { //todol sound
         gTeam.removeMemberGlobal(king.getPlayer());
         kTeam.addMemberGlobal(king.getPlayer());
         for (OiPlayer p : OiPlayers.values()) {
@@ -135,7 +134,8 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
     }
 
-    public void kingDeath(OiPlayer king) { //todo soundl
+    //todo on king and dead you keep
+    public void kingDeath(OiPlayer king) { //todol sound
         kTeam.removeMemberGlobal(king.getPlayer());
         gTeam.addMemberGlobal(king.getPlayer());
         for (OiPlayer p : OiPlayers.values()) {
@@ -254,10 +254,11 @@ public class Oitc extends Minigame implements Listener, BonusRound {
             if (OiPlayers.containsKey(event.getPlayer())) {
                 Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + event.getPlayer().getDisplayName() + ChatColor.GRAY + " fell down the idiot hole");
                 OiPlayers.get(event.getPlayer()).death(null);
-                event.getPlayer().teleport(new Location(plugin.getServer().getWorld("world"), currentMap.spawnArea.getCenterX(),currentMap.spawnArea.getCenterY(),currentMap.spawnArea.getCenterZ()));
+                //todo no teleport?
+                event.getPlayer().teleport(new Location(plugin.getServer().getWorld("world"), currentMap.getSpawnArea().getCenterX(),currentMap.getSpawnArea().getCenterY(),currentMap.getSpawnArea().getCenterZ()));
             }
         }
-        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR && !currentMap.spawnArea.contains(event.getTo().toVector())) {
+        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR && !currentMap.getSpawnArea().contains(event.getTo().toVector())) {
             event.setCancelled(true);
         }
     }
@@ -271,7 +272,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
                 return;
             }
             if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                player.teleport(new Location(plugin.getServer().getWorld("world"), currentMap.spawnArea.getCenterX(),currentMap.spawnArea.getCenterY(),currentMap.spawnArea.getCenterZ()));
+                player.teleport(new Location(plugin.getServer().getWorld("world"), currentMap.getSpawnArea().getCenterX(),currentMap.getSpawnArea().getCenterY(),currentMap.getSpawnArea().getCenterZ()));
             }
             if (event instanceof EntityDamageByEntityEvent ebeEvent) {
                 Player damager = null;

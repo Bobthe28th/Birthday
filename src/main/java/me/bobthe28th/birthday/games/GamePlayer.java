@@ -50,13 +50,6 @@ public class GamePlayer implements Listener {
         return scoreboardController;
     }
 
-    //    @EventHandler
-//    public void onPlacePickupArrow(PlayerPickupArrowEvent event) {
-//        if (event.getPlayer() != player) return;
-//        if (player.getGameMode() == GameMode.CREATIVE) return;
-//        event.setCancelled(true);
-//    }
-
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         if (event.getPlayer() != player) return;

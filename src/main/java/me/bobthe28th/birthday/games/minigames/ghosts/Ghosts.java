@@ -7,7 +7,6 @@ import me.bobthe28th.birthday.games.minigames.MinigameMap;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
-import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -30,11 +29,9 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class Ghosts extends Minigame implements Listener,BonusRound {
-
-    Main plugin;
     Bmsts bmsts;
 
-    HashMap<Player,GhostPlayer> players = new HashMap<>();
+    HashMap<Player, GhPlayer> players = new HashMap<>();
 
     ArrayList<Husk> ghosts = new ArrayList<>();
 
@@ -43,27 +40,27 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
 
     int time = 90;
     MinigameMap map;
-    ScoreboardObjective objective;
+//    ScoreboardObjective objective;
     ScoreboardTeam team;
 
     public Ghosts(Main plugin) {
-        this.plugin = plugin;
+        super(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         status = MinigameStatus.READY;
-        objective = new ScoreboardObjective("test","TEST");
-        objective.addRow(1,"Time: " + time,true);
-        objective.addRow(0,"TestLocal",false);
+//        objective = new ScoreboardObjective("test","TEST");
+//        objective.addRow(1,"Time: " + time,true);
+//        objective.addRow(0,"TestLocal",false);
         team = new ScoreboardTeam("Ghosts",false,true, Team.OptionStatus.NEVER,ChatColor.WHITE);
         World w = plugin.getServer().getWorld("world");
-        map = new MinigameMap("temp",w,new BoundingBox(-261, 98, -382,-228, 91, -349),new Location(w,-245.5, 99, -366.5));
+        map = new MinigameMap("temp",w,new BoundingBox(-261, 98, -382,-228, 91, -349),new Location(w,-244.5, 99, -365.5));
         Main.musicController.getQueue().clearQueue();
         Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("zombiefun"));
         Main.musicController.start();
     }
 
-    public ScoreboardObjective getObjective() {
-        return objective;
-    }
+//    public ScoreboardObjective getObjective() {
+//        return objective;
+//    }
 
     public ScoreboardTeam getTeam() {
         return team;
@@ -81,7 +78,7 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
 //            } else {
         for (GamePlayer p : plugin.getGamePlayers().values()) {
             p.getPlayer().teleport(map.getSpawnLoc(new ArrayList<>(players.values())));
-            players.put(p.getPlayer(),new GhostPlayer(plugin, p, this));
+            players.put(p.getPlayer(),new GhPlayer(plugin, p, this));
         }
 //            }
 
@@ -100,7 +97,7 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
                     Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue(5);
                     Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)).setBaseValue(10);
                     ghosts.add(ghost);
-                    for (GhostPlayer p : players.values()) {
+                    for (GhPlayer p : players.values()) {
                         team.addMember(ghost,p.getGamePlayer().getScoreboardController());
                     }
                 } else {
@@ -113,10 +110,10 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
             @Override
             public void run() {
                 if (!this.isCancelled()) {
-                    for (GhostPlayer p : players.values()) {
+                    for (GhPlayer p : players.values()) {
                         p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + String.valueOf(time)));
-                        objective.updateRow(1,"Time: " + time);
-                        objective.updateRow(0,p.getPlayer().getDisplayName(),p.getGamePlayer());
+//                        objective.updateRow(1,"Time: " + time);
+//                        objective.updateRow(0,p.getPlayer().getDisplayName(),p.getGamePlayer());
                     }
                     if (time <= 0) {
                         this.cancel();
@@ -135,15 +132,16 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
     public void disable() {
         spawnTask.cancel();
         timerTask.cancel();
-        objective.remove();
+//        objective.remove();
         for (Husk h : ghosts) {
             h.remove();
         }
+        players.clear();
     }
 
     @Override
     public void onPlayerJoin(GamePlayer player) {
-        players.put(player.getPlayer(),new GhostPlayer(plugin, player, this));
+        players.put(player.getPlayer(),new GhPlayer(plugin, player, this));
         players.get(player.getPlayer()).alive = false;
         player.getPlayer().teleport(map.getSpectateLoc());
     }
@@ -163,7 +161,7 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
     @Override
     public void endBonusRound(boolean points) {
         if (points) {
-            for (GhostPlayer p : players.values()) {
+            for (GhPlayer p : players.values()) {
                 if (p.isAlive()) {
                     bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5);
                 }

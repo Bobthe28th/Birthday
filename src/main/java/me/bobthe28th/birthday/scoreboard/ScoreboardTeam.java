@@ -64,7 +64,7 @@ public class ScoreboardTeam {
         teams.get(p).removeEntry(member.getUniqueId().toString());
     }
 
-    public void addMemberGlobal(Entity member) { //todo remove from other teams?
+    public void addMemberGlobal(Entity member) {
         if (!globalMembers.contains(member)) globalMembers.add(member);
         for (Team t : teams.values()) {
             if (member instanceof Player p) {

@@ -45,11 +45,11 @@ public class MinigameMap {
         this.spectateLoc = spectateLoc.clone();
     }
 
-    public void setBlackListedSpawnOnBlocks(Material[] blocks) {
+    public void addBlackListedSpawnOnBlocks(Material[] blocks) {
         blackListedSpawnOnBlocks.addAll(List.of(blocks));
     }
 
-    public void setBlackListedSpawnInBlocks(Material[] blocks) {
+    public void addBlackListedSpawnInBlocks(Material[] blocks) {
         blackListedSpawnInBlocks.addAll(List.of(blocks));
     }
 
@@ -63,6 +63,10 @@ public class MinigameMap {
 
     public Location getSpectateLoc() {
         return spectateLoc;
+    }
+
+    public BoundingBox getSpawnArea() {
+        return spawnArea;
     }
 
     public Location getSpawnLoc(List<MinigamePlayer> players) {
@@ -94,7 +98,7 @@ public class MinigameMap {
         Vector start = new Vector(random.nextInt((int) spawnArea.getWidthX()) + spawnArea.getMinX(), spawnArea.getMaxY(), random.nextInt((int) spawnArea.getWidthZ()) + spawnArea.getMinZ());
         BlockIterator blockIterator = new BlockIterator(world, start, new Vector(0, -1, 0), 0, (int) spawnArea.getHeight());
         while (blockIterator.hasNext()) {
-            Block b = blockIterator.next();
+            Block b = blockIterator.next(); //todo check 2 up
             if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnInBlocks.contains(b.getType()) && !blackListedSpawnOnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
                 double distToPlayerSqared = Integer.MAX_VALUE;
                 for (MinigamePlayer p : players) {

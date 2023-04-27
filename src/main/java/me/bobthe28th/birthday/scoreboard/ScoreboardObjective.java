@@ -19,7 +19,6 @@ public class ScoreboardObjective {
     }
 
     public void addRow(int value, String data, boolean global) {
-        //todos override
         ScoreboardRow row;
         if (global) {
             row = new ScoreboardGlobalRow(value,data,this);
