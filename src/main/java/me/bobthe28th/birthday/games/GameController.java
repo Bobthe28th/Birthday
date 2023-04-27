@@ -1,9 +1,10 @@
 package me.bobthe28th.birthday.games;
 
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.games.bmsts.Bmsts;
-import me.bobthe28th.birthday.games.ghosts.Ghosts;
-import me.bobthe28th.birthday.games.oitc.Oitc;
+import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
+import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
+import me.bobthe28th.birthday.games.minigames.Minigame;
+import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;

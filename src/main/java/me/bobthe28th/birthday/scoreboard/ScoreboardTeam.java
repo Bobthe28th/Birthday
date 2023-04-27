@@ -42,14 +42,18 @@ public class ScoreboardTeam {
 
     public void addPlayer(ScoreboardController p) {
         Team t = p.getScoreboard().registerNewTeam(title);
-        for (Entity e : globalMembers) {
-            t.addEntry(e.getUniqueId().toString());
-        }
         t.setAllowFriendlyFire(friendlyFire);
         t.setCanSeeFriendlyInvisibles(seeInvisibles);
         t.setOption(Team.Option.NAME_TAG_VISIBILITY,nameTag);
         t.setColor(color);
         teams.put(p,t);
+        for (Entity e : globalMembers) {
+            if (e instanceof Player pl) {
+                t.addEntry(pl.getName());
+            } else {
+                t.addEntry(e.getUniqueId().toString());
+            }
+        }
     }
 
     public void addMember(Entity member, ScoreboardController p) {
@@ -74,7 +78,11 @@ public class ScoreboardTeam {
     public void removeMemberGlobal(Entity member) {
         globalMembers.remove(member);
         for (Team t : teams.values()) {
-            t.removeEntry(member.getUniqueId().toString());
+            if (member instanceof Player p) {
+                t.removeEntry(p.getName());
+            } else {
+                t.removeEntry(member.getUniqueId().toString());
+            }
         }
     }
 

@@ -22,22 +22,23 @@ public class MusicController {
     MusicQueue queue;
 
     List<Music> musicList = Arrays.asList(
-            new Music("battle1",3400L),
-            new Music("battle2",3300L),
-            new Music("battle3",2500L),
-            new Music("battle4",3260L),
-            new Music("battle5",3020L),
-            new Music("battle6",5000L),
-            new Music("battle7",2580L),
-            new Music("battle8",3320L),
-            new Music("battle9",3120L),
-            new Music("battle10",2120L),
-            new Music("bonusround1",2340L),
-            new Music("bonusround2",3160L),
-            new Music("bonusround3",3380L),
-            new Music("bonusround4",4140L),
-            new Music("bonusround5",2480L),
-            new Music("bonusround6",2480L)
+            new Music("battle1",3380L),
+            new Music("battle2",3280L),
+            new Music("battle3",2480L),
+            new Music("battle4",3240L),
+            new Music("battle5",3000L),
+            new Music("battle6",4980L),
+            new Music("battle7",2560L),
+            new Music("battle8",3300L),
+            new Music("battle9",3100L),
+            new Music("battle10",2100L),
+            new Music("bonusround1",2320L),
+            new Music("bonusround2",3140L),
+            new Music("bonusround3",3360L),
+            new Music("bonusround4",4120L),
+            new Music("bonusround5",2460L),
+            new Music("bonusround6",2460L),
+            new Music("zombiefun",1640L)
     );
 
     public MusicController(Main plugin) {
@@ -68,7 +69,7 @@ public class MusicController {
                         playNext();
                     }
                 }
-            }.runTaskLater(plugin,currentlyPlaying.getLength());
+            }.runTaskLater(plugin,currentlyPlaying.getLength() + 20L);
         }
     }
 
