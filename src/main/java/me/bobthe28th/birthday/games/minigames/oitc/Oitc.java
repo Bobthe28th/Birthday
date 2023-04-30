@@ -2,8 +2,8 @@ package me.bobthe28th.birthday.games.minigames.oitc;
 
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
-import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.Minigame;
+import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
@@ -12,7 +12,6 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -30,15 +29,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Oitc extends Minigame implements Listener, BonusRound {
+public class Oitc extends Minigame implements BonusRound {
 
     public HashMap<Player, OiPlayer> OiPlayers = new HashMap<>();
     ArrayList<OiPlayer> topPoints = new ArrayList<>();
     public OiMap[] oiMaps;
     public OiMap currentMap;
 
-    public int maxKills = 10;
-    public int killsPostMax = 5;
+    public int maxKills = 1;
+    public int killsPostMax = 1;
     public int kingDeathKills = 5;
 
     public boolean cross = true;
@@ -53,8 +52,6 @@ public class Oitc extends Minigame implements Listener, BonusRound {
 
     public Oitc(Main plugin) {
         super(plugin);
-
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         World w = plugin.getServer().getWorld("world");
         oiMaps = new OiMap[]{ //todo dont need custom
@@ -120,21 +117,23 @@ public class Oitc extends Minigame implements Listener, BonusRound {
     }
 
     public void setKing(OiPlayer king) { //todol sound
-        gTeam.removeMemberGlobal(king.getPlayer());
-        kTeam.addMemberGlobal(king.getPlayer());
-        for (OiPlayer p : OiPlayers.values()) {
-            if (p != king) {
-                p.getPlayer().sendTitle(ChatColor.RED + "KILL " + king.getPlayer().getDisplayName(),ChatColor.YELLOW + "Don't let them win!",10,20,10);
+        if (king.alive) {
+            gTeam.removeMemberGlobal(king.getPlayer());
+            kTeam.addMemberGlobal(king.getPlayer());
+            for (OiPlayer p : OiPlayers.values()) {
+                if (p != king) {
+                    p.getPlayer().sendTitle(ChatColor.RED + "KILL " + king.getPlayer().getDisplayName(), ChatColor.YELLOW + "Don't let them win!", 10, 20, 10);
+                }
             }
+            king.king = true;
+            king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL", ChatColor.YELLOW + "Get " + killsPostMax + " kills to win!", 10, 20, 10);
+            king.getPlayer().setGlowing(true);
+            king.giveKingItem();
+            Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
+        } else {
+            Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " was the king but died as they got it lol");
         }
-        king.king = true;
-        king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL",ChatColor.YELLOW + "Get " + killsPostMax + " kills to win!",10,20,10);
-        king.getPlayer().setGlowing(true);
-        king.giveKingItem();
-        Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
     }
-
-    //todo on king and dead you keep
     public void kingDeath(OiPlayer king) { //todol sound
         kTeam.removeMemberGlobal(king.getPlayer());
         gTeam.addMemberGlobal(king.getPlayer());
@@ -145,7 +144,7 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         }
         king.king = false;
         king.getPlayer().setGlowing(false);
-        king.points = kingDeathKills;
+        king.points -= killsPostMax;
         objective.updateRow(3,"Points: " + king.points, king.getGamePlayer());
         updateTopPoints(king);
         Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is no longer the king!");
@@ -180,14 +179,12 @@ public class Oitc extends Minigame implements Listener, BonusRound {
         for (OiPlayer player : OiPlayers.values()) {
             player.respawn();
         }
+        Main.pvp = true;
     }
 
     @Override
     public void disable() {
         HandlerList.unregisterAll(this);
-        objective.remove();
-        gTeam.remove();
-        kTeam.remove();
         removeArrows();
         if (OiPlayers != null) {
             for (OiPlayer oiPlayer : OiPlayers.values()) {
@@ -195,6 +192,9 @@ public class Oitc extends Minigame implements Listener, BonusRound {
             }
             OiPlayers.clear();
         }
+        objective.remove();
+        gTeam.remove();
+        kTeam.remove();
     }
 
     @Override
@@ -254,11 +254,10 @@ public class Oitc extends Minigame implements Listener, BonusRound {
             if (OiPlayers.containsKey(event.getPlayer())) {
                 Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + event.getPlayer().getDisplayName() + ChatColor.GRAY + " fell down the idiot hole");
                 OiPlayers.get(event.getPlayer()).death(null);
-                //todo no teleport?
                 event.getPlayer().teleport(new Location(plugin.getServer().getWorld("world"), currentMap.getSpawnArea().getCenterX(),currentMap.getSpawnArea().getCenterY(),currentMap.getSpawnArea().getCenterZ()));
             }
         }
-        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR && !currentMap.getSpawnArea().contains(event.getTo().toVector())) {
+        if (event.getPlayer().getGameMode() == GameMode.SPECTATOR && !currentMap.getSpawnArea().contains(event.getTo().toVector()) && event.getFrom().getY() > 0) {
             event.setCancelled(true);
         }
     }
@@ -296,7 +295,9 @@ public class Oitc extends Minigame implements Listener, BonusRound {
                     if (OiPlayers.containsKey(damager)) {
                         OiPlayers.get(damager).kill(player);
                     }
-                    OiPlayers.get(player).death(damager);
+                    if (OiPlayers.containsKey(player)) {
+                        OiPlayers.get(player).death(damager);
+                    }
                 } else {
                     Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getDisplayName() + ChatColor.GRAY + " died");
                     OiPlayers.get(player).death(null);
@@ -318,6 +319,10 @@ public class Oitc extends Minigame implements Listener, BonusRound {
 
     @Override
     public void endBonusRound(boolean points) {
-
+        disable();
+        status = MinigameStatus.END;
+        if (points) {
+            //todo award points
+        }
     }
 }

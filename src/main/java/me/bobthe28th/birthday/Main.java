@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 public class Main extends JavaPlugin implements Listener {
 
-//    public static Scoreboard board;
     public static boolean pvp = true; //todol breakblocks
 
     public static GameController gameController;
@@ -62,6 +61,10 @@ public class Main extends JavaPlugin implements Listener {
         }
         gameController = new GameController(this);
         musicController = new MusicController(this);
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            gameController.addNewPlayer(player);
+        }
     }
 
     @Override

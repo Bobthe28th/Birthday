@@ -1,11 +1,15 @@
 package me.bobthe28th.birthday.commands;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +42,18 @@ public class BCommands implements CommandExecutor {
                 }
                 return true;
             case "test":
+                ArmorStand armorStand = player.getWorld().spawn(player.getLocation(), ArmorStand.class);
 
+
+                PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+
+                packet.getIntegers().write(0,armorStand.getEntityId());
+
+                try {
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return true;
             case "pvp":
                 Main.pvp = !Main.pvp;

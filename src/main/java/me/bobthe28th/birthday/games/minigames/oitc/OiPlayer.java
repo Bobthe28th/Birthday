@@ -3,10 +3,12 @@ package me.bobthe28th.birthday.games.minigames.oitc;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.MinigamePlayer;
+import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
@@ -53,6 +55,7 @@ public class OiPlayer extends MinigamePlayer {
     public void removeNotMap() {
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
+        player.getPlayer().setGlowing(false);
         player.getScoreboardController().removeObjective(oitc.getObjective());
         player.getScoreboardController().removeTeam(oitc.getGTeam());
         player.getScoreboardController().removeTeam(oitc.getKTeam());
@@ -141,7 +144,7 @@ public class OiPlayer extends MinigamePlayer {
         PlayerInventory inventory = player.getPlayer().getInventory();
         ItemStack fireworks = inventory.getItemInOffHand();
         if (fireworks.getType() != Material.FIREWORK_ROCKET) {
-            inventory.setItem(5,oitc.firework.clone());
+            inventory.setItem(EquipmentSlot.OFF_HAND,oitc.firework.clone());
         } else {
             fireworks.setAmount(fireworks.getAmount() + amount);
         }
@@ -190,36 +193,47 @@ public class OiPlayer extends MinigamePlayer {
             oitc.setKing(this);
         }
         if (points >= oitc.maxKills + oitc.killsPostMax) {
-            Bukkit.broadcastMessage(player.getPlayer().getDisplayName() + " wins.");
-            //todo win
+            player.getPlayer().setGlowing(false);
+            if (oitc.isBonusRound) {
+                oitc.endBonusRound(true);
+            } else {
+                List<GamePlayer> winners = new ArrayList<>();
+                for (int i = 0; i < Math.min(3,oitc.topPoints.size()); i++) {
+                    winners.add(oitc.topPoints.get(i).getGamePlayer());
+                }
+                oitc.endTop3(winners);
+            }
         }
     }
 
     public void death(Player killer) {
         alive = false;
         deaths ++;
-        oitc.getObjective().updateRow(1,"Deaths: " + deaths, player);
-        player.getPlayer().setGameMode(GameMode.SPECTATOR);
-        player.getPlayer().getInventory().clear();
-        if (king) {
-            oitc.kingDeath(this);
-        }
-        new BukkitRunnable() {
-            int time = 3;
-            final ChatColor[] timeColors = new ChatColor[]{ChatColor.GREEN,ChatColor.YELLOW,ChatColor.RED};
-            @Override
-            public void run() {
-                if (time <= 0) {
-                    player.getPlayer().sendTitle("",ChatColor.YELLOW + "Respawned!",0,5,5);
-                    respawn();
-                    this.cancel();
-                }
-                if (!this.isCancelled()) {
-                    player.getPlayer().sendTitle( ChatColor.GRAY + "Respawning in: " + timeColors[time-1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0,25,3);
-                    time --;
-                }
+        if (oitc.status == MinigameStatus.PLAYING) {
+            oitc.getObjective().updateRow(1, "Deaths: " + deaths, player);
+            player.getPlayer().setGameMode(GameMode.SPECTATOR);
+            player.getPlayer().getInventory().clear();
+            if (king) {
+                oitc.kingDeath(this);
             }
-        }.runTaskTimer(plugin,0,20L);
+            new BukkitRunnable() {
+                int time = 3;
+                final ChatColor[] timeColors = new ChatColor[]{ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED};
+
+                @Override
+                public void run() {
+                    if (time <= 0) {
+                        player.getPlayer().sendTitle("", ChatColor.YELLOW + "Respawned!", 0, 5, 5);
+                        respawn();
+                        this.cancel();
+                    }
+                    if (!this.isCancelled()) {
+                        player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0, 25, 3);
+                        time--;
+                    }
+                }
+            }.runTaskTimer(plugin, 0, 20L);
+        }
     }
 
 }

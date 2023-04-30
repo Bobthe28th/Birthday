@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
 public class GamePlayer implements Listener {
@@ -19,6 +20,7 @@ public class GamePlayer implements Listener {
     Player player;
     Main plugin;
     ScoreboardController scoreboardController;
+    boolean canMove = true;
 
     public GamePlayer(Main plugin, Player player) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -29,6 +31,7 @@ public class GamePlayer implements Listener {
         this.player.setFoodLevel(20);
         this.player.setSaturation(0F);
         this.player.setGlowing(false);
+        this.player.setInvisible(false);
         this.player.setPlayerListHeaderFooter("Deez","Nuts");
         scoreboardController = new ScoreboardController(this);
 //        if (Bukkit.getScoreboardManager() != null) {
@@ -48,6 +51,10 @@ public class GamePlayer implements Listener {
 
     public ScoreboardController getScoreboardController() {
         return scoreboardController;
+    }
+
+    public void setCanMove(boolean canMove) {
+        this.canMove = canMove;
     }
 
     @EventHandler
@@ -79,6 +86,14 @@ public class GamePlayer implements Listener {
         if (event.getPlayer() != player) return;
         if (player.getGameMode() == GameMode.CREATIVE) return;
         if (event.getRightClicked() instanceof ItemFrame || event.getRightClicked() instanceof GlowItemFrame) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (event.getPlayer() != player) return;
+        if (!canMove) {
             event.setCancelled(true);
         }
     }

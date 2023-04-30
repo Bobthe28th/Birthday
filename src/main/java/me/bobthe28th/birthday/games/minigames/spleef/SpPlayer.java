@@ -3,6 +3,7 @@ package me.bobthe28th.birthday.games.minigames.spleef;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.MinigamePlayer;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -57,5 +58,11 @@ public class SpPlayer extends MinigamePlayer {
             balls.setAmount(balls.getAmount() + amount);
         }
         player.getPlayer().updateInventory();
+    }
+
+    public void death() {
+        alive = false;
+        player.getPlayer().setGameMode(GameMode.SPECTATOR);
+        player.getPlayer().getInventory().clear();
     }
 }

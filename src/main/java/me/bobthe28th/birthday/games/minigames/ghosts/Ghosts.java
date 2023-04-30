@@ -17,7 +17,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class Ghosts extends Minigame implements Listener,BonusRound {
+public class Ghosts extends Minigame implements BonusRound {
     Bmsts bmsts;
 
     HashMap<Player, GhPlayer> players = new HashMap<>();
@@ -45,7 +44,6 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
 
     public Ghosts(Main plugin) {
         super(plugin);
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         status = MinigameStatus.READY;
 //        objective = new ScoreboardObjective("test","TEST");
 //        objective.addRow(1,"Time: " + time,true);
@@ -69,6 +67,7 @@ public class Ghosts extends Minigame implements Listener,BonusRound {
     @Override
     public void start() {
         status = MinigameStatus.PLAYING;
+        Main.pvp = false;
 
 //            if (isBonusRound) {
 //                for (BmPlayer p : bmsts.getPlayers().values()) {

@@ -92,4 +92,8 @@ public class ScoreboardTeam {
         }
     }
 
+    public void removePlayer(ScoreboardController p) {
+        teams.get(p).unregister();
+        teams.remove(p);
+    }
 }

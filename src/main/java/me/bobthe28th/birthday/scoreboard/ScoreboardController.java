@@ -42,13 +42,13 @@ public class ScoreboardController {
     }
 
     public void removeObjective(ScoreboardObjective o) {
+        o.removePlayer(this);
         objectives.remove(o);
-        o.getObjective(this).unregister();
     }
 
     public void removeTeam(ScoreboardTeam t) {
+        t.removePlayer(this);
         teams.remove(t);
-        t.getTeam(this).unregister();
     }
 
     public Scoreboard getScoreboard() {

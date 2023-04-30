@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-public class GameController { //todo move gameplayers here?
+public class GameController {
 
     Main plugin;
     Minigame currentGame;

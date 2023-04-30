@@ -84,4 +84,9 @@ public class ScoreboardObjective {
     public HashMap<ScoreboardController, Objective> getObjectives() {
         return objectives;
     }
+
+    public void removePlayer(ScoreboardController p) {
+        objectives.get(p).unregister();
+        objectives.remove(p);
+    }
 }

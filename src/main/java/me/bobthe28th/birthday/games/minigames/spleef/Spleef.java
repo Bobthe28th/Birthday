@@ -11,29 +11,29 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Spleef extends Minigame implements Listener,BonusRound {
+public class Spleef extends Minigame implements BonusRound {
 
     Bmsts bmsts;
     HashMap<Player, SpPlayer> players = new HashMap<>();
     SpMap currentMap;
     public Spleef(Main plugin) {
         super(plugin);
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         status = MinigameStatus.READY;
         World w = plugin.getServer().getWorld("world");
-        currentMap = new SpMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new SpLayers(-35, -292, 123, -30, -287, 3, 2));
+        currentMap = new SpMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new SpLayers(-35, -292, 123, -30, -287, 3, 2),121);
     }
 
     @Override
     public void start() {
+        Main.pvp = false;
         for (GamePlayer player : plugin.getGamePlayers().values()) {
             players.put(player.getPlayer(),new SpPlayer(plugin,player,this));
         }
@@ -94,6 +94,27 @@ public class Spleef extends Minigame implements Listener,BonusRound {
         }
     }
 
-    //todo on damage
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!players.containsKey(event.getPlayer())) return;
+        if (event.getTo() != null && event.getTo().getY() <= currentMap.yDeath) {
+            players.get(event.getPlayer()).death();
+            SpPlayer lastAlive = null;
+            for (SpPlayer p : players.values()) {
+                if (p.isAlive()) {
+                    if (lastAlive == null) {
+                        lastAlive = p;
+                    } else {
+                        return;
+                    }
+                }
+            }
+            if (isBonusRound) {
+                endBonusRound(true);
+            } else {
+                end(lastAlive); //todo top 3?
+            }
+        }
+    }
 
 }

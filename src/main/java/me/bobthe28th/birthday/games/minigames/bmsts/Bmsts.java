@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -32,7 +31,7 @@ import org.bukkit.util.Vector;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Bmsts extends Minigame implements Listener {
+public class Bmsts extends Minigame {
 
     public HashMap<String, BmTeam> BmTeams = new HashMap<>();
     public HashMap<Player, BmPlayer> BmPlayers = new HashMap<>();
@@ -54,7 +53,6 @@ public class Bmsts extends Minigame implements Listener {
 
     public Bmsts(Main plugin) {
         super(plugin);
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
 //        for (Team t : Main.board.getTeams()) {
 //            if (t.getName().startsWith("bday")) {
