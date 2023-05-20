@@ -7,6 +7,10 @@ import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import me.bobthe28th.birthday.games.minigames.prophunt.PropHunt;
 import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
@@ -48,6 +52,14 @@ public class GameController {
             currentGame.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void giveAdvancement(Player p, String name) {
+        Advancement advancement = Bukkit.getAdvancement(new NamespacedKey(plugin,name));
+        if (advancement != null) {
+            AdvancementProgress progress = p.getAdvancementProgress(advancement);
+            for (String criteria : progress.getRemainingCriteria()) progress.awardCriteria(criteria);
         }
     }
 

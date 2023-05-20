@@ -4,7 +4,7 @@ author: Bobthe28th
 main: me.bobthe28th.birthday.Main
 description: deez
 api-version: 1.19
-depend: [ProtocolLib]
+#depend: [ProtocolLib]
 commands:
   test:
     description: for debug

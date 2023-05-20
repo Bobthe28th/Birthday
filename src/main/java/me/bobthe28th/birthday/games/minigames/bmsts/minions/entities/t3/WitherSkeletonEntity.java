@@ -4,19 +4,17 @@ import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.monster.WitherSkeleton;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.event.entity.EntityTargetEvent;
 
 import java.util.Objects;
 
@@ -47,38 +45,9 @@ public class WitherSkeletonEntity extends WitherSkeleton implements MinionEntity
         this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
 
+    @Override
     public boolean hurt(DamageSource damagesource, float f) {
-        if (!super.hurt(damagesource, f)) {
-            return false;
-        } else if (!(this.level instanceof ServerLevel)) {
-            return false;
-        } else {
-            Entity damager;
-            if (damagesource.getEntity() instanceof Projectile p) {
-                damager = p.getOwner();
-            } else {
-                damager = damagesource.getEntity();
-            }
-            if (damager instanceof LivingEntity) {
-                if (damager instanceof MinionEntity dm && this.getGameTeam() != dm.getGameTeam()) {
-                    this.setTarget((LivingEntity) damager, EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY, true);
-                    if (getTarget() != null) {
-                        for (Entity eE : this.level.getEntities().getAll()) {
-                            if (eE instanceof LivingEntity e) {
-                                if (e instanceof MinionEntity t && this.getGameTeam() == t.getGameTeam()) {
-                                    if (e instanceof Mob m) {
-                                        if (m.getTarget() == null || m.position().distanceToSqr(getTarget().position()) < m.position().distanceToSqr(m.getTarget().position())) {
-                                            m.setTarget(getTarget(), EntityTargetEvent.TargetReason.TARGET_ATTACKED_NEARBY_ENTITY, true);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
-        }
+        return minionHurt(this,super.hurt(damagesource,f), damagesource, f);
     }
 
     @Override

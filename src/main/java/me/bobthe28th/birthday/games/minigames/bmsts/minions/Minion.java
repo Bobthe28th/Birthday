@@ -84,11 +84,12 @@ public class Minion implements Listener {
         if (droppedItem != null) droppedItem.remove();
         if (placedArmorStand != null) placedArmorStand.remove();
         if (previewEntity != null) previewEntity.remove(Entity.RemovalReason.DISCARDED);
-        if (entities.size() > 0) {
-            for (LivingEntity e : entities) {
-                e.remove(Entity.RemovalReason.DISCARDED);
-            }
-        }
+        removeEntities();
+//        if (entities.size() > 0) {
+//            for (LivingEntity e : entities) {
+//                e.remove(Entity.RemovalReason.DISCARDED);
+//            }
+//        }
         if (fromList) {
             team.removeMinion(this);
         }
@@ -104,7 +105,7 @@ public class Minion implements Listener {
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Techlevel: " + bmsts.getTechLevelColor()[techLevel] + techLevel);
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
             lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Strength: " + bmsts.getStrengthColor()[strength - 1] + strength);
-            lore.add(ChatColor.RESET + "" + team.getTeam().getColor() + team.getTeam().getDisplayName());
+            lore.add(ChatColor.RESET + "" + team.getTeam().getColor() + team.getTeam().getTitle());
             meta.setLore(lore);
             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "minionitem"), PersistentDataType.BYTE, (byte) 1);
             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "uniqueid"), PersistentDataType.STRING, UUID.randomUUID().toString());
@@ -312,7 +313,7 @@ public class Minion implements Listener {
 
     @EventHandler
     public void onPlayerPickupItem(EntityPickupItemEvent event) {
-        if (event.getItem().equals(droppedItem)) {
+        if (event.getItem().equals(droppedItem) && !team.isReady()) {
             if (event.getEntity() instanceof Player p && bmsts.getPlayers().containsKey(p) && bmsts.getPlayers().get(p).getTeam() == team) {
                 droppedItem = null;
             } else {

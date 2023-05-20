@@ -9,5 +9,6 @@ public class GhPlayer extends MinigamePlayer {
         super(plugin,p,ghosts);
         p.getScoreboardController().addTeam(ghosts.getTeam());
         ghosts.getTeam().addMemberGlobal(p.getPlayer());
+        Main.gameController.giveAdvancement(player.getPlayer(),"ghosts");
     }
 }

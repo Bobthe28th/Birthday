@@ -34,7 +34,9 @@ public class OiPlayer extends MinigamePlayer {
         player.getScoreboardController().addSetObjective(oitc.getObjective());
         player.getScoreboardController().addTeam(oitc.getGTeam());
         player.getScoreboardController().addTeam(oitc.getKTeam());
-        oitc.getGTeam().addMemberGlobal(player.getPlayer());
+        if (!oitc.isBonusRound) {
+            oitc.getGTeam().addMemberGlobal(player.getPlayer());
+        }
         oitc.updateTopPoints(this);
     }
 
@@ -49,16 +51,15 @@ public class OiPlayer extends MinigamePlayer {
     }
 
     public void remove() {
-        removeNotMap();
-    }
-
-    public void removeNotMap() {
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
         player.getPlayer().setGlowing(false);
+        player.getPlayer().getInventory().clear();
         player.getScoreboardController().removeObjective(oitc.getObjective());
         player.getScoreboardController().removeTeam(oitc.getGTeam());
         player.getScoreboardController().removeTeam(oitc.getKTeam());
+        oitc.getGTeam().removeMemberGlobal(player.getPlayer());
+        oitc.getKTeam().removeMemberGlobal(player.getPlayer());
     }
     
     public void giveItems() {
@@ -160,7 +161,7 @@ public class OiPlayer extends MinigamePlayer {
                 if (meta != null) {
                     if (meta.hasChargedProjectiles()) {
                         if (king) {
-                            giveFirework(1); //todo doesnt work?
+                            giveFirework(1);
                         } else {
                             giveArrow(false, 1);
                         }

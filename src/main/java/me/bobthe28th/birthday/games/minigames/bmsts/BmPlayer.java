@@ -20,16 +20,21 @@ public class BmPlayer implements Listener {
     public BmPlayer(GamePlayer player, Main plugin, Bmsts bmsts) {
         this.player = player;
         this.bmsts = bmsts;
+        for (BmTeam b  : bmsts.getTeams().values()) {
+            b.getTeam().addPlayer(player.getScoreboardController());
+            b.updateDoor(this,false);
+        }
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    public void setTeam(BmTeam team) { //todos refactor teams to own scoreboard
+    public void setTeam(BmTeam team) {
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
-            this.team.getTeam().removeEntry(player.getPlayer().getName());
+            this.team.getTeam().removeMemberGlobal(player.getPlayer());
         }
         this.team = team;
-        team.getTeam().addEntry(player.getPlayer().getName());
+        this.team.updateDoor(this,this.team.isReady());
+        team.getTeam().addMemberGlobal(player.getPlayer());
         player.getPlayer().teleport(team.getPlayerSpawn(), PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
@@ -41,7 +46,11 @@ public class BmPlayer implements Listener {
     public void removeNotMap() {
         if (this.team != null) {
             this.team.dropKeptBy(player.getPlayer());
-//            this.team.getTeam().removeEntry(player.getPlayer().getName()); //todol ?
+            this.team.getTeam().removeMemberGlobal(player.getPlayer());
+        }
+        for (BmTeam b  : bmsts.getTeams().values()) {
+            b.getTeam().removePlayer(player.getScoreboardController());
+            b.updateDoor(this,true);
         }
         HandlerList.unregisterAll(this);
     }

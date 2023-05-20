@@ -22,6 +22,16 @@ public class ScoreboardController {
         }
     }
 
+    public void remove() {
+        for (ScoreboardObjective o : objectives) {
+            o.removePlayer(this);
+        }
+        for (ScoreboardTeam t : teams) {
+            t.removeMemberGlobal(player.getPlayer());
+            t.removePlayer(this);
+        }
+    }
+
     public void addTeam(ScoreboardTeam t) {
         t.addPlayer(this);
         teams.add(t);

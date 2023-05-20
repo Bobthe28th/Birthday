@@ -34,10 +34,6 @@ public class GamePlayer implements Listener {
         this.player.setInvisible(false);
         this.player.setPlayerListHeaderFooter("Deez","Nuts");
         scoreboardController = new ScoreboardController(this);
-//        if (Bukkit.getScoreboardManager() != null) {
-//            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-//            player.setScoreboard(scoreboard);
-//        }
     }
 
     public void remove() {
@@ -46,6 +42,7 @@ public class GamePlayer implements Listener {
     }
 
     public void removeNotMap() {
+        scoreboardController.remove();
         HandlerList.unregisterAll(this);
     }
 

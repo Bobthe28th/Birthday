@@ -36,9 +36,8 @@ public class Oitc extends Minigame implements BonusRound {
     public OiMap[] oiMaps;
     public OiMap currentMap;
 
-    public int maxKills = 1;
-    public int killsPostMax = 1;
-    public int kingDeathKills = 5;
+    public int maxKills = 10;
+    public int killsPostMax = 5;
 
     public boolean cross = true;
     public boolean pickup = false;
@@ -54,7 +53,7 @@ public class Oitc extends Minigame implements BonusRound {
         super(plugin);
 
         World w = plugin.getServer().getWorld("world");
-        oiMaps = new OiMap[]{ //todo dont need custom
+        oiMaps = new OiMap[]{
                 new OiMap("temp",w,new BoundingBox(-15, 109, -328, 26, 131, -377)),
                 new OiMap("temp2",w,new BoundingBox(28, 104, -328, 69, 131, -377))
         };
@@ -118,8 +117,10 @@ public class Oitc extends Minigame implements BonusRound {
 
     public void setKing(OiPlayer king) { //todol sound
         if (king.alive) {
-            gTeam.removeMemberGlobal(king.getPlayer());
-            kTeam.addMemberGlobal(king.getPlayer());
+            if (!isBonusRound) {
+                gTeam.removeMemberGlobal(king.getPlayer());
+                kTeam.addMemberGlobal(king.getPlayer());
+            }
             for (OiPlayer p : OiPlayers.values()) {
                 if (p != king) {
                     p.getPlayer().sendTitle(ChatColor.RED + "KILL " + king.getPlayer().getDisplayName(), ChatColor.YELLOW + "Don't let them win!", 10, 20, 10);
@@ -135,8 +136,10 @@ public class Oitc extends Minigame implements BonusRound {
         }
     }
     public void kingDeath(OiPlayer king) { //todol sound
-        kTeam.removeMemberGlobal(king.getPlayer());
-        gTeam.addMemberGlobal(king.getPlayer());
+        if (!isBonusRound) {
+            kTeam.removeMemberGlobal(king.getPlayer());
+            gTeam.addMemberGlobal(king.getPlayer());
+        }
         for (OiPlayer p : OiPlayers.values()) {
             if (p != king) {
                 p.getPlayer().sendTitle("",ChatColor.BLUE + king.getPlayer().getDisplayName() + " was killed!",10,20,10);
@@ -188,7 +191,7 @@ public class Oitc extends Minigame implements BonusRound {
         removeArrows();
         if (OiPlayers != null) {
             for (OiPlayer oiPlayer : OiPlayers.values()) {
-                oiPlayer.removeNotMap();
+                oiPlayer.remove();
             }
             OiPlayers.clear();
         }
@@ -209,6 +212,7 @@ public class Oitc extends Minigame implements BonusRound {
     public void onPlayerLeave(GamePlayer player) {
         if (OiPlayers.containsKey(player.getPlayer())) {
             OiPlayers.get(player.getPlayer()).remove();
+            OiPlayers.remove(player.getPlayer());
         }
     }
 

@@ -1,15 +1,11 @@
 package me.bobthe28th.birthday.commands;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,18 +38,31 @@ public class BCommands implements CommandExecutor {
                 }
                 return true;
             case "test":
-                ArmorStand armorStand = player.getWorld().spawn(player.getLocation(), ArmorStand.class);
+
+ //
+//
+//                PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+//
+//                packet.getIntegers().write(0,armorStand.getEntityId());
+
+//                PacketContainer packet = new PacketContainer(PacketType.Play.Server.GAME_STATE_CHANGE);
+//                packet.get
+                        //.write(0, new byte[]{5});
+//                packet.getIntegers().write(0,5);
+//                packet.getBytes().write(0,(byte)5);
+//                packet.getFloat().write(0,102f);
+//                packet.getIntegerArrays().write(0,new int[]{5});
+
+//                ClientboundGameEventPacket packet = new ClientboundGameEventPacket(ClientboundGameEventPacket.DEMO_EVENT,0f);
 
 
-                PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+//                ((CraftPlayer)player).getHandle().connection.send(packet);
 
-                packet.getIntegers().write(0,armorStand.getEntityId());
-
-                try {
-                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
                 return true;
             case "pvp":
                 Main.pvp = !Main.pvp;

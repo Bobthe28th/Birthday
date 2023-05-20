@@ -54,21 +54,23 @@ public class Bmsts extends Minigame {
     public Bmsts(Main plugin) {
         super(plugin);
 
-//        for (Team t : Main.board.getTeams()) {
-//            if (t.getName().startsWith("bday")) {
-//                t.unregister();
-//            }
-//        }
-
         World w = plugin.getServer().getWorld("world");
 
         Location[] l = new Location[4];
-        l[0] = new Location(w,-148, 92, -320);
+        l[0] = new Location(w,-226, 120, -298);
         for (int i = 1; i < l.length; i++) {
             l[i] = l[i-1].clone().add(-6,0,0);
         }
-        BmTeams.put("blue",new BmTeam(this,"blue", Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Location(w,-168, 92, -316,-90,0),new Location(w,-146, 92, -318),new Location(w,-146, 92, -314), Arrays.asList(l),new Location(w,-146, 92, -316),new Location(w,-152, 92, -312),new BoundingBox(-142, 92, -311,-141.5, 94, -313)));
-        BmTeams.put("red",BmTeams.get("blue").copy("red",Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,-15),new BoundingBox(-142, 92, -316,-141.5, 94, -318)));
+        Location[] door = new Location[9];
+        for (int x = 0; x < 3; x ++) {
+            for (int y = 0; y < 3; y++) {
+                door[x+y*3] = new Location(w,-248, 120 + y, -294 - x);
+            }
+        }
+        BmTeams.put("yellow",new BmTeam(this,"yellow", Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291),new Location(w,-231, 120, -290), Arrays.asList(door),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
+        BmTeams.put("green",BmTeams.get("yellow").copy("green",Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -295,-234.5, 127, -293)));
+        BmTeams.put("red",BmTeams.get("green").copy("red",Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -290,-234.5, 127, -288)));
+        BmTeams.put("blue",BmTeams.get("red").copy("blue",Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -285,-234.5, 127, -283)));
 
         HashMap<BmTeam,Location> minionSpawn = new HashMap<>();
         minionSpawn.put(BmTeams.get("blue"),new Location(w, -193, 92, -317));
@@ -95,16 +97,11 @@ public class Bmsts extends Minigame {
     @Override
     public void disable() {
         for (BmTeam team : BmTeams.values()) {
-            team.removeMinions();
+            team.remove();
         }
         if (currentBonusRound != null) {
             currentBonusRound.endBonusRound(false);
         }
-//        for (Team t : Main.board.getTeams()) {
-//            if (t.getName().startsWith("bdaybmsts")) {
-//                t.unregister();
-//            }
-//        }
         HandlerList.unregisterAll(this);
         if (BmPlayers != null) {
             for (BmPlayer bmPlayer : BmPlayers.values()) {

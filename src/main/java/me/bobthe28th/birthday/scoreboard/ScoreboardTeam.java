@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class ScoreboardTeam {
 
     String title;
+    String prefix = null;
     HashMap<ScoreboardController, Team> teams = new HashMap<>();
     ArrayList<Entity> globalMembers = new ArrayList<>();
     boolean friendlyFire = true;
@@ -22,6 +23,15 @@ public class ScoreboardTeam {
 
     public ScoreboardTeam(String title) {
         this.title = title;
+    }
+
+    public ScoreboardTeam(String title, String prefix, boolean friendlyFire, boolean seeInvisibles, Team.OptionStatus nameTag, ChatColor color) {
+        this.title = title;
+        this.prefix = prefix;
+        this.friendlyFire = friendlyFire;
+        this.seeInvisibles = seeInvisibles;
+        this.nameTag = nameTag;
+        this.color = color;
     }
 
     public ScoreboardTeam(String title, boolean friendlyFire, boolean seeInvisibles, Team.OptionStatus nameTag, ChatColor color) {
@@ -46,6 +56,9 @@ public class ScoreboardTeam {
         t.setCanSeeFriendlyInvisibles(seeInvisibles);
         t.setOption(Team.Option.NAME_TAG_VISIBILITY,nameTag);
         t.setColor(color);
+        if (prefix != null) {
+            t.setPrefix(prefix);
+        }
         teams.put(p,t);
         for (Entity e : globalMembers) {
             if (e instanceof Player pl) {
@@ -56,12 +69,24 @@ public class ScoreboardTeam {
         }
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public ChatColor getColor() {
+        return color;
+    }
+
     public void addMember(Entity member, ScoreboardController p) {
         teams.get(p).addEntry(member.getUniqueId().toString());
     }
 
     public void removeMember(Entity member, ScoreboardController p) {
         teams.get(p).removeEntry(member.getUniqueId().toString());
+    }
+
+    public ArrayList<Entity> getGlobalMembers() {
+        return globalMembers;
     }
 
     public void addMemberGlobal(Entity member) {

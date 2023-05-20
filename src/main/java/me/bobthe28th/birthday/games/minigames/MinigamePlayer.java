@@ -15,6 +15,7 @@ public abstract class MinigamePlayer {
         this.plugin = plugin;
         this.player = player;
         this.game = game;
+        Main.gameController.giveAdvancement(player.getPlayer(),"minigamer");
     }
 
     public GamePlayer getGamePlayer() {

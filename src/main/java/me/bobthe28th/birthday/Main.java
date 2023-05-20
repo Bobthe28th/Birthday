@@ -7,12 +7,14 @@ import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.music.MusicController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -82,8 +84,8 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-//        getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-//        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
+        getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
+        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
     }
 
     @EventHandler
@@ -111,26 +113,18 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-//    @EventHandler
-//    public void onSpawn(SpawnerSpawnEvent event) {
-//        if (event.getEntityType().equals(EntityType.CHICKEN)) {
-//            if (event.getEntity().getPassengers().size() > 0) {
-//                event.setCancelled(true);
-//            }
-//        }
-//    }
-
     public HashMap<Player, GamePlayer> getGamePlayers() {
         return gameController.getGamePlayers();
     }
 
-//    @EventHandler
-//    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {
-//        Player player = event.getPlayer();
-//        Advancement advancement = event.getAdvancement();
-//        for(String criteria: advancement.getCriteria()) {
-//            player.getAdvancementProgress(advancement).revokeCriteria(criteria);
-//        }
-//    }
+    @EventHandler
+    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {
+        Player player = event.getPlayer();
+        Advancement advancement = event.getAdvancement();
+        if (advancement.getDisplay() != null && advancement.getDisplay().getDescription().startsWith("\ue240")) return;
+        for(String criteria: advancement.getCriteria()) {
+            player.getAdvancementProgress(advancement).revokeCriteria(criteria);
+        }
+    }
 
 }

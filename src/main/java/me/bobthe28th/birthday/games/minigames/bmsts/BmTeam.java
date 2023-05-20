@@ -5,6 +5,7 @@ import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.SilverfishMinion;
 import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
+import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,9 +20,10 @@ public class BmTeam {
 
     Main plugin;
     Bmsts bmsts;
-    Team team;
+    ScoreboardTeam team;
     boolean ready = false;
     boolean dead = false;
+    boolean doorOpen = false;
 
     Color bColor;
     ChatColor color;
@@ -32,6 +34,7 @@ public class BmTeam {
     Location randomizer;
     Location techUpgrade;
     List<Location> spawners = new ArrayList<>();
+    List<Location> doorBlocks = new ArrayList<>();
     Location minionItemSpawn;
     Location readySwitch;
     BoundingBox joinPortal;
@@ -40,7 +43,7 @@ public class BmTeam {
 
     ArrayList<Minion> minions = new ArrayList<>();
 
-    public BmTeam(Bmsts bmsts, String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location minionItemSpawn, BoundingBox joinPortal) {
+    public BmTeam(Bmsts bmsts, String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location minionItemSpawn, List<Location> doorBlocks, BoundingBox joinPortal) {
         this.plugin = plugin;
         this.bmsts = bmsts;
         this.playerSpawn = playerSpawn.clone();
@@ -48,6 +51,9 @@ public class BmTeam {
         this.techUpgrade = techUpgrade.clone();
         for (Location l : spawners) {
             this.spawners.add(l.clone());
+        }
+        for (Location l : doorBlocks) {
+            this.doorBlocks.add(l.clone());
         }
         this.bColor = bColor;
         this.color = color;
@@ -59,18 +65,28 @@ public class BmTeam {
             readySwitch.getBlock().setBlockData(readySwitch.getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
         }
 
-//        team = Main.board.registerNewTeam("bdaybmsts" + name);
-//        team.setDisplayName(name.substring(0, 1).toUpperCase() + name.substring(1) + " Team");
-//        team.setColor(color); //todo udpdate to new teams
-//        team.setAllowFriendlyFire(false);
-//        team.setCanSeeFriendlyInvisibles(true);
-//        team.setPrefix(ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "]" + " ");
+        this.team = new ScoreboardTeam(name,ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "] ",false,true, Team.OptionStatus.FOR_OWN_TEAM,color);
 
         new SilverfishMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
 
+    }
+
+    public void remove() {
+        removeMinions();
+        getTeam().remove();
+    }
+
+    public String getDisplayName() {
+        return Character.toUpperCase(team.getTitle().charAt(0)) + team.getTitle().substring(1) + " team";
+    }
+
+    public void updateDoor(BmPlayer p,boolean open) {
+        for (Location l : doorBlocks) {
+            p.getPlayer().sendBlockChange(l,(open ? Material.AIR.createBlockData() : l.clone().add(0,7,0).getBlock().getBlockData()));
+        }
     }
 
     public int getResearchPoints() {
@@ -86,9 +102,9 @@ public class BmTeam {
             if (m.getEntities().size() != 0) return;
         }
         dead = true;
-        Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "☠" + ChatColor.GRAY + "] " + team.getColor() + team.getDisplayName() + " dead");
+        Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "☠" + ChatColor.GRAY + "] " + team.getColor() + getDisplayName() + " dead");
         for (BmPlayer p : bmsts.getPlayers().values()) {
-            p.getPlayer().sendTitle("",team.getColor() + team.getDisplayName() + " dead",10,20,10);
+            p.getPlayer().sendTitle("",team.getColor() + getDisplayName() + " dead",10,20,10);
         }
         BmTeam winner = null;
         for (BmTeam t : bmsts.getTeams().values()) {
@@ -104,9 +120,9 @@ public class BmTeam {
             for (BmTeam t : bmsts.getTeams().values()) {
                 t.removeEntities();
             }
-            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getTeam().getDisplayName() + " won the round");
+            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getTeam().getTitle() + " won the round");
             for (BmPlayer p : bmsts.getPlayers().values()) {
-                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getTeam().getDisplayName() + " won the round", 10, 20, 10);
+                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getTeam().getTitle() + " won the round", 10, 20, 10);
                 p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5)); //todo dont if bonus round
             }
             bmsts.setRound(bmsts.getRound() + 1);
@@ -117,16 +133,31 @@ public class BmTeam {
         }
     }
 
-    public void setReady(boolean ready) {
+    public ArrayList<BmPlayer> getMembers() {
+        ArrayList<BmPlayer> members = new ArrayList<>();
+        for (BmPlayer p : bmsts.getPlayers().values()) {
+            if (p.getTeam() == this) {
+                members.add(p);
+            }
+        }
+        return members;
+    }
+
+    public void setReady(boolean ready) { //todo open door
         this.ready = ready;
+        this.doorOpen = ready; //todo teleport if outside
+        for (BmPlayer p : getMembers()) {
+            updateDoor(p,ready);
+        }
         if (ready) {
+            dropKept();
             boolean allReady = true;
-            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "✔" + ChatColor.GRAY + "] " + team.getColor() + team.getDisplayName() + " ready");
+            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "✔" + ChatColor.GRAY + "] " + team.getColor() + getDisplayName() + " ready");
             for (BmPlayer p : bmsts.getPlayers().values()) {
-                p.getPlayer().sendTitle("", team.getColor() + team.getDisplayName() + " ready", 10, 20, 10);
+                p.getPlayer().sendTitle("", team.getColor() + getDisplayName() + " ready", 10, 20, 10);
             }
             for (BmTeam g : bmsts.getTeams().values()) {
-                if (!g.isReady()) { //todo check if has players
+                if (!g.isReady()) { //todo g.getMembers().size() > 0
                     allReady = false;
                     break;
                 }
@@ -179,15 +210,15 @@ public class BmTeam {
         }
     }
 
-    public void dropAll() { //todo add button
-        int offset = 0;
-        for (Minion m : minions) {
-            if (!m.dropKept(minionItemSpawn.clone().add(0.5 - offset * 2,0,0.5))) {
-                m.drop(minionItemSpawn.clone().add(0.5 - offset * 2, 0, 0.5));
-            }
-            offset ++;
-        }
-    }
+//    public void dropAll() { //todo add button
+//        int offset = 0;
+//        for (Minion m : minions) {
+//            if (!m.dropKept(minionItemSpawn.clone().add(0.5 - offset * 2,0,0.5))) {
+//                m.drop(minionItemSpawn.clone().add(0.5 - offset * 2, 0, 0.5));
+//            }
+//            offset ++;
+//        }
+//    }
 
     public void dropKept() {
         int offset = 0;
@@ -244,7 +275,7 @@ public class BmTeam {
         return readySwitch;
     }
 
-    public Team getTeam() {
+    public ScoreboardTeam getTeam() {
         return team;
     }
 
@@ -281,7 +312,11 @@ public class BmTeam {
         for (Location l : spawners) {
             copySpawners.add(l.clone().add(offset));
         }
-        return new BmTeam(bmsts,name,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),minionItemSpawn.clone().add(offset),cjoinPortal);
+        List<Location> cloneDoorBlocks = new ArrayList<>();
+        for (Location l : doorBlocks) {
+            cloneDoorBlocks.add(l.clone().add(offset));
+        }
+        return new BmTeam(bmsts,name,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,cjoinPortal);
     }
 
 }

@@ -1,11 +1,11 @@
 package me.bobthe28th.birthday.games.minigames;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
+import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
+import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -68,19 +68,21 @@ public abstract class Minigame implements Listener {
         armorStand.setGravity(false);
         armorStand.setVisible(false);
 
-        PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
-        packet.getIntegers().write(0,armorStand.getEntityId());
+        ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket((Entity) armorStand);
+//        PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+//        packet.getIntegers().write(0,armorStand.getEntityId());
 
         for (GamePlayer g : plugin.getGamePlayers().values()) {
             g.setCanMove(false);
             g.getPlayer().setInvisible(true);
             g.getPlayer().setVelocity(new Vector(0,0,0));
 //            g.getPlayer().teleport(endLoc);
-            try {
-                ProtocolLibrary.getProtocolManager().sendServerPacket(g.getPlayer(), packet);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ((CraftPlayer)g.getPlayer()).getHandle().connection.send(packet);
+//            try {
+//                ProtocolLibrary.getProtocolManager().sendServerPacket(g.getPlayer(), packet);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
 
         new BukkitRunnable() {
@@ -92,13 +94,15 @@ public abstract class Minigame implements Listener {
                     for (GamePlayer g : plugin.getGamePlayers().values()) {
                         g.setCanMove(true);
                         g.getPlayer().setInvisible(false);
-                        PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
-                        packet.getIntegers().write(0,g.getPlayer().getEntityId());
-                        try {
-                            ProtocolLibrary.getProtocolManager().sendServerPacket(g.getPlayer(), packet);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket((Entity) g.getPlayer());
+//                        PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+//                        packet.getIntegers().write(0,g.getPlayer().getEntityId());
+                        ((CraftPlayer)g.getPlayer()).getHandle().connection.send(packet);
+//                        try {
+//                            ProtocolLibrary.getProtocolManager().sendServerPacket(g.getPlayer(), packet);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
                         g.getPlayer().setGameMode(GameMode.ADVENTURE);
                     }
                     armorStand.remove();
@@ -121,13 +125,17 @@ public abstract class Minigame implements Listener {
                             Location l = placeLocation[p].clone();
                             l.setYaw(spectateYaw - 180);
                             winner.teleport(l);
-                            PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
-                            packet.getIntegers().write(0,winner.getEntityId());
-                            try {
-                                ProtocolLibrary.getProtocolManager().sendServerPacket(winner, packet);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            if (winner.getPlayer() != null) {
+                                ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket((Entity) winner);
+                                ((CraftPlayer) winner.getPlayer()).getHandle().connection.send(packet);
                             }
+//                            PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
+//                            packet.getIntegers().write(0,winner.getEntityId());
+//                            try {
+//                                ProtocolLibrary.getProtocolManager().sendServerPacket(winner, packet);
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
                             winners.get(p).setCanMove(true);
                         }
                     }
