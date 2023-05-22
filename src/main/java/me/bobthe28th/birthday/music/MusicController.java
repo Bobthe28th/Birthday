@@ -38,7 +38,8 @@ public class MusicController {
             new Music("bonusround4",4120L),
             new Music("bonusround5",2460L),
             new Music("bonusround6",2460L),
-            new Music("zombiefun",1640L)
+            new Music("zombiefun",1640L),
+            new Music("elevator",2400L)
     );
 
     public MusicController(Main plugin) {
@@ -87,7 +88,6 @@ public class MusicController {
         if (currentlyPlaying != null) {
             for (GamePlayer p : plugin.getGamePlayers().values()) {
                 p.getPlayer().stopSound(currentlyPlaying.getName(),SoundCategory.MUSIC);
-                musicLength.cancel();
             }
         }
     }

@@ -24,6 +24,7 @@ public class BmPlayer implements Listener {
             b.getTeam().addPlayer(player.getScoreboardController());
             b.updateDoor(this,false);
         }
+        player.getPlayer().teleport(bmsts.playerSpawn);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -66,15 +67,17 @@ public class BmPlayer implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() != player.getPlayer()) return;
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && team != null && event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.LEVER && event.getClickedBlock().getLocation().equals(team.getReadySwitch())) {
-            if (((Powerable) event.getClickedBlock().getBlockData()).isPowered()) {
-                if (team.isReady()) {
-                    event.setCancelled(true);
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && team != null && event.getClickedBlock() != null) {
+            if (event.getClickedBlock().getType() == Material.LEVER && event.getClickedBlock().getLocation().equals(team.getReadySwitch())) {
+                if (((Powerable) event.getClickedBlock().getBlockData()).isPowered()) {
+                    if (team.isReady()) {
+                        event.setCancelled(true);
+                    }
+                } else {
+                    team.setReady(true);
                 }
-            } else {
-                team.setReady(true);
+                event.getClickedBlock().getState().update(true, true);
             }
-            event.getClickedBlock().getState().update(true, true);
         }
     }
 

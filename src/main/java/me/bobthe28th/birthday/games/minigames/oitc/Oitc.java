@@ -94,7 +94,12 @@ public class Oitc extends Minigame implements BonusRound {
         }
 
         for (int i = 0; i < Math.min(topPoints.size(),3); i++) {
-            String data = (i+1) + ". " + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
+            String data;
+            if (isBonusRound) {
+                data = (i + 1) + ". " + bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().getColor() + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
+            } else {
+                data = (i + 1) + ". " + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
+            }
             if (objective.hasRow(8 - i)) {
                 objective.updateRow(8 - i,data);
             } else {
@@ -123,18 +128,31 @@ public class Oitc extends Minigame implements BonusRound {
             }
             for (OiPlayer p : OiPlayers.values()) {
                 if (p != king) {
-                    p.getPlayer().sendTitle(ChatColor.RED + "KILL " + king.getPlayer().getDisplayName(), ChatColor.YELLOW + "Don't let them win!", 10, 20, 10);
+                    if (isBonusRound) {
+                        p.getPlayer().sendTitle(ChatColor.RED + "KILL " + bmsts.getTeamColor(king.getPlayer(),ChatColor.RED) + king.getPlayer().getDisplayName(), ChatColor.YELLOW + "Don't let them win!", 10, 20, 10);
+                    } else {
+                        p.getPlayer().sendTitle(ChatColor.RED + "KILL " + king.getPlayer().getDisplayName(), ChatColor.YELLOW + "Don't let them win!", 10, 20, 10);
+                    }
                 }
             }
             king.king = true;
             king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL", ChatColor.YELLOW + "Get " + killsPostMax + " kills to win!", 10, 20, 10);
             king.getPlayer().setGlowing(true);
             king.giveKingItem();
-            Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
+            if (isBonusRound) {
+                Bukkit.broadcastMessage(bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " is the king!");
+            } else {
+                Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
+            }
         } else {
-            Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " was the king but died as they got it lol");
+            if (isBonusRound) {
+                Bukkit.broadcastMessage(bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " was the king but died as they got it lol");
+            } else {
+                Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " was the king but died as they got it lol");
+            }
         }
     }
+
     public void kingDeath(OiPlayer king) { //todol sound
         if (!isBonusRound) {
             kTeam.removeMemberGlobal(king.getPlayer());
@@ -295,7 +313,6 @@ public class Oitc extends Minigame implements BonusRound {
                 }
 
                 if (damager != null) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getDisplayName() + ChatColor.GRAY + " was killed by " + ChatColor.RED + damager.getDisplayName());
                     if (OiPlayers.containsKey(damager)) {
                         OiPlayers.get(damager).kill(player);
                     }
@@ -303,11 +320,9 @@ public class Oitc extends Minigame implements BonusRound {
                         OiPlayers.get(player).death(damager);
                     }
                 } else {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getDisplayName() + ChatColor.GRAY + " died");
                     OiPlayers.get(player).death(null);
                 }
             } else {
-                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getDisplayName() + ChatColor.GRAY + " died");
                 OiPlayers.get(player).death(null);
             }
             event.setCancelled(true);
@@ -326,7 +341,12 @@ public class Oitc extends Minigame implements BonusRound {
         disable();
         status = MinigameStatus.END;
         if (points) {
-            //todo award points
+            for (int i = 0; i < Math.min(3,topPoints.size()); i++) {
+                if (bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam() != null) {
+                    bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().addResearchPoints(20 - (i * 5) - (i > 0 ? 10 : 0));
+                }
+            }
         }
+        bmsts.endBonusRound();
     }
 }

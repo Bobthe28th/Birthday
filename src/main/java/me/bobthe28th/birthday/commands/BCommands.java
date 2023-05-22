@@ -2,6 +2,7 @@ package me.bobthe28th.birthday.commands;
 
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Random;
 
 public class BCommands implements CommandExecutor {
 
@@ -39,6 +41,11 @@ public class BCommands implements CommandExecutor {
                 return true;
             case "test":
 
+                Main.musicController.getQueue().clearQueue();
+                String n = "battle" + (new Random().nextInt(10) + 1);
+                Bukkit.broadcastMessage(n);
+                Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName(n));
+                Main.musicController.start();
  //
 //
 //                PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);

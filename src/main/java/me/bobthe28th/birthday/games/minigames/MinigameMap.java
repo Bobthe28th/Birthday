@@ -79,6 +79,12 @@ public class MinigameMap {
                 return l;
             }
         }
+        for (int i = 0; i < maxAttempts / 2; i++) {
+            Location l = getPossibleSpawnLoc(random);
+            if (l != null) {
+                return l;
+            }
+        }
         return getPossibleSpawnLoc(random);
     }
 

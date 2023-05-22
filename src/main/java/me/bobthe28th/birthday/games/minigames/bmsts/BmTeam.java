@@ -1,20 +1,27 @@
 package me.bobthe28th.birthday.games.minigames.bmsts;
 
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.SilverfishMinion;
-import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import org.bukkit.*;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BmTeam {
 
@@ -22,7 +29,7 @@ public class BmTeam {
     Bmsts bmsts;
     ScoreboardTeam team;
     boolean ready = false;
-    boolean dead = false;
+    boolean dead = true;
     boolean doorOpen = false;
 
     Color bColor;
@@ -37,13 +44,16 @@ public class BmTeam {
     List<Location> doorBlocks = new ArrayList<>();
     Location minionItemSpawn;
     Location readySwitch;
+    Location researchPointsDisplayLoc;
     BoundingBox joinPortal;
 
     int researchPoints = 400;
+    TextDisplay researchPointsDisplay;
 
     ArrayList<Minion> minions = new ArrayList<>();
 
-    public BmTeam(Bmsts bmsts, String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location minionItemSpawn, List<Location> doorBlocks, BoundingBox joinPortal) {
+    @SuppressWarnings("deprecation")
+    public BmTeam(Bmsts bmsts, String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location minionItemSpawn, List<Location> doorBlocks, Location researchPointsDisplayLoc, BoundingBox joinPortal) {
         this.plugin = plugin;
         this.bmsts = bmsts;
         this.playerSpawn = playerSpawn.clone();
@@ -65,7 +75,16 @@ public class BmTeam {
             readySwitch.getBlock().setBlockData(readySwitch.getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
         }
 
-        this.team = new ScoreboardTeam(name,ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "] ",false,true, Team.OptionStatus.FOR_OWN_TEAM,color);
+        this.researchPointsDisplayLoc = researchPointsDisplayLoc.clone();
+        if (researchPointsDisplayLoc.getWorld() != null) {
+            this.researchPointsDisplay = researchPointsDisplayLoc.getWorld().spawn(researchPointsDisplayLoc.clone().add(0,0,-0.01), TextDisplay.class);
+            this.researchPointsDisplay.setText(color + String.valueOf(researchPoints));
+            this.researchPointsDisplay.setBillboard(Display.Billboard.FIXED);
+            this.researchPointsDisplay.setBackgroundColor(Color.fromARGB(0,0,0,0));
+            this.researchPointsDisplay.setTransformation(new Transformation(new Vector3f(), new AxisAngle4f((float) (Math.PI),0,1,0), new Vector3f(5, 5, 5), new AxisAngle4f()));
+        }
+
+        this.team = new ScoreboardTeam(name,ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "] ",false,true, Team.OptionStatus.FOR_OTHER_TEAMS,color);
 
         new SilverfishMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
@@ -75,6 +94,7 @@ public class BmTeam {
     }
 
     public void remove() {
+        this.researchPointsDisplay.remove();
         removeMinions();
         getTeam().remove();
     }
@@ -95,6 +115,7 @@ public class BmTeam {
 
     public void addResearchPoints(int amount) {
         this.researchPoints += amount;
+        this.researchPointsDisplay.setText(color + String.valueOf(this.researchPoints));
     }
 
     public void minionDeath() { //todo none spawn can only ready when all minions in
@@ -108,7 +129,8 @@ public class BmTeam {
         }
         BmTeam winner = null;
         for (BmTeam t : bmsts.getTeams().values()) {
-            if (!t.isDead()) {
+            if (!t.isDead()) { // && t.getMembers().size() > 0
+                Bukkit.broadcastMessage(t.getDisplayName() + " is still alive");
                 if (winner == null) {
                     winner = t;
                 } else {
@@ -120,15 +142,25 @@ public class BmTeam {
             for (BmTeam t : bmsts.getTeams().values()) {
                 t.removeEntities();
             }
-            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getTeam().getTitle() + " won the round");
+            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getDisplayName() + " won the round");
             for (BmPlayer p : bmsts.getPlayers().values()) {
-                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getTeam().getTitle() + " won the round", 10, 20, 10);
-                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5)); //todo dont if bonus round
+                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getDisplayName() + " won the round", 10, 20, 10);
             }
             bmsts.setRound(bmsts.getRound() + 1);
             if (bmsts.getRound() % 2 == 1) {
-                bmsts.setBonusRound(new Ghosts(plugin));
+                Random r = new Random();
+                Class<? extends BonusRound> nextBonusRound = bmsts.bonusRounds.get(r.nextInt(bmsts.bonusRounds.size()));
+                try {
+                    Constructor<?> constructor = nextBonusRound.getConstructor(Main.class);
+                    bmsts.setBonusRound((BonusRound) constructor.newInstance(plugin));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 bmsts.getBonusRound().startBonusRound(bmsts);
+            } else {
+                for (BmPlayer p : bmsts.getPlayers().values()) {
+                    p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5));
+                }
             }
         }
     }
@@ -143,7 +175,7 @@ public class BmTeam {
         return members;
     }
 
-    public void setReady(boolean ready) { //todo open door
+    public void setReady(boolean ready) {
         this.ready = ready;
         this.doorOpen = ready; //todo teleport if outside
         for (BmPlayer p : getMembers()) {
@@ -157,33 +189,13 @@ public class BmTeam {
                 p.getPlayer().sendTitle("", team.getColor() + getDisplayName() + " ready", 10, 20, 10);
             }
             for (BmTeam g : bmsts.getTeams().values()) {
-                if (!g.isReady()) { //todo g.getMembers().size() > 0
+                if (!g.isReady() && g.getMembers().size() > 0) {
                     allReady = false;
                     break;
                 }
             }
             if (allReady) {
-
-                for (BmTeam g : bmsts.getTeams().values()) {
-                    g.dropKept();
-                    g.setReady(false);
-                }
-
-                for (BmPlayer p : bmsts.getPlayers().values()) {
-                    p.getPlayer().teleport(bmsts.getCurrentMap().getPlayerSpawn().clone().add(0.5, 0, 0.5));
-                }
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        for (BmTeam g : bmsts.getTeams().values()) {
-                            g.spawnAll(bmsts.getCurrentMap().getMinionSpawn().get(g));
-                            if (g.getReadySwitch().getBlock().getType() == Material.LEVER) {
-                                g.getReadySwitch().getBlock().setBlockData(g.getReadySwitch().getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
-                            }
-//                        g.showTargets();
-                        }
-                    }
-                }.runTaskLater(plugin, 40);
+                bmsts.startBattle();
             }
         }
     }
@@ -200,11 +212,10 @@ public class BmTeam {
     }
 
     public void spawnAll(Location l) {
-        if (minions.size() > 0) {
-            dead = false;
-        }
+        dead = true;
         for (Minion m : minions) {
             if (m.getPlacedLoc() != null && spawners.contains(m.getPlacedLoc())) {
+                dead = false;
                 m.spawnGroup(l.clone()); //TODO suffocate
             }
         }
@@ -316,7 +327,7 @@ public class BmTeam {
         for (Location l : doorBlocks) {
             cloneDoorBlocks.add(l.clone().add(offset));
         }
-        return new BmTeam(bmsts,name,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,cjoinPortal);
+        return new BmTeam(bmsts,name,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,researchPointsDisplayLoc.clone().add(offset),cjoinPortal);
     }
 
 }

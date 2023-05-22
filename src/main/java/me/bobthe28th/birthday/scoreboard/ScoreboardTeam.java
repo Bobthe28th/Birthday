@@ -113,12 +113,23 @@ public class ScoreboardTeam {
 
     public void remove() {
         for (ScoreboardController p : teams.keySet()) {
-            p.removeTeam(this);
+            if (p != null) {
+                p.removeTeamNotList(this);
+            }
         }
+        teams.clear();
     }
 
     public void removePlayer(ScoreboardController p) {
-        teams.get(p).unregister();
+        if (teams.get(p) != null) {
+            teams.get(p).unregister();
+        }
         teams.remove(p);
+    }
+
+    public void removePlayerNotList(ScoreboardController p) {
+        if (teams.get(p) != null) {
+            teams.get(p).unregister();
+        }
     }
 }

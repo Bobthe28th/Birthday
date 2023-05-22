@@ -11,7 +11,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.monster.Blaze;
@@ -97,7 +96,7 @@ public class BlazeEntity extends Blaze implements MinionEntity {
         private final BlazeEntity blaze;
         private int attackStep;
         private int attackTime;
-        private int lastSeen;
+//        private int lastSeen;
 
         public BlazeAttackGoal(BlazeEntity var0) {
             this.blaze = var0;
@@ -115,7 +114,7 @@ public class BlazeEntity extends Blaze implements MinionEntity {
 
         public void stop() {
             this.blaze.setCharged(false);
-            this.lastSeen = 0;
+//            this.lastSeen = 0;
         }
 
         public boolean requiresUpdateEveryTick() {
@@ -127,11 +126,11 @@ public class BlazeEntity extends Blaze implements MinionEntity {
             LivingEntity var0 = this.blaze.getTarget();
             if (var0 != null) {
                 boolean var1 = this.blaze.getSensing().hasLineOfSight(var0);
-                if (var1) {
-                    this.lastSeen = 0;
-                } else {
-                    ++this.lastSeen;
-                }
+//                if (var1) {
+//                    this.lastSeen = 0;
+//                } else {
+//                    ++this.lastSeen;
+//                }
 
                 double var2 = this.blaze.distanceToSqr(var0);
                 if (var2 < 4.0) {
@@ -177,7 +176,7 @@ public class BlazeEntity extends Blaze implements MinionEntity {
                     }
 
                     this.blaze.getLookControl().setLookAt(var0, 10.0F, 10.0F);
-                } else if (this.lastSeen < 5) {
+                } else { // if (this.lastSeen < 5)
                     this.blaze.getMoveControl().setWantedPosition(var0.getX(), var0.getY(), var0.getZ(), 1.0);
                 }
 
@@ -186,7 +185,7 @@ public class BlazeEntity extends Blaze implements MinionEntity {
         }
 
         private double getFollowDistance() {
-            return this.blaze.getAttributeValue(Attributes.FOLLOW_RANGE);
+            return 7;
         }
     }
 }

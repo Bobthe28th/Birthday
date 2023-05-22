@@ -61,6 +61,11 @@ public class ScoreboardController {
         teams.remove(t);
     }
 
+    public void removeTeamNotList(ScoreboardTeam t) {
+        t.removePlayerNotList(this);
+        teams.remove(t);
+    }
+
     public Scoreboard getScoreboard() {
         return scoreboard;
     }

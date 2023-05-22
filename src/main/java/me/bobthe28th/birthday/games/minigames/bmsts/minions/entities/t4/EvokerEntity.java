@@ -83,7 +83,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
         protected int getCastingInterval() {
             return 100;
-        }
+        } //todos random?
 
         protected void performSpellCasting() {
             LivingEntity entityliving = EvokerEntity.this.getTarget();
@@ -105,8 +105,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
             } else {
                 for(i = 0; i < 16; ++i) {
                     double d2 = 1.25 * (double)(i + 1);
-                    int j = 1 * i;
-                    this.createSpellEntity(EvokerEntity.this.getX() + (double)Mth.cos(f) * d2, EvokerEntity.this.getZ() + (double)Mth.sin(f) * d2, d0, d1, f, j);
+                    this.createSpellEntity(EvokerEntity.this.getX() + (double)Mth.cos(f) * d2, EvokerEntity.this.getZ() + (double)Mth.sin(f) * d2, d0, d1, f, i);
                 }
             }
 

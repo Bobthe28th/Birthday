@@ -182,7 +182,11 @@ public class OiPlayer extends MinigamePlayer {
                 giveArrow(false, 1);
             }
         }
-        player.getPlayer().sendTitle("",ChatColor.RED + "☠",0,10,10);
+        if (oitc.isBonusRound) {
+            player.getPlayer().sendTitle("", oitc.bmsts.getTeamColor(killed,ChatColor.RED) + "☠", 0, 10, 10);
+        } else {
+            player.getPlayer().sendTitle("", ChatColor.RED + "☠", 0, 10, 10);
+        }
         kills ++;
         points ++;
         oitc.updateTopPoints(this);
@@ -208,15 +212,37 @@ public class OiPlayer extends MinigamePlayer {
     }
 
     public void death(Player killer) {
-        alive = false;
-        deaths ++;
         if (oitc.status == MinigameStatus.PLAYING) {
+            alive = false;
+            deaths ++;
+            ChatColor teamColor = null;
+            ChatColor enemyColor = null;
+            if (oitc.isBonusRound) {
+                teamColor = oitc.bmsts.getTeamColor(player.getPlayer(),ChatColor.RED);
+                enemyColor = oitc.bmsts.getTeamColor(killer,ChatColor.RED);
+            }
+            if (killer == null) {
+                points -= 1;
+                oitc.getObjective().updateRow(3,"Points: " + points, player);
+                oitc.updateTopPoints(this);
+                if (oitc.isBonusRound) {
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
+                } else {
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
+                }
+            } else {
+                if (oitc.isBonusRound) {
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + enemyColor + killer.getDisplayName());
+                }
+            }
             oitc.getObjective().updateRow(1, "Deaths: " + deaths, player);
             player.getPlayer().setGameMode(GameMode.SPECTATOR);
             player.getPlayer().getInventory().clear();
             if (king) {
                 oitc.kingDeath(this);
             }
+
+            ChatColor finalEnemyColor = enemyColor;
             new BukkitRunnable() {
                 int time = 3;
                 final ChatColor[] timeColors = new ChatColor[]{ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED};
@@ -229,7 +255,11 @@ public class OiPlayer extends MinigamePlayer {
                         this.cancel();
                     }
                     if (!this.isCancelled()) {
-                        player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0, 25, 3);
+                        if (oitc.isBonusRound) {
+                            player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + finalEnemyColor + killer.getDisplayName() : ""), 0, 25, 3);
+                        } else {
+                            player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0, 25, 3);
+                        }
                         time--;
                     }
                 }

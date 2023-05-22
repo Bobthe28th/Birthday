@@ -65,7 +65,7 @@ public class Main extends JavaPlugin implements Listener {
         musicController = new MusicController(this);
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            gameController.addNewPlayer(player);
+            gameController.addNewPlayer(player); //todos uncomment
         }
     }
 
@@ -85,7 +85,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
         getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
+        gameController.playerJoin(getGamePlayers().get(event.getPlayer())); //todos uncomment
     }
 
     @EventHandler

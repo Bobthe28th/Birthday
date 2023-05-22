@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Random;
 
 public class NearestEnemyTargetGoal extends TargetGoal {
 
@@ -30,6 +31,8 @@ public class NearestEnemyTargetGoal extends TargetGoal {
         Iterator<Entity> i = this.mob.level.getEntities().getAll().iterator();
         double dist = -1.0;
         LivingEntity closest = null;
+        Random random = new Random();
+        int randomRange = 4;
         while(true) {
             if (!i.hasNext()) {
                 this.target = closest;
@@ -39,7 +42,7 @@ public class NearestEnemyTargetGoal extends TargetGoal {
             if (eE instanceof LivingEntity e) {
                 if (e instanceof MinionEntity t && !t.isPreview() && this.mob instanceof MinionEntity mt && mt.getGameTeam() != t.getGameTeam()) {
                     double tDist = e.distanceToSqr(this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
-                    if ((dist == -1.0 || tDist < dist)) { //TODOl and random range
+                    if ((dist == -1.0 || tDist < dist + random.nextInt(randomRange*2)-randomRange)) { //TODOl test
                         dist = tDist;
                         closest = e;
                     }

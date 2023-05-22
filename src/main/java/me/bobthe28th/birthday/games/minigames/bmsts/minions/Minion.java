@@ -14,10 +14,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftMob;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -25,6 +22,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -258,6 +256,17 @@ public class Minion implements Listener {
                     }
                 } else {
                     l.setCustomName(bmsts.getHealthString(l.getHealth() - event.getFinalDamage(), team.getColor(), team.getDarkColor()));
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getEntity() instanceof Fireball f && f.getShooter() instanceof org.bukkit.entity.Entity s && event.getHitEntity() != null) {
+            if (event.getHitEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
+                if (l instanceof Blaze || l instanceof Wither || l instanceof Piglin) { //todo more?
+                    l.damage(3.0, s);
                 }
             }
         }

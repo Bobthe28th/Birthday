@@ -5,11 +5,13 @@ import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameMap;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
+import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -39,26 +41,15 @@ public class Ghosts extends Minigame implements BonusRound {
 
     int time = 90;
     MinigameMap map;
-//    ScoreboardObjective objective;
     ScoreboardTeam team;
 
     public Ghosts(Main plugin) {
         super(plugin);
         status = MinigameStatus.READY;
-//        objective = new ScoreboardObjective("test","TEST");
-//        objective.addRow(1,"Time: " + time,true);
-//        objective.addRow(0,"TestLocal",false);
         team = new ScoreboardTeam("Ghosts",false,true, Team.OptionStatus.NEVER,ChatColor.WHITE);
         World w = plugin.getServer().getWorld("world");
         map = new MinigameMap("temp",w,new BoundingBox(-261, 98, -382,-228, 91, -349),new Location(w,-244.5, 99, -365.5));
-        Main.musicController.getQueue().clearQueue();
-        Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("zombiefun"));
-        Main.musicController.start();
     }
-
-//    public ScoreboardObjective getObjective() {
-//        return objective;
-//    }
 
     public ScoreboardTeam getTeam() {
         return team;
@@ -67,19 +58,16 @@ public class Ghosts extends Minigame implements BonusRound {
     @Override
     public void start() {
         status = MinigameStatus.PLAYING;
+        Main.musicController.getQueue().clearQueue();
+        Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("zombiefun"));
+        Main.musicController.start();
         Main.pvp = false;
+        Bukkit.broadcastMessage("a");
 
-//            if (isBonusRound) {
-//                for (BmPlayer p : bmsts.getPlayers().values()) {
-//                    p.getPlayer().teleport(getSpawnLoc(w));
-//                    players.put(p.getPlayer(),new GhostPlayer(plugin, p.getGamePlayer(), this));
-//                }
-//            } else {
         for (GamePlayer p : plugin.getGamePlayers().values()) {
             p.getPlayer().teleport(map.getSpawnLoc(new ArrayList<>(players.values())));
             players.put(p.getPlayer(),new GhPlayer(plugin, p, this));
         }
-//            }
 
         spawnTask = new BukkitRunnable() {
             @Override
@@ -96,8 +84,12 @@ public class Ghosts extends Minigame implements BonusRound {
                     Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue(5);
                     Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)).setBaseValue(10);
                     ghosts.add(ghost);
-                    for (GhPlayer p : players.values()) {
-                        team.addMember(ghost,p.getGamePlayer().getScoreboardController());
+                    if (isBonusRound) {
+                        for (BmTeam bmTeam : bmsts.getTeams().values()) {
+                            bmTeam.getTeam().addMemberGlobal(ghost);
+                        }
+                    } else {
+                        team.addMemberGlobal(ghost);
                     }
                 } else {
                     this.cancel();
@@ -111,15 +103,14 @@ public class Ghosts extends Minigame implements BonusRound {
                 if (!this.isCancelled()) {
                     for (GhPlayer p : players.values()) {
                         p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + String.valueOf(time)));
-//                        objective.updateRow(1,"Time: " + time);
-//                        objective.updateRow(0,p.getPlayer().getDisplayName(),p.getGamePlayer());
                     }
                     if (time <= 0) {
                         this.cancel();
                         if (isBonusRound) {
                             endBonusRound(true);
+                        } else {
+                            end();
                         }
-                        end();
                     }
                     time--;
                 }
@@ -131,8 +122,12 @@ public class Ghosts extends Minigame implements BonusRound {
     public void disable() {
         spawnTask.cancel();
         timerTask.cancel();
-//        objective.remove();
         for (Husk h : ghosts) {
+            if (isBonusRound) {
+                for (BmTeam bmTeam : bmsts.getTeams().values()) {
+                    bmTeam.getTeam().removeMemberGlobal(h);
+                }
+            }
             h.remove();
         }
         players.clear();
@@ -159,13 +154,17 @@ public class Ghosts extends Minigame implements BonusRound {
 
     @Override
     public void endBonusRound(boolean points) {
+        disable();
         if (points) {
             for (GhPlayer p : players.values()) {
                 if (p.isAlive()) {
-                    bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5);
+                    if (bmsts.getPlayers().get(p.getPlayer()).getTeam() != null) {
+                        bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5);
+                    }
                 }
             }
         }
+        bmsts.endBonusRound();
     }
 
     @EventHandler
@@ -176,6 +175,20 @@ public class Ghosts extends Minigame implements BonusRound {
                 players.get(player).alive = false;
                 player.teleport(map.getSpectateLoc());
                 player.setHealth(20.0);
+                boolean allDead = true;
+                for (GhPlayer p : players.values()) {
+                    if (p.isAlive()) {
+                        allDead = false;
+                        break;
+                    }
+                }
+                if (allDead) {
+                    if (isBonusRound) {
+                        endBonusRound(true);
+                    } else {
+                        end();
+                    }
+                }
                 event.setCancelled(true);
             }
         }

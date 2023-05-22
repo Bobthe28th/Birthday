@@ -56,6 +56,7 @@ public class MusicQueue {
 
     public void clearQueue() {
         Main.musicController.stopCurrent();
+        Main.musicController.currentlyPlaying = null;
         queue.clear();
         loopIndex = 0;
         loopQueue.clear();
