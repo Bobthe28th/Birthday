@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.oitc;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
@@ -201,7 +202,7 @@ public class Oitc extends Minigame implements BonusRound {
         for (OiPlayer player : OiPlayers.values()) {
             player.respawn();
         }
-        Main.pvp = true;
+        Main.damageRule = DamageRule.ALL;
         if (isBonusRound) {
             Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("bonusround" + (new Random().nextInt(bmsts.bonusroundMusicAmount) + 1)));
         }
@@ -278,8 +279,7 @@ public class Oitc extends Minigame implements BonusRound {
         if (event.getTo() == null) return;
         if (event.getTo().getBlockY() <= -60) {
             if (OiPlayers.containsKey(event.getPlayer())) {
-                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + event.getPlayer().getDisplayName() + ChatColor.GRAY + " fell down the idiot hole");
-                OiPlayers.get(event.getPlayer()).death(null);
+                OiPlayers.get(event.getPlayer()).death(null,true);
                 event.getPlayer().teleport(new Location(plugin.getServer().getWorld("world"), currentMap.getSpawnArea().getCenterX(),currentMap.getSpawnArea().getCenterY(),currentMap.getSpawnArea().getCenterZ()));
             }
         }
@@ -346,6 +346,10 @@ public class Oitc extends Minigame implements BonusRound {
         status = MinigameStatus.END;
         if (points) {
             for (int i = 0; i < Math.min(3,topPoints.size()); i++) {
+                Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitctop3");
+                if (i == 0) {
+                    Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitcwin");
+                }
                 if (bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam() != null) {
                     bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().addResearchPoints(20 - (i * 5) - (i > 0 ? 10 : 0));
                 }

@@ -114,6 +114,11 @@ public class BmTeam {
     public void addResearchPoints(int amount) {
         this.researchPoints += amount;
         this.researchPointsDisplay.setText(color + String.valueOf(this.researchPoints));
+        if (amount > 0) {
+            for (BmPlayer b : getMembers()) {
+                Main.gameController.giveAdvancement(b.getPlayer(),"bmsts/points");
+            }
+        }
     }
 
     public void minionDeath() { //todo none spawn can only ready when all minions in

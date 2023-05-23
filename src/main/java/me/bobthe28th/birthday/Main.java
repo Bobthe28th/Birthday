@@ -12,6 +12,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
@@ -23,7 +24,10 @@ import java.util.HashMap;
 
 public class Main extends JavaPlugin implements Listener {
 
-    public static boolean pvp = true; //todol breakblocks
+
+//    public static boolean pvp = true; //todol breakblocks
+
+    public static DamageRule damageRule = DamageRule.NONE;
 
     public static GameController gameController;
     public static MusicController musicController;
@@ -108,8 +112,12 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        if (!pvp && event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
+        if (damageRule == DamageRule.NONE && event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
             event.setCancelled(true);
+        } else if (damageRule == DamageRule.NONPLAYER) {
+            if (event instanceof EntityDamageByEntityEvent byEntityEvent && byEntityEvent.getDamager() instanceof Player) {
+                event.setCancelled(true);
+            }
         }
     }
 

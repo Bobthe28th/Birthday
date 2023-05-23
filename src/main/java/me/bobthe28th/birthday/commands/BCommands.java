@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.commands;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
 import org.bukkit.Bukkit;
@@ -8,10 +9,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Random;
 
 public class BCommands implements CommandExecutor {
 
@@ -41,11 +42,18 @@ public class BCommands implements CommandExecutor {
                 return true;
             case "test":
 
-                Main.musicController.getQueue().clearQueue();
-                String n = "battle" + (new Random().nextInt(10) + 1);
-                Bukkit.broadcastMessage(n);
-                Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName(n));
-                Main.musicController.start();
+                Team t = Main.gameController.getGamePlayers().get(player).getScoreboardController().getScoreboard().getTeam("blue");
+
+                Bukkit.broadcastMessage("----");
+                for (String s : t.getEntries()) {
+                    Bukkit.broadcastMessage(s);
+                }
+
+//                Main.musicController.getQueue().clearQueue();
+//                String n = "battle" + (new Random().nextInt(10) + 1);
+//                Bukkit.broadcastMessage(n);
+//                Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName(n));
+//                Main.musicController.start();
  //
 //
 //                PacketContainer packet = new PacketContainer(PacketType.Play.Server.CAMERA);
@@ -72,8 +80,12 @@ public class BCommands implements CommandExecutor {
 //                }
                 return true;
             case "pvp":
-                Main.pvp = !Main.pvp;
-                player.sendMessage(Main.pvp ? ChatColor.GREEN + "PVP Enabled" : ChatColor.RED + "PVP Disabled");
+                if (Main.damageRule == DamageRule.ALL) {
+                    Main.damageRule = DamageRule.NONPLAYER;
+                } else {
+                    Main.damageRule = DamageRule.ALL;
+                }
+                player.sendMessage(Main.damageRule == DamageRule.ALL ? ChatColor.GREEN + "PVP Enabled" : ChatColor.RED + "PVP Disabled");
                 return true;
             case "start":
                 if (args.length == 0) {

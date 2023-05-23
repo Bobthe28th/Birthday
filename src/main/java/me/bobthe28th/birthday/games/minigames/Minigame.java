@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games.minigames;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
@@ -44,7 +45,7 @@ public abstract class Minigame implements Listener {
 
     public void endTop3(List<GamePlayer> winners) {
         disable();
-        Main.pvp = false;
+        Main.damageRule = DamageRule.NONE;
         status = MinigameStatus.END;
         World w = plugin.getServer().getWorld("world");
         if (w == null) return;

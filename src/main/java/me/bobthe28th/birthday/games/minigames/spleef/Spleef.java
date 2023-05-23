@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.spleef;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
@@ -33,7 +34,7 @@ public class Spleef extends Minigame implements BonusRound {
 
     @Override
     public void start() {
-        Main.pvp = false;
+        Main.damageRule = DamageRule.NONE;
         for (GamePlayer player : plugin.getGamePlayers().values()) {
             players.put(player.getPlayer(),new SpPlayer(plugin,player,this));
         }

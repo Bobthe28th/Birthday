@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.bmsts;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
@@ -15,7 +16,6 @@ import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.BlazeMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.WitherSkeletonMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.EvokerMinion;
 import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
-import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
@@ -51,7 +51,8 @@ public class Bmsts extends Minigame {
     public ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
 
 //    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class, Spleef.class, PropHunt.class);
-    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class);
+//    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class);
+    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class);
 
 
     public Class<?>[][] minionTypes = new Class<?>[][]{
@@ -67,6 +68,7 @@ public class Bmsts extends Minigame {
 
     public Bmsts(Main plugin) {
         super(plugin);
+        Main.damageRule = DamageRule.NONE;
 
         World w = plugin.getServer().getWorld("world");
 
@@ -163,6 +165,9 @@ public class Bmsts extends Minigame {
                 setBonusRound((BonusRound) constructor.newInstance(plugin));
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            }
+            for (BmPlayer p : BmPlayers.values()) {
+                Main.gameController.giveAdvancement(p.getPlayer(),"bmsts/bonusround");
             }
             getBonusRound().startBonusRound(this);
         } else {
@@ -332,6 +337,7 @@ public class Bmsts extends Minigame {
     }
 
     public void endBonusRound() {
+        Main.damageRule = DamageRule.NONE;
         if (status != MinigameStatus.END) { //todo may bite me in my ass
             for (BmPlayer p : BmPlayers.values()) {
                 p.getPlayer().setHealth(20.0);

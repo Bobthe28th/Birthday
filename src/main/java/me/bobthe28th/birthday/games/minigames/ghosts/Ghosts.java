@@ -1,17 +1,18 @@
 package me.bobthe28th.birthday.games.minigames.ghosts;
 
+import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameMap;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
+import me.bobthe28th.birthday.games.minigames.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,6 +21,8 @@ import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Team;
@@ -59,8 +62,7 @@ public class Ghosts extends Minigame implements BonusRound {
     public void start() {
         status = MinigameStatus.PLAYING;
         Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("zombiefun"));
-        Main.pvp = false;
-        Bukkit.broadcastMessage("a");
+        Main.damageRule = DamageRule.NONPLAYER;
 
         for (GamePlayer p : plugin.getGamePlayers().values()) {
             p.getPlayer().teleport(map.getSpawnLoc(new ArrayList<>(players.values())));
@@ -79,12 +81,12 @@ public class Ghosts extends Minigame implements BonusRound {
                     if (ghost.getEquipment() != null) ghost.getEquipment().clear();
                     if (ghost.getVehicle() != null) ghost.getVehicle().remove();
 
-                    Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue(5);
+                    Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_FOLLOW_RANGE)).setBaseValue(15);
                     Objects.requireNonNull(ghost.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)).setBaseValue(10);
                     ghosts.add(ghost);
                     if (isBonusRound) {
-                        for (BmTeam bmTeam : bmsts.getTeams().values()) {
-                            bmTeam.getTeam().addMemberGlobal(ghost);
+                        for (BmPlayer p : bmsts.getPlayers().values()) {
+                            p.getTeam().getTeam().addMember(ghost,p.getGamePlayer().getScoreboardController());
                         }
                     } else {
                         team.addMemberGlobal(ghost);
@@ -107,7 +109,7 @@ public class Ghosts extends Minigame implements BonusRound {
                         if (isBonusRound) {
                             endBonusRound(true);
                         } else {
-                            end();
+                            end(); //todos winners
                         }
                     }
                     time--;
@@ -152,16 +154,17 @@ public class Ghosts extends Minigame implements BonusRound {
 
     @Override
     public void endBonusRound(boolean points) {
-        disable();
         if (points) {
             for (GhPlayer p : players.values()) {
                 if (p.isAlive()) {
+                    Main.gameController.giveAdvancement(p.getPlayer(),"ghosts/ghostwin");
                     if (bmsts.getPlayers().get(p.getPlayer()).getTeam() != null) {
                         bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5);
                     }
                 }
             }
         }
+        disable();
         bmsts.endBonusRound();
     }
 
@@ -171,7 +174,6 @@ public class Ghosts extends Minigame implements BonusRound {
         if (players.containsKey(player)) {
             if (player.getHealth() - event.getFinalDamage() <= 0) {
                 players.get(player).alive = false;
-                player.teleport(map.getSpectateLoc());
                 player.setHealth(20.0);
                 boolean allDead = true;
                 for (GhPlayer p : players.values()) {
@@ -186,7 +188,19 @@ public class Ghosts extends Minigame implements BonusRound {
                     } else {
                         end();
                     }
+                } else {
+                    player.teleport(map.getSpectateLoc());
                 }
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityPotionEffect(EntityPotionEffectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (players.containsKey(player)) {
+            if (event.getModifiedType().equals(PotionEffectType.HUNGER) && event.getCause().equals(EntityPotionEffectEvent.Cause.ATTACK)) {
                 event.setCancelled(true);
             }
         }

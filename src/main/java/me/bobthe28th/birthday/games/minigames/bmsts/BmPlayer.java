@@ -1,10 +1,10 @@
 package me.bobthe28th.birthday.games.minigames.bmsts;
 
-import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.games.GamePlayer;
+import me.bobthe28th.birthday.games.minigames.MinigamePlayer;
 import org.bukkit.Material;
 import org.bukkit.block.data.Powerable;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -12,13 +12,12 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class BmPlayer implements Listener {
-    GamePlayer player;
+public class BmPlayer extends MinigamePlayer implements Listener {
     Bmsts bmsts;
     BmTeam team;
 
     public BmPlayer(GamePlayer player, Main plugin, Bmsts bmsts) {
-        this.player = player;
+        super(plugin,player,bmsts);
         this.bmsts = bmsts;
         for (BmTeam b  : bmsts.getTeams().values()) {
             b.getTeam().addPlayer(player.getScoreboardController());
@@ -26,6 +25,7 @@ public class BmPlayer implements Listener {
         }
         player.getPlayer().teleport(bmsts.playerSpawn);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        Main.gameController.giveAdvancement(player.getPlayer(),"bmsts");
     }
 
     public void setTeam(BmTeam team) {
@@ -56,10 +56,6 @@ public class BmPlayer implements Listener {
         HandlerList.unregisterAll(this);
     }
 
-    public Player getPlayer() {
-        return player.getPlayer();
-    }
-
     public BmTeam getTeam() {
         return team;
     }
@@ -82,8 +78,4 @@ public class BmPlayer implements Listener {
             }
         }
     }
-
-//    public GamePlayer getGamePlayer() {
-//        return player;
-//    }
 }

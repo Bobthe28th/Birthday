@@ -38,6 +38,7 @@ public class OiPlayer extends MinigamePlayer {
             oitc.getGTeam().addMemberGlobal(player.getPlayer());
         }
         oitc.updateTopPoints(this);
+        Main.gameController.giveAdvancement(player.getPlayer(),"oitc");
     }
 
     public void respawn() {
@@ -204,6 +205,10 @@ public class OiPlayer extends MinigamePlayer {
             } else {
                 List<GamePlayer> winners = new ArrayList<>();
                 for (int i = 0; i < Math.min(3,oitc.topPoints.size()); i++) {
+                    Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitctop3");
+                    if (i == 0) {
+                        Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitcwin");
+                    }
                     winners.add(oitc.topPoints.get(i).getGamePlayer());
                 }
                 oitc.endTop3(winners);
@@ -212,30 +217,31 @@ public class OiPlayer extends MinigamePlayer {
     }
 
     public void death(Player killer) {
+        death(killer,false);
+    }
+
+    public void death(Player killer, boolean hole) {
         if (oitc.status == MinigameStatus.PLAYING) {
             alive = false;
             deaths ++;
-            ChatColor teamColor = null;
-            ChatColor enemyColor = null;
+            ChatColor teamColor = ChatColor.RED;
+            ChatColor enemyColor = ChatColor.RED;
             if (oitc.isBonusRound) {
                 teamColor = oitc.bmsts.getTeamColor(player.getPlayer(),ChatColor.RED);
                 enemyColor = oitc.bmsts.getTeamColor(killer,ChatColor.RED);
             }
+            String playerName = teamColor + player.getPlayer().getDisplayName();
             if (killer == null) {
                 points -= 1;
                 oitc.getObjective().updateRow(3,"Points: " + points, player);
                 oitc.updateTopPoints(this);
-                if (oitc.isBonusRound) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + teamColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
-                } else {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
+                if (hole) {
+                    Main.gameController.giveAdvancement(player.getPlayer(),"oitc/idiothole");
                 }
+                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + teamColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + (hole ? " fell down the idiot hole" : " died"));
             } else {
-                if (oitc.isBonusRound) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + enemyColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + enemyColor + killer.getDisplayName());
-                } else {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + ChatColor.RED + killer.getDisplayName());
-                }
+                String enemyName = enemyColor + killer.getDisplayName();
+                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + enemyColor + "☠" + ChatColor.GRAY + "] " + playerName + ChatColor.GRAY + " was killed by " + enemyName);
             }
             oitc.getObjective().updateRow(1, "Deaths: " + deaths, player);
             player.getPlayer().setGameMode(GameMode.SPECTATOR);

@@ -24,6 +24,7 @@ public class SpPlayer extends MinigamePlayer {
     public SpPlayer(Main plugin, GamePlayer player, Spleef spleef) {
         super(plugin, player, spleef);
         this.spleef = spleef;
+        Main.gameController.giveAdvancement(player.getPlayer(),"spleef"); //todo win advancment
     }
 
     public void giveItems() {
