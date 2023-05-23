@@ -110,7 +110,7 @@ public class Bmsts extends Minigame {
         }
 
         for (BmPlayer p : BmPlayers.values()) {
-            p.getPlayer().teleport(currentMap.getPlayerSpawn().clone().add(0.5, 0, 0.5));
+            p.getPlayer().teleport(currentMap.getPlayerSpawn());
         }
         new BukkitRunnable() {
             @Override
@@ -172,7 +172,7 @@ public class Bmsts extends Minigame {
             getBonusRound().startBonusRound(this);
         } else {
             for (BmPlayer p : BmPlayers.values()) {
-                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5));
+                p.getPlayer().teleport(p.getTeam().getPlayerSpawn());
             }
             Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
         }
@@ -343,6 +343,7 @@ public class Bmsts extends Minigame {
                 p.getPlayer().setHealth(20.0);
                 p.getPlayer().teleport(p.getTeam().playerSpawn);
             }
+            Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
         }
     }
 }

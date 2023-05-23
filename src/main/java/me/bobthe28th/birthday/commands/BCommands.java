@@ -3,13 +3,11 @@ package me.bobthe28th.birthday.commands;
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -42,12 +40,12 @@ public class BCommands implements CommandExecutor {
                 return true;
             case "test":
 
-                Team t = Main.gameController.getGamePlayers().get(player).getScoreboardController().getScoreboard().getTeam("blue");
-
-                Bukkit.broadcastMessage("----");
-                for (String s : t.getEntries()) {
-                    Bukkit.broadcastMessage(s);
-                }
+//                Team t = Main.gameController.getGamePlayers().get(player).getScoreboardController().getScoreboard().getTeam("blue");
+//
+//                Bukkit.broadcastMessage("----");
+//                for (String s : t.getEntries()) {
+//                    Bukkit.broadcastMessage(s);
+//                }
 
 //                Main.musicController.getQueue().clearQueue();
 //                String n = "battle" + (new Random().nextInt(10) + 1);

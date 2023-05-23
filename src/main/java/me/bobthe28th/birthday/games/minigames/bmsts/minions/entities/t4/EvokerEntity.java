@@ -4,6 +4,7 @@ import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.StayAtRangeGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
@@ -22,6 +23,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class EvokerEntity extends Evoker implements MinionEntity {
 
@@ -47,6 +49,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
         //todol new goal so it stays in range close
         this.goalSelector.addGoal(1, new EvokerCastingSpellGoal());
         this.goalSelector.addGoal(5, new EvokerAttackSpellGoal());
+        this.goalSelector.addGoal(2, new StayAtRangeGoal(this,0.5F,8.0,10.0));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
         this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
@@ -68,6 +71,11 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
     private class EvokerCastingSpellGoal extends SpellcasterIllager.SpellcasterCastingSpellGoal {
 
+        @Override
+        public boolean canUse() {
+            return EvokerEntity.this.getSpellCastingTime() > 0;
+        }
+
         public void tick() {
             if (EvokerEntity.this.getTarget() != null) {
                 EvokerEntity.this.getLookControl().setLookAt(EvokerEntity.this.getTarget(), (float)EvokerEntity.this.getMaxHeadYRot(), (float)EvokerEntity.this.getMaxHeadXRot());
@@ -77,12 +85,19 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
     private class EvokerAttackSpellGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
 
+        @Override
+        public boolean canUse() {
+            LivingEntity entityliving = EvokerEntity.this.getTarget();
+            double dist = EvokerEntity.this.distanceToSqr(entityliving.getX(), entityliving.getY(), entityliving.getZ());
+            return entityliving.isAlive() && !EvokerEntity.this.isCastingSpell() && EvokerEntity.this.tickCount >= this.nextAttackTickCount && dist <= 144;
+        }
+
         protected int getCastingTime() {
             return 40;
         }
 
         protected int getCastingInterval() {
-            return 100;
+            return new Random().nextInt(40) + 80;
         } //todos random?
 
         protected void performSpellCasting() {
@@ -103,7 +118,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
                     this.createSpellEntity(EvokerEntity.this.getX() + (double)Mth.cos(f1) * 2.5, EvokerEntity.this.getZ() + (double)Mth.sin(f1) * 2.5, d0, d1, f1, 3);
                 }
             } else {
-                for(i = 0; i < 16; ++i) {
+                for(i = 0; i < 8; ++i) {
                     double d2 = 1.25 * (double)(i + 1);
                     this.createSpellEntity(EvokerEntity.this.getX() + (double)Mth.cos(f) * d2, EvokerEntity.this.getZ() + (double)Mth.sin(f) * d2, d0, d1, f, i);
                 }
