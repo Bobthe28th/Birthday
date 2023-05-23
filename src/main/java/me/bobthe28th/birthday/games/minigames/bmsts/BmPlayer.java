@@ -77,11 +77,13 @@ public class BmPlayer implements Listener {
                     team.setReady(true);
                 }
                 event.getClickedBlock().getState().update(true, true);
+            } else if (event.getClickedBlock().getType() == Material.STONE_BUTTON && event.getClickedBlock().getLocation().equals(team.getDropButton())) {
+                team.dropAll();
             }
         }
     }
 
-    public GamePlayer getGamePlayer() {
-        return player;
-    }
+//    public GamePlayer getGamePlayer() {
+//        return player;
+//    }
 }

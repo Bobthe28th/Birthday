@@ -58,9 +58,7 @@ public class Ghosts extends Minigame implements BonusRound {
     @Override
     public void start() {
         status = MinigameStatus.PLAYING;
-        Main.musicController.getQueue().clearQueue();
-        Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("zombiefun"));
-        Main.musicController.start();
+        Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("zombiefun"));
         Main.pvp = false;
         Bukkit.broadcastMessage("a");
 

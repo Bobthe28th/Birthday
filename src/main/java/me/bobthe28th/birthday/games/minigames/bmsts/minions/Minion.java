@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.phys.Vec3;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -98,12 +97,12 @@ public class Minion implements Listener {
         if (item.getItemMeta() != null) {
             ItemMeta meta = item.getItemMeta();
             meta.setCustomModelData(customModel);
-            meta.setDisplayName(ChatColor.RESET + "" + bmsts.getStrengthColor()[strength - 1] + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
+            meta.setDisplayName(ChatColor.RESET + String.valueOf(bmsts.getStrengthColor()[strength - 1]) + strength + " " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(name + (strength > 1 ? "s" : "")) : rarity.getColor() + name + (strength > 1 ? "s" : "")));
             List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Techlevel: " + bmsts.getTechLevelColor()[techLevel] + techLevel);
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
-            lore.add(ChatColor.RESET + "" + ChatColor.WHITE + "Strength: " + bmsts.getStrengthColor()[strength - 1] + strength);
-            lore.add(ChatColor.RESET + "" + team.getTeam().getColor() + team.getTeam().getTitle());
+            lore.add(ChatColor.RESET + String.valueOf(ChatColor.WHITE) + "Techlevel: " + bmsts.getTechLevelColor()[techLevel] + techLevel);
+            lore.add(ChatColor.RESET + String.valueOf(ChatColor.WHITE) + "Rarity: " + (rarity.getColor() == ChatColor.MAGIC ? Main.rainbow(rarity.toString()) : rarity.getColor() + rarity.toString()) + ChatColor.RESET);
+            lore.add(ChatColor.RESET + String.valueOf(ChatColor.WHITE) + "Strength: " + bmsts.getStrengthColor()[strength - 1] + strength);
+            lore.add(ChatColor.RESET + String.valueOf(team.getTeam().getColor()) + team.getTeam().getTitle());
             meta.setLore(lore);
             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "minionitem"), PersistentDataType.BYTE, (byte) 1);
             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "uniqueid"), PersistentDataType.STRING, UUID.randomUUID().toString());
@@ -127,6 +126,8 @@ public class Minion implements Listener {
         if (placedArmorStand != null) placedArmorStand.remove();
         if (previewEntity != null) previewEntity.remove(Entity.RemovalReason.DISCARDED);
         if (itemStack == null) getItem();
+        if (droppedItem != null) droppedItem.remove();
+        placedLoc = null;
         droppedItem = l.getWorld().dropItem(l, itemStack);
         droppedItem.setUnlimitedLifetime(true);
         droppedItem.setVelocity(new Vector(0,0.2,0));
@@ -135,9 +136,7 @@ public class Minion implements Listener {
     public boolean dropKept(Location l) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getInventory().contains(itemStack)) {
-                droppedItem = p.getWorld().dropItem(l, itemStack);
-                droppedItem.setUnlimitedLifetime(true);
-                droppedItem.setVelocity(new Vector(0,0.2,0));
+                drop(l);
                 p.getInventory().remove(itemStack);
                 return true;
             }
@@ -147,9 +146,7 @@ public class Minion implements Listener {
 
     public boolean dropKeptBy(Player p, Location l) {
         if (p.getInventory().contains(itemStack)) {
-            droppedItem = p.getWorld().dropItem(l, itemStack);
-            droppedItem.setUnlimitedLifetime(true);
-            droppedItem.setVelocity(new Vector(0,0.2,0));
+            drop(l);
             p.getInventory().remove(itemStack);
             return true;
         }
@@ -217,19 +214,19 @@ public class Minion implements Listener {
         }
     }
 
-    public void showTargets() {
-        double blocksPerParticle = 0.2;
-        for (Mob e : entities) {
-            if (e.getTarget() != null) {
-                Vec3 dir = e.getTarget().position().subtract(e.position()).normalize();
-                Vec3 particlePos = e.position().add(dir.multiply(new Vec3(blocksPerParticle,blocksPerParticle,blocksPerParticle)));
-                for (int i = 0; i < e.position().distanceTo(e.getTarget().position()) / blocksPerParticle; i++) {
-                    e.getBukkitEntity().getWorld().spawnParticle(Particle.REDSTONE,particlePos.x,particlePos.y + 1,particlePos.z,1,0,0,0,1, new Particle.DustOptions(team.getBColor(),1.0F));
-                    particlePos = particlePos.add(dir.multiply(new Vec3(blocksPerParticle,blocksPerParticle,blocksPerParticle)));
-                }
-            }
-        }
-    }
+//    public void showTargets() {
+//        double blocksPerParticle = 0.2;
+//        for (Mob e : entities) {
+//            if (e.getTarget() != null) {
+//                Vec3 dir = e.getTarget().position().subtract(e.position()).normalize();
+//                Vec3 particlePos = e.position().add(dir.multiply(new Vec3(blocksPerParticle,blocksPerParticle,blocksPerParticle)));
+//                for (int i = 0; i < e.position().distanceTo(e.getTarget().position()) / blocksPerParticle; i++) {
+//                    e.getBukkitEntity().getWorld().spawnParticle(Particle.REDSTONE,particlePos.x,particlePos.y + 1,particlePos.z,1,0,0,0,1, new Particle.DustOptions(team.getBColor(),1.0F));
+//                    particlePos = particlePos.add(dir.multiply(new Vec3(blocksPerParticle,blocksPerParticle,blocksPerParticle)));
+//                }
+//            }
+//        }
+//    }
 
     public void removeEntities() {
         if (entities.size() > 0) {

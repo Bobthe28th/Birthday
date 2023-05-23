@@ -226,13 +226,15 @@ public class OiPlayer extends MinigamePlayer {
                 oitc.getObjective().updateRow(3,"Points: " + points, player);
                 oitc.updateTopPoints(this);
                 if (oitc.isBonusRound) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + teamColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
                 } else {
                     Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getPlayer().getDisplayName() + ChatColor.GRAY + " died");
                 }
             } else {
                 if (oitc.isBonusRound) {
-                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + enemyColor + killer.getDisplayName());
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + enemyColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + enemyColor + killer.getDisplayName());
+                } else {
+                    Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.RED + "☠" + ChatColor.GRAY + "] " + ChatColor.RED + player.getPlayer().getDisplayName() + ChatColor.GRAY + " was killed by " + ChatColor.RED + killer.getDisplayName());
                 }
             }
             oitc.getObjective().updateRow(1, "Deaths: " + deaths, player);

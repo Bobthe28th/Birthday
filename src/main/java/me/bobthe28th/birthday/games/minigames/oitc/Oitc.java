@@ -28,6 +28,7 @@ import org.bukkit.util.BoundingBox;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class Oitc extends Minigame implements BonusRound {
 
@@ -96,9 +97,9 @@ public class Oitc extends Minigame implements BonusRound {
         for (int i = 0; i < Math.min(topPoints.size(),3); i++) {
             String data;
             if (isBonusRound) {
-                data = (i + 1) + ". " + bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().getColor() + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().getColor() + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
             } else {
-                data = (i + 1) + ". " + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
             }
             if (objective.hasRow(8 - i)) {
                 objective.updateRow(8 - i,data);
@@ -201,6 +202,9 @@ public class Oitc extends Minigame implements BonusRound {
             player.respawn();
         }
         Main.pvp = true;
+        if (isBonusRound) {
+            Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("bonusround" + (new Random().nextInt(bmsts.bonusroundMusicAmount) + 1)));
+        }
     }
 
     @Override

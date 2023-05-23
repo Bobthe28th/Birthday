@@ -31,6 +31,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,7 @@ public class Bmsts extends Minigame {
     public HashMap<Player, BmPlayer> BmPlayers = new HashMap<>();
     public BmMap[] bmMaps;
     public int battleMusicAmount = 10;
+    public int bonusroundMusicAmount = 6;
 
     Location playerSpawn;
 
@@ -79,7 +81,7 @@ public class Bmsts extends Minigame {
                 door[x+y*3] = new Location(w,-248, 120 + y, -294 - x);
             }
         }
-        BmTeams.put("yellow",new BmTeam(this,"yellow", Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
+        BmTeams.put("yellow",new BmTeam(this,"yellow", Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291), new Location(w,-234, 121, -290),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
         BmTeams.put("green",BmTeams.get("yellow").copy("green",Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -295,-234.5, 127, -293)));
         BmTeams.put("red",BmTeams.get("green").copy("red",Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -290,-234.5, 127, -288)));
         BmTeams.put("blue",BmTeams.get("red").copy("blue",Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -285,-234.5, 127, -283)));
@@ -98,9 +100,7 @@ public class Bmsts extends Minigame {
     }
 
     public void startBattle() {
-        Main.musicController.getQueue().clearQueue();
-        Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("battle" + (new Random().nextInt(battleMusicAmount) + 1)));
-        Main.musicController.start();
+        Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("battle" + (new Random().nextInt(battleMusicAmount) + 1)));
 
         for (BmTeam g : BmTeams.values()) {
             g.dropKept();
@@ -120,13 +120,62 @@ public class Bmsts extends Minigame {
                     }
 //                        g.showTargets();
                 }
+                checkBattleWin();
             }
         }.runTaskLater(plugin, 40);
     }
 
-    public BmMap getCurrentMap() {
-        return currentMap;
+    public void checkBattleWin() {
+        BmTeam winner = null;
+        for (BmTeam t : BmTeams.values()) {
+            if (!t.isDead()) {
+                if (winner == null) {
+                    winner = t;
+                } else {
+                    return;
+                }
+            }
+        }
+        if (winner != null) {
+            for (BmTeam t : BmTeams.values()) {
+                t.removeEntities();
+            }
+            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getDisplayName() + " won the round");
+            for (BmPlayer p : BmPlayers.values()) {
+                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getDisplayName() + " won the round", 10, 20, 10);
+            }
+        } else {
+            for (BmTeam t : BmTeams.values()) {
+                t.removeEntities();
+            }
+            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.WHITE + "✪" + ChatColor.GRAY + "] " + ChatColor.WHITE + " No one won the round");
+            for (BmPlayer p : BmPlayers.values()) {
+                p.getPlayer().sendTitle("", ChatColor.WHITE + "No one won the round", 10, 20, 10);
+            }
+        }
+
+        setRound(round + 1);
+        if (round % 2 == 1) {
+            Random r = new Random();
+            Class<? extends BonusRound> nextBonusRound = bonusRounds.get(r.nextInt(bonusRounds.size()));
+            try {
+                Constructor<?> constructor = nextBonusRound.getConstructor(Main.class);
+                setBonusRound((BonusRound) constructor.newInstance(plugin));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            getBonusRound().startBonusRound(this);
+        } else {
+            for (BmPlayer p : BmPlayers.values()) {
+                p.getPlayer().teleport(p.getTeam().getPlayerSpawn().clone().add(0.5,0,0.5));
+            }
+            Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
+        }
     }
+
+//    public BmMap getCurrentMap() {
+//        return currentMap;
+//    }
 
     @Override
     public void start() {
@@ -135,9 +184,7 @@ public class Bmsts extends Minigame {
         }
         //todol team select
         status = MinigameStatus.PLAYING;
-        Main.musicController.getQueue().clearQueue();
-        Main.musicController.getQueue().addLoopQueue(Main.musicController.getMusicByName("elevator"));
-        Main.musicController.start();
+        Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
     }
 
     @Override
@@ -227,9 +274,9 @@ public class Bmsts extends Minigame {
         this.round = round;
     }
 
-    public int getRound() {
-        return round;
-    }
+//    public int getRound() {
+//        return round;
+//    }
 
     public HashMap<Player, BmPlayer> getPlayers() {
         return BmPlayers;

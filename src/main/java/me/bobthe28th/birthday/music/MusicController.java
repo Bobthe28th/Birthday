@@ -16,7 +16,7 @@ public class MusicController {
 
     Main plugin;
     Music currentlyPlaying;
-    boolean controlledByGame = false;
+//    boolean controlledByGame = false; //todo ?
 
     BukkitTask musicLength;
     MusicQueue queue;
@@ -81,6 +81,12 @@ public class MusicController {
         queue.advanceQueue();
     }
 
+    public void clearAndPlayLoop(Music m) {
+        Main.musicController.getQueue().clearQueue();
+        Main.musicController.getQueue().addLoopQueue(m);
+        Main.musicController.start();
+    }
+
     public void stopCurrent() {
         if (musicLength != null) {
             musicLength.cancel();
@@ -92,13 +98,13 @@ public class MusicController {
         }
     }
 
-    public boolean isControlledByGame() {
-        return controlledByGame;
-    }
+//    public boolean isControlledByGame() {
+//        return controlledByGame;
+//    }
 
-    public List<Music> getMusicList() {
-        return musicList;
-    }
+//    public List<Music> getMusicList() {
+//        return musicList;
+//    }
 
     public List<String> getMusicNameList() {
         List<String> nameList = new ArrayList<>();
@@ -108,9 +114,9 @@ public class MusicController {
         return nameList;
     }
 
-    public Music getCurrentlyPlaying() {
-        return currentlyPlaying;
-    }
+//    public Music getCurrentlyPlaying() {
+//        return currentlyPlaying;
+//    }
 
     public String getCurrentlyPlayingName() {
         if (currentlyPlaying == null) {
