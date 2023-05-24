@@ -3,10 +3,7 @@ package me.bobthe28th.birthday.games.minigames.spleef;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.MinigamePlayer;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
@@ -24,7 +21,8 @@ public class SpPlayer extends MinigamePlayer {
     public SpPlayer(Main plugin, GamePlayer player, Spleef spleef) {
         super(plugin, player, spleef);
         this.spleef = spleef;
-        Main.gameController.giveAdvancement(player.getPlayer(),"spleef"); //todo win advancment
+        Main.gameController.giveAdvancement(player.getPlayer(),"spleef");
+        player.getPlayer().setGameMode(GameMode.SURVIVAL);
     }
 
     public void giveItems() {
@@ -61,9 +59,19 @@ public class SpPlayer extends MinigamePlayer {
         player.getPlayer().updateInventory();
     }
 
+    public void remove() {
+        player.getPlayer().setHealth(20.0);
+        player.getPlayer().getInventory().clear();
+    }
+
     public void death() {
         alive = false;
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
         player.getPlayer().getInventory().clear();
+        ChatColor c = ChatColor.RED;
+        if (spleef.isBonusRound) {
+            c = spleef.bmsts.getTeamColor(player.getPlayer(),ChatColor.RED);
+        }
+        Bukkit.broadcastMessage(ChatColor.GRAY + "[" + c + "☠" + ChatColor.GRAY + "] " + c + player.getPlayer().getDisplayName() + ChatColor.GRAY +  " died");
     }
 }

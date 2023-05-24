@@ -15,12 +15,6 @@ public class StayAtRangeGoal extends Goal {
     protected final PathfinderMob mob;
     private final double speedModifier;
     private Path path;
-//    private double pathedTargetX;
-//    private double pathedTargetY;
-//    private double pathedTargetZ;
-//    private int ticksUntilNextPathRecalculation;
-//    private long lastCanUseCheck;
-
     private final double minRange;
     private final double maxRange;
 
@@ -65,37 +59,8 @@ public class StayAtRangeGoal extends Goal {
         }
     }
 
-
-
-//    public void tick() {
-//        LivingEntity target = this.mob.getTarget();
-//        if (target != null) {
-//            this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
-//            double dist = this.mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
-//            this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
-//            if (this.ticksUntilNextPathRecalculation <= 0) {
-////                this.pathedTargetX = target.getX();
-////                this.pathedTargetY = target.getY();
-////                this.pathedTargetZ = target.getZ();
-//                this.ticksUntilNextPathRecalculation = 4 + this.mob.getRandom().nextInt(7);
-//                if (dist > 1024.0) {
-//                    this.ticksUntilNextPathRecalculation += 10;
-//                } else if (dist > 256.0) {
-//                    this.ticksUntilNextPathRecalculation += 5;
-//                }
-//
-//                if (!this.mob.getNavigation().moveTo(target, this.speedModifier)) {
-//                    this.ticksUntilNextPathRecalculation += 15;
-//                }
-//
-//                this.ticksUntilNextPathRecalculation = this.adjustedTickDelay(this.ticksUntilNextPathRecalculation);
-//            }
-//        }
-//    }
-
     public void start() {
         this.mob.getNavigation().moveTo(this.path, this.speedModifier);
-//        this.ticksUntilNextPathRecalculation = 0;
     }
 
     public void stop() {

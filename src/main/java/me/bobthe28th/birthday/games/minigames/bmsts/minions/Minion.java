@@ -310,7 +310,7 @@ public class Minion implements Listener {
                         Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5, 0, 0.5), c.getItem()); //TODOl particles
                         i.setVelocity(new Vector(0, 0.2, 0));
                     } catch (Exception ignored) {}
-                    team.addResearchPoints(-1); //TODOl values
+                    team.addResearchPoints(-(6*(techLevel+1)));
                     remove(true);
                 }
             }

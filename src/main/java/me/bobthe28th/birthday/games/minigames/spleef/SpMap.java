@@ -6,10 +6,10 @@ import org.bukkit.util.BoundingBox;
 
 public class SpMap extends MinigameMap {
 
-    SpLayers snowLayers;
+    SpLayer snowLayers;
     int yDeath;
 
-    public SpMap(String title, World w, BoundingBox spawnArea, SpLayers snowLayers, int yDeath) {
+    public SpMap(String title, World w, BoundingBox spawnArea, SpLayer snowLayers, int yDeath) {
         super(title,w,spawnArea);
         this.snowLayers = snowLayers;
         this.yDeath = yDeath;

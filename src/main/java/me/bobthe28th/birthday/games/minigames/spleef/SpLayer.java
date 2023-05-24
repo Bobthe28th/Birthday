@@ -3,7 +3,7 @@ package me.bobthe28th.birthday.games.minigames.spleef;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-public class SpLayers {
+public class SpLayer {
 
     int minX;
     int minY;
@@ -13,7 +13,7 @@ public class SpLayers {
     int yOffset;
     int amount;
 
-    public SpLayers(int minX, int minZ, int minY, int maxX, int maxZ, int yOffset, int amount) {
+    public SpLayer(int minX, int minZ, int minY, int maxX, int maxZ, int yOffset, int amount) {
         this.minX = Math.min(minX,maxX);
         this.minZ = Math.min(minZ,maxZ);
         this.minY = minY;

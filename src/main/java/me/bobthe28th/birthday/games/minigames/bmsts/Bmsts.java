@@ -120,7 +120,7 @@ public class Bmsts extends Minigame {
                     if (g.getReadySwitch().getBlock().getType() == Material.LEVER) {
                         g.getReadySwitch().getBlock().setBlockData(g.getReadySwitch().getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
                     }
-//                        g.showTargets();
+//                    g.showTargets();
                 }
                 checkBattleWin();
             }

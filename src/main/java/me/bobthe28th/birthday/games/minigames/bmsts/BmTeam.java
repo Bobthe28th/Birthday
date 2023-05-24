@@ -44,7 +44,7 @@ public class BmTeam {
     Location researchPointsDisplayLoc;
     BoundingBox joinPortal;
 
-    int researchPoints = 400;
+    int researchPoints = 80;
     TextDisplay researchPointsDisplay;
 
     ArrayList<Minion> minions = new ArrayList<>();
@@ -274,9 +274,9 @@ public class BmTeam {
         return techUpgrade;
     }
 
-//    public Color getBColor() {
-//        return bColor;
-//    }
+    public Color getBColor() {
+        return bColor;
+    }
 
     public ChatColor getColor() {
         return color;
