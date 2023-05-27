@@ -3,9 +3,7 @@ package me.bobthe28th.birthday.games.minigames.oitc;
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
-import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
-import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
@@ -20,7 +18,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scoreboard.Team;
@@ -31,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class Oitc extends Minigame implements BonusRound {
+public class Oitc extends BonusRound {
 
     public HashMap<Player, OiPlayer> OiPlayers = new HashMap<>();
     ArrayList<OiPlayer> topPoints = new ArrayList<>();
@@ -39,19 +36,18 @@ public class Oitc extends Minigame implements BonusRound {
     public OiMap currentMap;
 
     public int maxKills = 10;
-    public int killsPostMax = 5;
+    public int killsPostMax = 3;
 
     public boolean cross = true;
     public boolean pickup = false;
 
     public ItemStack firework;
-    Bmsts bmsts;
 
     ScoreboardObjective objective;
     ScoreboardTeam gTeam;
     ScoreboardTeam kTeam;
 
-    public Oitc(Main plugin) {
+    public Oitc(Main plugin) { //todos add timer for bmsts
         super(plugin);
 
         World w = plugin.getServer().getWorld("world");
@@ -98,9 +94,9 @@ public class Oitc extends Minigame implements BonusRound {
         for (int i = 0; i < Math.min(topPoints.size(),3); i++) {
             String data;
             if (isBonusRound) {
-                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().getColor() + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + bmsts.getTeamColor(topPoints.get(i).getPlayer(),ChatColor.WHITE) + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
             } else {
-                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + ChatColor.WHITE + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
             }
             if (objective.hasRow(8 - i)) {
                 objective.updateRow(8 - i,data);
@@ -138,6 +134,7 @@ public class Oitc extends Minigame implements BonusRound {
                 }
             }
             king.king = true;
+            updateTopPoints(king);
             king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL", ChatColor.YELLOW + "Get " + killsPostMax + " kills to win!", 10, 20, 10);
             king.getPlayer().setGlowing(true);
             king.giveKingItem();
@@ -203,6 +200,7 @@ public class Oitc extends Minigame implements BonusRound {
             player.respawn();
         }
         Main.damageRule = DamageRule.ALL;
+        Main.breakBlocks = false;
         if (isBonusRound) {
             Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("bonusround" + (new Random().nextInt(bmsts.bonusroundMusicAmount) + 1)));
         }
@@ -261,10 +259,10 @@ public class Oitc extends Minigame implements BonusRound {
         event.setCancelled(true);
     }
 
-    @EventHandler
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        if (OiPlayers.containsKey(event.getPlayer())) event.setCancelled(true);
-    }
+//    @EventHandler
+//    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+//        if (OiPlayers.containsKey(event.getPlayer())) event.setCancelled(true);
+//    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -334,27 +332,15 @@ public class Oitc extends Minigame implements BonusRound {
     }
 
     @Override
-    public void startBonusRound(Bmsts bmsts) {
-        this.bmsts = bmsts;
-        this.isBonusRound = true;
-        start();
-    }
-
-    @Override
-    public void endBonusRound(boolean points) {
-        disable();
-        status = MinigameStatus.END;
-        if (points) {
-            for (int i = 0; i < Math.min(3,topPoints.size()); i++) {
-                Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitctop3");
-                if (i == 0) {
-                    Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitcwin");
-                }
-                if (bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam() != null) {
-                    bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().addResearchPoints(20 - (i * 5) - (i > 0 ? 10 : 0));
-                }
+    public void awardPoints() {
+        for (int i = 0; i < Math.min(3,topPoints.size()); i++) {
+            Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitctop3");
+            if (i == 0) {
+                Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitcwin");
+            }
+            if (bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam() != null) {
+                bmsts.getPlayers().get(topPoints.get(i).getPlayer()).getTeam().addResearchPoints(20 - (i * 5) - (i > 0 ? 10 : 0),true);
             }
         }
-        bmsts.endBonusRound();
     }
 }

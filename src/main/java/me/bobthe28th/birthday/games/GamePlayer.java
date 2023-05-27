@@ -22,6 +22,9 @@ public class GamePlayer implements Listener {
     ScoreboardController scoreboardController;
     boolean canMove = true;
 
+//    BukkitTask hotbarTask;
+//    TextComponent hotbar = new TextComponent("\ue241");
+
     public GamePlayer(Main plugin, Player player) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.player = player;
@@ -34,7 +37,20 @@ public class GamePlayer implements Listener {
         this.player.setInvisible(false);
         this.player.setPlayerListHeaderFooter("Deez","Nuts");
         scoreboardController = new ScoreboardController(this);
+//        this.hotbar.setColor(ChatColor.of("#4e5c24"));
+//        this.hotbarTask = new BukkitRunnable() {
+//            @Override
+//            public void run() {
+//                if (!this.isCancelled()) {
+//                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, hotbar);
+//                }
+//            }
+//        }.runTaskTimer(plugin,0,30);
     }
+
+//    public void setHotbar(int h) {
+//        this.hotbar.setText(Character.toString((char) (57920 + h)));
+//    }
 
     public void remove() {
         removeNotMap();
@@ -42,6 +58,7 @@ public class GamePlayer implements Listener {
     }
 
     public void removeNotMap() {
+//        hotbarTask.cancel();
         scoreboardController.remove();
         HandlerList.unregisterAll(this);
     }

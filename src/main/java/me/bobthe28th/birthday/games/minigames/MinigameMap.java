@@ -104,8 +104,8 @@ public class MinigameMap {
         Vector start = new Vector(random.nextInt((int) spawnArea.getWidthX()) + spawnArea.getMinX(), spawnArea.getMaxY(), random.nextInt((int) spawnArea.getWidthZ()) + spawnArea.getMinZ());
         BlockIterator blockIterator = new BlockIterator(world, start, new Vector(0, -1, 0), 0, (int) spawnArea.getHeight());
         while (blockIterator.hasNext()) {
-            Block b = blockIterator.next(); //todo check 2 up
-            if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnInBlocks.contains(b.getType()) && !blackListedSpawnOnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
+            Block b = blockIterator.next();
+            if (b.isEmpty() && b.getRelative(BlockFace.DOWN).getType().isSolid() && !blackListedSpawnInBlocks.contains(b.getType()) && !blackListedSpawnInBlocks.contains(b.getRelative(BlockFace.UP).getType()) && !blackListedSpawnOnBlocks.contains(b.getRelative(BlockFace.DOWN).getType())) {
                 double distToPlayerSqared = Integer.MAX_VALUE;
                 for (MinigamePlayer p : players) {
                     if (p.isAlive()) {

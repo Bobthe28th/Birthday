@@ -16,7 +16,6 @@ public class MusicController {
 
     Main plugin;
     Music currentlyPlaying;
-//    boolean controlledByGame = false; //todo ?
 
     BukkitTask musicLength;
     MusicQueue queue;

@@ -7,6 +7,7 @@ import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import me.bobthe28th.birthday.games.minigames.prophunt.PropHunt;
 import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
+import me.bobthe28th.birthday.games.minigames.tntrun.TntRun;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
@@ -32,6 +33,7 @@ public class GameController {
         minigames.put("ghosts", Ghosts.class);
         minigames.put("spleef", Spleef.class);
         minigames.put("prophunt", PropHunt.class);
+        minigames.put("tntrun", TntRun.class);
     }
 
     public void addNewPlayer(Player p) {

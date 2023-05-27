@@ -29,7 +29,7 @@ public class SpLayer {
             for (int z = minZ; z <= maxZ; z ++) {
                 for (int x = minX; x <= maxX; x++) {
                     Block b = map.getWorld().getBlockAt(x,y,z);
-                    if (b.getType().isAir()) {
+                    if (b.getType().isAir() || b.getType().equals(Material.TNT)) {
                         b.setType(Material.SNOW_BLOCK);
                     }
                 }

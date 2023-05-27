@@ -6,10 +6,18 @@ import org.bukkit.World;
 import org.bukkit.util.BoundingBox;
 
 public class TnMap extends MinigameMap {
-    public TnMap(String title, World world, BoundingBox spawnArea, Location spectateLoc) {
+
+    TnLayer tntLayers;
+    int yDeath;
+
+    public TnMap(String title, World world, BoundingBox spawnArea, Location spectateLoc, TnLayer tntLayers, int yDeath) {
         super(title, world, spawnArea, spectateLoc);
+        this.tntLayers = tntLayers;
+        this.yDeath = yDeath;
+        reset();
     }
 
     public void reset() {
+        tntLayers.reset(this);
     }
 }

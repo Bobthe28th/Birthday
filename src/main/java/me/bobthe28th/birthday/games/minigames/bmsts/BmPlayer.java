@@ -3,6 +3,7 @@ package me.bobthe28th.birthday.games.minigames.bmsts;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.MinigamePlayer;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.data.Powerable;
 import org.bukkit.event.EventHandler;
@@ -25,6 +26,9 @@ public class BmPlayer extends MinigamePlayer implements Listener {
         }
         player.getPlayer().teleport(bmsts.playerSpawn);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        player.getPlayer().getInventory().clear();
+        player.getPlayer().getInventory().setHeldItemSlot(4);
+        player.getPlayer().setGameMode(GameMode.ADVENTURE);
         Main.gameController.giveAdvancement(player.getPlayer(),"bmsts");
     }
 

@@ -3,16 +3,11 @@ package me.bobthe28th.birthday.games.minigames.spleef;
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
-import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -22,16 +17,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Spleef extends Minigame implements BonusRound {
-
-    Bmsts bmsts;
+public class Spleef extends BonusRound {
     BmTeam winningTeam = null;
     HashMap<Player, SpPlayer> players = new HashMap<>();
     SpMap currentMap;
@@ -40,12 +32,13 @@ public class Spleef extends Minigame implements BonusRound {
         super(plugin);
         status = MinigameStatus.READY;
         World w = plugin.getServer().getWorld("world");
-        currentMap = new SpMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new SpLayer(-35, -292, 123, -30, -287, 3, 2),121);
+        currentMap = new SpMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new Location(w,-32, 130 ,-289),new SpLayer(-35, -292, 123, -30, -287, 3, 2),121);
     }
 
     @Override
     public void start() {
         Main.damageRule = DamageRule.NONE;
+        Main.breakBlocks = true;
         for (GamePlayer player : plugin.getGamePlayers().values()) {
             players.put(player.getPlayer(),new SpPlayer(plugin,player,this));
         }
@@ -105,26 +98,15 @@ public class Spleef extends Minigame implements BonusRound {
     }
 
     @Override
-    public void startBonusRound(Bmsts bmsts) {
-        this.bmsts = bmsts;
-        this.isBonusRound = true;
-        start();
-    }
-
-    @Override
-    public void endBonusRound(boolean points) {
+    public void awardPoints() {
         if (winningTeam != null) {
             for (BmPlayer p : winningTeam.getMembers()) {
                 if (players.get(p.getPlayer()).isAlive()) {
                     Main.gameController.giveAdvancement(p.getPlayer(),"spleef/spleefwin");
-                    if (points) {
-                        winningTeam.addResearchPoints(5);
-                    }
+                    winningTeam.addResearchPoints(5,true);
                 }
             }
         }
-        disable();
-        bmsts.endBonusRound();
     }
 
     @EventHandler
@@ -159,10 +141,10 @@ public class Spleef extends Minigame implements BonusRound {
         if (players.containsKey(event.getPlayer())) event.setCancelled(true);
     }
 
-    @EventHandler
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        if (players.containsKey(event.getPlayer())) event.setCancelled(true);
-    }
+//    @EventHandler
+//    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+//        if (players.containsKey(event.getPlayer())) event.setCancelled(true);
+//    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {

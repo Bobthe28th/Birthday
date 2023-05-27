@@ -46,7 +46,6 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
     @Override
     public void registerGoals() {
-        //todol new goal so it stays in range close
         this.goalSelector.addGoal(1, new EvokerCastingSpellGoal());
         this.goalSelector.addGoal(5, new EvokerAttackSpellGoal());
         this.goalSelector.addGoal(2, new StayAtRangeGoal(this,0.5F,8.0,10.0));
@@ -98,7 +97,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
 
         protected int getCastingInterval() {
             return new Random().nextInt(40) + 80;
-        } //todos random?
+        }
 
         protected void performSpellCasting() {
             LivingEntity entityliving = EvokerEntity.this.getTarget();

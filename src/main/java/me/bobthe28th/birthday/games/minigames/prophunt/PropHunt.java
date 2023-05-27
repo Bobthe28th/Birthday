@@ -2,7 +2,6 @@ package me.bobthe28th.birthday.games.minigames.prophunt;
 
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
-import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
@@ -17,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class PropHunt extends Minigame implements BonusRound {
+public class PropHunt extends BonusRound {
 
     Bmsts bmsts;
     HashMap<Player, PrPlayer> players = new HashMap<>();
@@ -129,10 +127,10 @@ public class PropHunt extends Minigame implements BonusRound {
         if (players.containsKey(event.getPlayer())) event.setCancelled(true);
     }
 
-    @EventHandler
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        if (players.containsKey(event.getPlayer())) event.setCancelled(true);
-    }
+//    @EventHandler
+//    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+//        if (players.containsKey(event.getPlayer())) event.setCancelled(true);
+//    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -143,14 +141,7 @@ public class PropHunt extends Minigame implements BonusRound {
     }
 
     @Override
-    public void startBonusRound(Bmsts bmsts) {
-        this.bmsts = bmsts;
-        this.isBonusRound = true;
-        start();
-    }
-
-    @Override
-    public void endBonusRound(boolean points) {
+    public void awardPoints() {
 
     }
 

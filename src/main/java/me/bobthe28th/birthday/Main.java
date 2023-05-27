@@ -7,11 +7,13 @@ import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.music.MusicController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -24,10 +26,8 @@ import java.util.HashMap;
 
 public class Main extends JavaPlugin implements Listener {
 
-
-//    public static boolean pvp = true; //todol breakblocks
-
     public static DamageRule damageRule = DamageRule.NONE;
+    public static boolean breakBlocks = false;
 
     public static GameController gameController;
     public static MusicController musicController;
@@ -68,9 +68,9 @@ public class Main extends JavaPlugin implements Listener {
         gameController = new GameController(this);
         musicController = new MusicController(this);
 
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            gameController.addNewPlayer(player); //todos uncomment
-        }
+//        for(Player player : Bukkit.getOnlinePlayers()) {
+//            gameController.addNewPlayer(player); //todos uncomment
+//        }
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
         getGamePlayers().put(event.getPlayer(),new GamePlayer(this,event.getPlayer()));
-        gameController.playerJoin(getGamePlayers().get(event.getPlayer())); //todos uncomment
+        gameController.playerJoin(getGamePlayers().get(event.getPlayer()));
     }
 
     @EventHandler
@@ -132,6 +132,14 @@ public class Main extends JavaPlugin implements Listener {
         if (advancement.getDisplay() != null && advancement.getDisplay().getDescription().startsWith("\ue240")) return;
         for(String criteria: advancement.getCriteria()) {
             player.getAdvancementProgress(advancement).revokeCriteria(criteria);
+        }
+    }
+
+    @EventHandler
+    public void onBreakBlock(BlockBreakEvent event) {
+        if (breakBlocks) return;
+        if (event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+            event.setCancelled(true);
         }
     }
 

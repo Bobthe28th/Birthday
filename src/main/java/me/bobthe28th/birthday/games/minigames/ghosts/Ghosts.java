@@ -3,12 +3,10 @@ package me.bobthe28th.birthday.games.minigames.ghosts;
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.games.GamePlayer;
-import me.bobthe28th.birthday.games.minigames.Minigame;
 import me.bobthe28th.birthday.games.minigames.MinigameMap;
 import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import net.md_5.bungee.api.ChatMessageType;
@@ -32,8 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class Ghosts extends Minigame implements BonusRound {
-    Bmsts bmsts;
+public class Ghosts extends BonusRound {
 
     HashMap<Player, GhPlayer> players = new HashMap<>();
 
@@ -63,6 +60,7 @@ public class Ghosts extends Minigame implements BonusRound {
         status = MinigameStatus.PLAYING;
         Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("zombiefun"));
         Main.damageRule = DamageRule.NONPLAYER;
+        Main.breakBlocks = false;
 
         for (GamePlayer p : plugin.getGamePlayers().values()) {
             p.getPlayer().teleport(map.getSpawnLoc(new ArrayList<>(players.values())));
@@ -146,26 +144,15 @@ public class Ghosts extends Minigame implements BonusRound {
     }
 
     @Override
-    public void startBonusRound(Bmsts bmsts) {
-        this.bmsts = bmsts;
-        this.isBonusRound = true;
-        start();
-    }
-
-    @Override
-    public void endBonusRound(boolean points) {
-        if (points) {
-            for (GhPlayer p : players.values()) {
-                if (p.isAlive()) {
-                    Main.gameController.giveAdvancement(p.getPlayer(),"ghosts/ghostwin");
-                    if (bmsts.getPlayers().get(p.getPlayer()).getTeam() != null) {
-                        bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5);
-                    }
+    public void awardPoints() {
+        for (GhPlayer p : players.values()) {
+            if (p.isAlive()) {
+                Main.gameController.giveAdvancement(p.getPlayer(),"ghosts/ghostwin");
+                if (bmsts.getPlayers().get(p.getPlayer()).getTeam() != null) {
+                    bmsts.getPlayers().get(p.getPlayer()).getTeam().addResearchPoints(5,true);
                 }
             }
         }
-        disable();
-        bmsts.endBonusRound();
     }
 
     @EventHandler

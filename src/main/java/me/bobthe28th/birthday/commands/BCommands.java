@@ -3,7 +3,6 @@ package me.bobthe28th.birthday.commands;
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
 import me.bobthe28th.birthday.music.Music;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -41,7 +40,16 @@ public class BCommands implements CommandExecutor {
                 return true;
             case "test":
 
-                Bukkit.broadcastMessage("Deez nuts213");
+//                ArmorStand armorStand = player.getWorld().spawn(player.getLocation(), ArmorStand.class);
+//                armorStand.setMarker(true);
+//                armorStand.setGravity(false);
+//                armorStand.setVisible(false);
+//
+//                ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket(((CraftEntity) armorStand).getHandle());
+//                ((CraftPlayer)player).getHandle().connection.send(packet);
+
+//                Bukkit.broadcastMessage("Deez nuts213");
+
 
 //                Team t = Main.gameController.getGamePlayers().get(player).getScoreboardController().getScoreboard().getTeam("blue");
 //

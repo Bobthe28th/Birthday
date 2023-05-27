@@ -21,6 +21,7 @@ import java.util.List;
 
 public class BmTeam {
 
+    public int techLevel = 1;
     Main plugin;
     Bmsts bmsts;
     ScoreboardTeam team;
@@ -107,21 +108,25 @@ public class BmTeam {
         }
     }
 
+    public ArrayList<Minion> getMinions() {
+        return minions;
+    }
+
     public int getResearchPoints() {
         return researchPoints;
     }
 
-    public void addResearchPoints(int amount) {
+    public void addResearchPoints(int amount, boolean won) {
         this.researchPoints += amount;
         this.researchPointsDisplay.setText(color + String.valueOf(this.researchPoints));
-        if (amount > 0) {
+        if (won && amount > 0) {
             for (BmPlayer b : getMembers()) {
                 Main.gameController.giveAdvancement(b.getPlayer(),"bmsts/points");
             }
         }
     }
 
-    public void minionDeath() { //todo none spawn can only ready when all minions in
+    public void minionDeath() {
         for (Minion m : minions) {
             if (m.getEntities().size() != 0) return;
         }
