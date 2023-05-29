@@ -9,23 +9,31 @@ import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.ChickenMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.EndermiteMinion;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.LlamaMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.SilverfishMinion;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.SkeletonMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.LlamaMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.SnowGolemMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.WolfMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.ZombieMinion;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.HoglinMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.GoatMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.PiglinMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.PillagerMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.SkeletonMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.BlazeMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.PolarBearMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.WitherSkeletonMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.EvokerMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.HoglinMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.PiglinBruteMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t5.IronGolemMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t5.RavagerMinion;
 import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
+import me.bobthe28th.birthday.games.minigames.survive.Survive;
 import me.bobthe28th.birthday.games.minigames.tntrun.TntRun;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
 import org.bukkit.entity.Arrow;
@@ -58,10 +66,10 @@ public class Bmsts extends Minigame {
 
     Location playerSpawn;
 
-    public ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD};
+    public ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD,ChatColor.BLACK};
     public ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
 
-    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class, Spleef.class, TntRun.class);
+    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class, Survive.class, Spleef.class, TntRun.class);
 //    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class);
 //    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class);
 
@@ -73,14 +81,17 @@ public class Bmsts extends Minigame {
     public Class<?>[][] minionTypes = new Class<?>[][]{
             {SilverfishMinion.class, ChickenMinion.class, EndermiteMinion.class},
             {ZombieMinion.class, LlamaMinion.class, WolfMinion.class, SnowGolemMinion.class},
-            {PillagerMinion.class, SkeletonMinion.class},
-            {WitherSkeletonMinion.class, BlazeMinion.class},
-            {EvokerMinion.class, HoglinMinion.class}
+            {PillagerMinion.class, SkeletonMinion.class, GoatMinion.class, PiglinMinion.class},
+            {WitherSkeletonMinion.class, BlazeMinion.class, PolarBearMinion.class},
+            {EvokerMinion.class, HoglinMinion.class, PiglinBruteMinion.class},
+            {RavagerMinion.class, IronGolemMinion.class}
     };
 
     int round = 1;
     BonusRound currentBonusRound;
     BmMap currentMap;
+
+    World w;
 
     public Bmsts(Main plugin) {
         super(plugin);
@@ -88,7 +99,7 @@ public class Bmsts extends Minigame {
         Main.damageRule = DamageRule.NONE;
         Main.breakBlocks = false;
 
-        World w = plugin.getServer().getWorld("world");
+        w = plugin.getServer().getWorld("world");
 
         Location[] l = new Location[4];
         l[0] = new Location(w,-226, 120, -298);
@@ -101,12 +112,12 @@ public class Bmsts extends Minigame {
                 door[x+y*3] = new Location(w,-248, 120 + y, -294 - x);
             }
         }
-        BmTeams.put("yellow",new BmTeam(this,"yellow",3, Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291), new Location(w,-234, 121, -290),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
-        BmTeams.put("green",BmTeams.get("yellow").copy("green",2,Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -295,-234.5, 127, -293)));
-        BmTeams.put("red",BmTeams.get("green").copy("red",1,Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -290,-234.5, 127, -288)));
-        BmTeams.put("blue",BmTeams.get("red").copy("blue",0,Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -285,-234.5, 127, -283)));
+        BmTeams.put("yellow",new BmTeam(this,"yellow",3, Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291), new Location(w,-234, 121, -290),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-295, 101, -410,-294.5, 103, -409)));
+        BmTeams.put("green",BmTeams.get("yellow").copy("green",2,Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-292, 101, -413,-291, 103, -412.5)));
+        BmTeams.put("red",BmTeams.get("green").copy("red",1,Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-281, 101, -413,-280, 103, -412.5)));
+        BmTeams.put("blue",BmTeams.get("red").copy("blue",0,Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-277.5, 101, -410,-277, 103, -409)));
 
-        playerSpawn = new Location(w,-231.5, 127, -291.5,90,0);
+        playerSpawn = new Location(w,-273, 104, -432);
 
         bmMaps = new BmMap[]{
                 new BmMap("yellow",new Location(w,-244.5, 100, -365.5),new HashMap<>(Map.of(
@@ -145,33 +156,40 @@ public class Bmsts extends Minigame {
     }
 
     public void startBattle() {
-        bmStatus = BmStatus.BATTLE;
-        Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("battle" + (new Random().nextInt(battleMusicAmount) + 1)));
-
-        for (BmTeam g : BmTeams.values()) {
-            g.dropKept();
-            g.setReady(false);
-        }
-
-        for (BmPlayer p : BmPlayers.values()) {
-            for (BmTeam t : BmTeams.values()) {
-                t.updateDoor(p,false);
-            }
-            p.getPlayer().teleport(currentMap.getPlayerSpawn());
-        }
         new BukkitRunnable() {
             @Override
             public void run() {
+                bmStatus = BmStatus.BATTLE;
+                Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("battle" + (new Random().nextInt(battleMusicAmount) + 1)));
+
                 for (BmTeam g : BmTeams.values()) {
-                    g.spawnAll(currentMap.getMinionSpawn().get(g));
-                    if (g.getReadySwitch().getBlock().getType() == Material.LEVER) {
-                        g.getReadySwitch().getBlock().setBlockData(g.getReadySwitch().getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
-                    }
-//                    g.showTargets();
+                    g.dropKept();
+                    g.setReady(false);
                 }
-                checkBattleWin();
+
+                for (BmPlayer p : BmPlayers.values()) {
+                    for (BmTeam t : BmTeams.values()) {
+                        t.updateDoor(p,false);
+                    }
+                    p.getPlayer().teleport(currentMap.getPlayerSpawn());
+                    p.getPlayer().playSound(p.getPlayer().getLocation(),"preparetofight",SoundCategory.MASTER,0.3f,1f);
+
+                }
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        for (BmTeam g : BmTeams.values()) {
+                            g.spawnAll(currentMap.getMinionSpawn().get(g));
+                            if (g.getReadySwitch().getBlock().getType() == Material.LEVER) {
+                                g.getReadySwitch().getBlock().setBlockData(g.getReadySwitch().getBlock().getBlockData().merge(Bukkit.getServer().createBlockData("minecraft:lever[powered=false]")));
+                            }
+                        }
+                        checkBattleWin();
+                    }
+                }.runTaskLater(plugin, 40);
             }
-        }.runTaskLater(plugin, 40);
+        }.runTaskLater(plugin,60);
+
     }
 
     public void checkBattleWin() {
@@ -185,13 +203,24 @@ public class Bmsts extends Minigame {
                 }
             }
         }
-        if (winner != null) { //todo team win sound
+        if (winner != null) {
             winner.addResearchPoints(1,false);
-            Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getDisplayName() + " won the round");
-            for (BmPlayer p : BmPlayers.values()) {
-                p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getDisplayName() + " won the round", 10, 20, 10);
+            winner.winRound();
+            if (winner.getWins() >= 12) {
+                end(winner.getGameMembers());
+            } else {
+                for (BmPlayer p : BmPlayers.values()) {
+                    p.getPlayer().playSound(p.getPlayer().getLocation(), winner.getTeam().getTitle() + "win", SoundCategory.MASTER, 0.3f, 1f);
+                }
+                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getDisplayName() + " won the round");
+                for (BmPlayer p : BmPlayers.values()) {
+                    p.getPlayer().sendTitle("", winner.getTeam().getColor() + winner.getDisplayName() + " won the round", 10, 20, 10);
+                }
             }
         } else {
+            for (BmPlayer p : BmPlayers.values()) {
+                p.getPlayer().playSound(p.getPlayer().getLocation(),"draw",SoundCategory.MASTER,0.3f,1f);
+            }
             Bukkit.broadcastMessage(ChatColor.GRAY + "[" + ChatColor.WHITE + "✪" + ChatColor.GRAY + "] " + ChatColor.WHITE + " No one won the round");
             for (BmPlayer p : BmPlayers.values()) {
                 p.getPlayer().sendTitle("", ChatColor.WHITE + "No one won the round", 10, 20, 10);
@@ -225,6 +254,9 @@ public class Bmsts extends Minigame {
                     for (BmPlayer p : BmPlayers.values()) {
                         p.getPlayer().getInventory().setHeldItemSlot(4);
                         p.getPlayer().teleport(p.getTeam().getPlayerSpawn());
+                        for (BmTeam t : BmTeams.values()) {
+                            t.updateDoor(p,false);
+                        }
                     }
                     Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
                 }
@@ -305,7 +337,7 @@ public class Bmsts extends Minigame {
         if (event.getHitEntity() != null) {
             if (event.getEntity().getShooter() instanceof org.bukkit.entity.Entity pe) {
                 if (((CraftEntity)pe).getHandle() instanceof MinionEntity minion && ((CraftEntity)event.getHitEntity()).getHandle() instanceof MinionEntity hitMinion) {
-                    if (minion.getGameTeam() == hitMinion.getGameTeam()) {
+                    if (minion.getMinion().getTeam() == hitMinion.getMinion().getTeam()) {
                         event.setCancelled(true);
                     }
                 }
@@ -362,7 +394,7 @@ public class Bmsts extends Minigame {
         }
 
         if (((CraftEntity)event.getEntity()).getHandle() instanceof MinionEntity e && damager instanceof MinionEntity d) {
-            if (e.getGameTeam() == d.getGameTeam()) {
+            if (e.getMinion().getTeam() == d.getMinion().getTeam()) {
                 event.setCancelled(true);
             }
         }
@@ -371,10 +403,6 @@ public class Bmsts extends Minigame {
     public void setRound(int round) {
         this.round = round;
     }
-
-//    public int getRound() {
-//        return round;
-//    }
 
     public HashMap<Player, BmPlayer> getPlayers() {
         return BmPlayers;
@@ -409,7 +437,7 @@ public class Bmsts extends Minigame {
             return ChatColor.WHITE + "☠";
         }
         int fullHearts = (int) Math.floor(health / 2);
-        boolean halfHeart = health - (fullHearts * 2) >= 1;
+        boolean halfHeart = health - (fullHearts * 2) >= 0;
         StringBuilder healthString = new StringBuilder();
         for (int i = 0; i < fullHearts; i++) {
             healthString.append(fullColor).append("♥");
@@ -436,9 +464,11 @@ public class Bmsts extends Minigame {
 
         if (status != MinigameStatus.END) {
             for (BmPlayer p : BmPlayers.values()) {
+                Objects.requireNonNull(p.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
                 p.getPlayer().setHealth(20.0);
                 p.getPlayer().setGameMode(GameMode.ADVENTURE);
                 p.getPlayer().teleport(p.getTeam().playerSpawn);
+                p.getPlayer().getInventory().setHeldItemSlot(4);
             }
             Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
         }

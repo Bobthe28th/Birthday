@@ -16,10 +16,12 @@ import java.util.Objects;
 public class SilverfishEntity extends Silverfish implements MinionEntity {
 
     Minion minion;
+    boolean preview;
 
     public SilverfishEntity(Location loc, Minion minion, Boolean preview) {
         super(EntityType.SILVERFISH, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.minion = minion;
+        this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
@@ -45,4 +47,8 @@ public class SilverfishEntity extends Silverfish implements MinionEntity {
         return minion;
     }
 
+    @Override
+    public boolean isPreview() {
+        return preview;
+    }
 }

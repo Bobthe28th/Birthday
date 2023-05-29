@@ -69,7 +69,7 @@ public class Ghosts extends BonusRound {
         spawnTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (ghosts.size() < 100 && !this.isCancelled()) {
+                if (ghosts.size() < 80 && !this.isCancelled()) {
                     Husk ghost = map.getWorld().spawn(map.getSpawnLoc(new ArrayList<>(players.values())), Husk.class);
                     ghost.setInvulnerable(true);
                     ghost.setInvisible(true);

@@ -1,30 +1,35 @@
-package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t0;
+package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t4;
 
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.monster.Endermite;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
-public class EndermiteEntity extends Endermite implements MinionEntity {
-
+public class PiglinBruteEntity extends PiglinBrute implements MinionEntity {
     Minion minion;
     boolean preview;
 
-    public EndermiteEntity(Location loc, Minion minion, Boolean preview) {
-        super(EntityType.ENDERMITE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+    public PiglinBruteEntity(Location loc, Minion minion, Boolean preview) {
+        super(EntityType.PIGLIN_BRUTE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.minion = minion;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
+        this.setImmuneToZombification(true);
+        this.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(new ItemStack(Material.GOLDEN_AXE)));
         if (!preview) {
             this.setCustomNameVisible(true);
         }
@@ -51,5 +56,4 @@ public class EndermiteEntity extends Endermite implements MinionEntity {
     public boolean isPreview() {
         return preview;
     }
-
 }

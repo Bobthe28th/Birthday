@@ -7,10 +7,9 @@ import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import me.bobthe28th.birthday.games.minigames.spleef.Layer;
+import me.bobthe28th.birthday.games.minigames.spleef.LayeredMap;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,14 +19,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TntRun extends BonusRound {
 
     BmTeam winningTeam = null;
     HashMap<Player, TnPlayer> players = new HashMap<>();
-    TnMap currentMap;
+    LayeredMap currentMap;
     HashMap<Block, BukkitTask> toRemove = new HashMap<>();
 
     boolean tntRun = false;
@@ -36,7 +34,8 @@ public class TntRun extends BonusRound {
         super(plugin);
         status = MinigameStatus.READY;
         World w = plugin.getServer().getWorld("world");
-        currentMap = new TnMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new Location(w,-32, 130 ,-289),new TnLayer(-35, -292, 123, -30, -287, 3, 2),121);
+        currentMap = new LayeredMap("temp",w,new Location(w,-184.5, 135, -368.5),new Location(w,-184.5, 136, -368.5),new Layer(-193, -383, 134, -177, -367, -6, 3,Material.TNT),110);
+        currentMap.reset();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class TntRun extends BonusRound {
         }
         status = MinigameStatus.PLAYING;
         for (TnPlayer player : players.values()) {
-            player.getPlayer().teleport(currentMap.getSpawnLoc(new ArrayList<>(players.values())));
+            player.getPlayer().teleport(currentMap.getSpawnLoc());
         }
         new BukkitRunnable() {
             int time = 5;
@@ -148,18 +147,24 @@ public class TntRun extends BonusRound {
     }
 
     public void checkBlock(Player p) {
-        Block b = p.getLocation().clone().add(0,-0.1,0).getBlock();
-        if (b.getType().equals(Material.TNT)) {
-            if (!toRemove.containsKey(b)) {
-                toRemove.put(b, new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (!this.isCancelled()) {
-                            b.setType(Material.AIR);
-                            toRemove.remove(b);
+        BoundingBox box = p.getBoundingBox();
+        Double[] x = new Double[]{box.getCenterX() - box.getMinX(),box.getCenterX() - box.getMinX(),box.getCenterX() - box.getMaxX(),box.getCenterX() - box.getMaxX()};
+        Double[] z = new Double[]{box.getCenterZ() - box.getMinZ(),box.getCenterZ() - box.getMaxZ(),box.getCenterZ() - box.getMinZ(),box.getCenterZ() - box.getMaxZ()};
+
+        for (int i = 0; i < 4; i ++) {
+            Block b = p.getLocation().clone().add(x[i],-1,z[i]).getBlock();
+            if (b.getType().equals(Material.TNT)) {
+                if (!toRemove.containsKey(b)) {
+                    toRemove.put(b, new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (!this.isCancelled()) {
+                                b.setType(Material.AIR);
+                                toRemove.remove(b);
+                            }
                         }
-                    }
-                }.runTaskLater(plugin,20));
+                    }.runTaskLater(plugin,20));
+                }
             }
         }
     }

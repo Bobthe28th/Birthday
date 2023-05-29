@@ -1,7 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t4;
 
-import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.StayAtRangeGoal;
@@ -26,14 +25,12 @@ import java.util.Random;
 
 public class EvokerEntity extends Evoker implements MinionEntity {
 
-    BmTeam team;
-    Rarity rarity;
-    Boolean preview;
+    Minion minion;
+    boolean preview;
 
-    public EvokerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+    public EvokerEntity(Location loc, Minion minion, Boolean preview) {
         super(EntityType.EVOKER, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
-        this.team = team;
-        this.rarity = rarity;
+        this.minion = minion;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
@@ -58,8 +55,8 @@ public class EvokerEntity extends Evoker implements MinionEntity {
     }
 
     @Override
-    public BmTeam getGameTeam() {
-        return team;
+    public Minion getMinion() {
+        return minion;
     }
 
     @Override

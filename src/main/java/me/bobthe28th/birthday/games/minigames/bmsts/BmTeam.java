@@ -1,15 +1,15 @@
 package me.bobthe28th.birthday.games.minigames.bmsts;
 
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.games.GamePlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.SilverfishMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.ChickenMinion;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Transformation;
@@ -46,10 +46,12 @@ public class BmTeam {
     Location researchPointsDisplayLoc;
     BoundingBox joinPortal;
 
-    int researchPoints = 4;
+    int researchPoints = 400;
     TextDisplay researchPointsDisplay;
 
     ArrayList<Minion> minions = new ArrayList<>();
+
+    int wins = 0;
 
     int id;
 
@@ -89,10 +91,15 @@ public class BmTeam {
 
         this.team = new ScoreboardTeam(name,ChatColor.DARK_GRAY + "[" + color + Character.toUpperCase(name.charAt(0)) + ChatColor.DARK_GRAY + "] ",false,true, Team.OptionStatus.FOR_OTHER_TEAMS,color);
 
-        new SilverfishMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
-        new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
-        new SilverfishMinion(plugin,bmsts, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
-        new SilverfishMinion(plugin,bmsts, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
+//        new SilverfishMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
+//        new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
+//        new SilverfishMinion(plugin,bmsts, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
+//        new SilverfishMinion(plugin,bmsts, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
+
+        new ChickenMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
+        new ChickenMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
+        new ChickenMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
+        new ChickenMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
 
 //        new MagmaCubeMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
 //        new MagmaCubeMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
@@ -140,6 +147,9 @@ public class BmTeam {
             if (m.getEntities().size() != 0) return;
         }
         dead = true;
+        for (BmPlayer p : bmsts.BmPlayers.values()) {
+            p.getPlayer().playSound(p.getPlayer().getLocation(),team.getTitle() + "defeated",SoundCategory.MASTER,0.3f,1f);
+        }
         Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "☠" + ChatColor.GRAY + "] " + team.getColor() + getDisplayName() + " dead");
         for (BmPlayer p : bmsts.getPlayers().values()) {
             p.getPlayer().sendTitle("",team.getColor() + getDisplayName() + " dead",10,20,10);
@@ -157,6 +167,16 @@ public class BmTeam {
         return members;
     }
 
+    public ArrayList<GamePlayer> getGameMembers() {
+        ArrayList<GamePlayer> members = new ArrayList<>();
+        for (BmPlayer p : bmsts.getPlayers().values()) {
+            if (p.getTeam() == this) {
+                members.add(p.getGamePlayer());
+            }
+        }
+        return members;
+    }
+
     public void setReady(boolean ready) {
         this.ready = ready;
         this.doorOpen = ready; //todo teleport if outside
@@ -166,6 +186,9 @@ public class BmTeam {
         if (ready) {
             dropKept();
             boolean allReady = true;
+            for (BmPlayer p : bmsts.BmPlayers.values()) {
+                p.getPlayer().playSound(p.getPlayer().getLocation(),team.getTitle() + "ready",SoundCategory.MASTER,0.3f,1f);
+            }
             Bukkit.broadcastMessage(ChatColor.GRAY + "[" + team.getColor() + "✔" + ChatColor.GRAY + "] " + team.getColor() + getDisplayName() + " ready");
             for (BmPlayer p : bmsts.getPlayers().values()) {
                 p.getPlayer().sendTitle("", team.getColor() + getDisplayName() + " ready", 10, 20, 10);
@@ -177,12 +200,7 @@ public class BmTeam {
                 }
             }
             if (allReady) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        bmsts.startBattle();
-                    }
-                }.runTaskLater(plugin,60);
+                bmsts.startBattle();
             }
         }
     }
@@ -247,6 +265,10 @@ public class BmTeam {
             minion.remove(false);
         }
         minions.clear();
+    }
+
+    public int getWins() {
+        return wins;
     }
 
     public void addMinion(Minion m) {
@@ -325,4 +347,7 @@ public class BmTeam {
         return new BmTeam(bmsts,name,id,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),dropButton.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,researchPointsDisplayLoc.clone().add(offset),cjoinPortal);
     }
 
+    public void winRound() {
+        wins ++;
+    }
 }

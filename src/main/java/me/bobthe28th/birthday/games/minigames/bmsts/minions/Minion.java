@@ -1,6 +1,7 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions;
 
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.games.minigames.bmsts.BmPlayer;
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
@@ -198,8 +199,8 @@ public class Minion implements Listener {
         ServerLevel w = ((CraftWorld) Objects.requireNonNull(location.getWorld())).getHandle();
         FileConfiguration config = bmsts.getConfig();
         try {
-            Constructor<?> constructor = entityType.getConstructor(Location.class, BmTeam.class, Rarity.class, Boolean.class);
-            Mob e = (Mob) constructor.newInstance(location.clone(),team,rarity,preview);
+            Constructor<?> constructor = entityType.getConstructor(Location.class, Minion.class, Boolean.class);
+            Mob e = (Mob) constructor.newInstance(location.clone(),this,preview);
             if (preview) {
                 e.setNoAi(true);
                 e.setSilent(true);
@@ -236,6 +237,9 @@ public class Minion implements Listener {
             if (config.contains(id + "_health")) {
                 maxHealth.setBaseValue(config.getDouble(id + "_health"));
                 mob.setHealth((float) maxHealth.getBaseValue());
+            } else {
+                maxHealth.setBaseValue(maxHealth.getBaseValue() * 0.5);
+                mob.setHealth((float) maxHealth.getBaseValue());
             }
         }
         AttributeInstance damage = mob.getAttributes().getInstance(Attributes.ATTACK_DAMAGE);
@@ -245,7 +249,7 @@ public class Minion implements Listener {
             }
         }
         if (config.contains(id + "_projectile_damage")) {
-            projectileDamage = config.getDouble(id + "_projectile_damage");
+            projectileDamage = config.getDouble(id + "_projectile_damage") * rarity.getMulti();
         }
     }
 
@@ -299,10 +303,11 @@ public class Minion implements Listener {
             if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
                 if (event instanceof EntityDamageByEntityEvent byEntityEvent) {
                     if (byEntityEvent.getDamager() instanceof Projectile p) {
-                        if (p.getShooter() instanceof MinionEntity m) {
-                            if (m.getMinion().getProjectileDamage() != null) {
-                                Bukkit.broadcastMessage("damage set");
-                                event.setDamage(m.getMinion().getProjectileDamage());
+                        if (p.getShooter() instanceof CraftMob mob) {
+                            if (mob.getHandle() instanceof MinionEntity m) {
+                                if (m.getMinion().getProjectileDamage() != null) {
+                                    event.setDamage(m.getMinion().getProjectileDamage());
+                                }
                             }
                         }
                     }
@@ -341,6 +346,10 @@ public class Minion implements Listener {
                     l.damage( projectileDamage != null ? projectileDamage : 3.0, s);
                 }
             }
+        } else if (event.getEntity() instanceof Snowball s && s.getShooter() instanceof org.bukkit.entity.Entity shooter && event.getHitEntity() != null) {
+            if (event.getHitEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
+                l.damage(projectileDamage != null ? projectileDamage : 1.0, shooter);
+            }
         }
     }
 
@@ -364,9 +373,10 @@ public class Minion implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && event.getClickedBlock() != null && event.getItem().equals(itemStack)) {
+        if (!bmsts.getPlayers().containsKey(event.getPlayer())) return;
+        if (bmsts.getPlayers().get(event.getPlayer()).getTeam() == team && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && event.getClickedBlock() != null && event.getItem().equals(itemStack)) {
             Location placedLocation = event.getClickedBlock().getLocation().add(event.getBlockFace().getDirection());
-            if (team.getSpawners().contains(placedLocation)) {
+            if (team.getSpawners().contains(placedLocation) && !team.isReady()) {
                 boolean inSpot = false;
                 for (Minion m : team.getMinions()) {
                     if (m.getPlacedLoc() != null && m.getPlacedLoc().equals(placedLocation.clone())) {
@@ -381,14 +391,12 @@ public class Minion implements Listener {
                 Class<?> mClass = bmsts.getMinionTypes()[techLevel][rand.nextInt(bmsts.getMinionTypes()[techLevel].length)];
                 try {
                     Constructor<?> constructor = mClass.getConstructor(Main.class, Bmsts.class, BmTeam.class, Rarity.class, Integer.class);
-                    Minion c = (Minion) constructor.newInstance(plugin,bmsts, team, getRandomRarity(), rand.nextInt(3) + 1);
+                    Minion c = (Minion) constructor.newInstance(plugin,bmsts, team, getRandomRarity(), rand.nextInt(4) + 1);
                     c.drop(placedLocation.clone().add(0.5,0,0.5));
-//                    Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5,0,0.5),c.getItem()); //TODOl particles
-//                    i.setVelocity(new Vector(0,0.2,0));
                 } catch (Exception ignored) {}
                 team.addResearchPoints(-1,false);
                 remove(true);
-            } else if (team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= (6 * (techLevel + 1))) {
+            } else if (bmsts.getPlayers().get(event.getPlayer()).getTeam() == team && team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= (6 * (techLevel + 1))) {
                 if (team.techLevel >= techLevel + 1) {
                     if (techLevel < 5) {
                         boolean allMax = true;
@@ -406,8 +414,9 @@ public class Minion implements Listener {
                         if (allMax) {
                             if (techLevel < 4) {
                                 team.techLevel += 1;
-                                //todos a new tech level
-                                Bukkit.broadcastMessage("New tech level");
+                                for (BmPlayer p : team.getMembers()) {
+                                    p.getPlayer().playSound(p.getPlayer().getLocation(),"newtech",SoundCategory.MASTER,0.3f,1f);
+                                }
                             }
                         }
                         Class<?> mClass = bmsts.getMinionTypes()[techLevel + 1][0];
@@ -415,8 +424,6 @@ public class Minion implements Listener {
                             Constructor<?> constructor = mClass.getConstructor(Main.class, Bmsts.class, BmTeam.class, Rarity.class, Integer.class);
                             Minion c = (Minion) constructor.newInstance(plugin, bmsts, team, Rarity.COMMON, 1);
                             c.drop(placedLocation.clone().add(0.5,0,0.5));
-//                            Item i = event.getPlayer().getWorld().dropItem(placedLocation.clone().add(0.5, 0, 0.5), c.getItem()); //TODOl particles
-//                            i.setVelocity(new Vector(0, 0.2, 0));
                         } catch (Exception ignored) {
                         }
                         team.addResearchPoints(-(6 * (techLevel + 1)), false);
@@ -464,7 +471,7 @@ public class Minion implements Listener {
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (!bmsts.getPlayers().containsKey(event.getPlayer())) return;
-        if (event.getRightClicked() == placedArmorStand && !team.isReady() && event.getPlayer().getInventory().getItem(4) == null) {
+        if (bmsts.getPlayers().get(event.getPlayer()).getTeam() == team && event.getRightClicked() == placedArmorStand && !team.isReady() && event.getPlayer().getInventory().getItem(4) == null) {
             placedArmorStand.remove();
             placedLoc = null;
             if (previewEntity != null) {

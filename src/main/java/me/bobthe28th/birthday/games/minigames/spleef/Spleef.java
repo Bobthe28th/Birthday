@@ -18,21 +18,27 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BoundingBox;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Spleef extends BonusRound {
     BmTeam winningTeam = null;
     HashMap<Player, SpPlayer> players = new HashMap<>();
-    SpMap currentMap;
+
+    LayeredMap[] maps;
+    LayeredMap currentMap;
     boolean canBreak = false;
     public Spleef(Main plugin) {
         super(plugin);
         status = MinigameStatus.READY;
         World w = plugin.getServer().getWorld("world");
-        currentMap = new SpMap("temp",w,new BoundingBox(-35,128,-292,-29,127,-286),new Location(w,-32, 130 ,-289),new SpLayer(-35, -292, 123, -30, -287, 3, 2),121);
+        maps = new LayeredMap[]{
+                new LayeredMap("temp",w,new Location(w,-184.5, 135, -368.5),new Location(w,-184.5, 136, -368.5),new Layer(-193, -383, 134, -177, -367, -6, 3,Material.SNOW_BLOCK),110),
+                new LayeredMap("temp",w,new Location(w,-54, 155, -298),new Location(w,-54, 155, -298),new Layer(-64, -309, 154, -41,  -286, -11, 4,Material.SNOW_BLOCK),60)
+        };
+        currentMap = maps[new Random().nextInt(maps.length)];
+        currentMap.reset();
     }
 
     @Override
@@ -44,7 +50,7 @@ public class Spleef extends BonusRound {
         }
         status = MinigameStatus.PLAYING;
         for (SpPlayer player : players.values()) {
-            player.getPlayer().teleport(currentMap.getSpawnLoc(new ArrayList<>(players.values())));
+            player.getPlayer().teleport(currentMap.getSpawnLoc());
             player.giveItems();
         }
         new BukkitRunnable() {

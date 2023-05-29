@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.util.Vector;
 
 public class GamePlayer implements Listener {
@@ -40,6 +41,9 @@ public class GamePlayer implements Listener {
         this.player.setInvisible(false);
         this.player.setPlayerListHeaderFooter("Deez","Nuts");
         scoreboardController = new ScoreboardController(this);
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
 //        this.hotbar.setColor(ChatColor.of("#4e5c24"));
 //        this.hotbarTask = new BukkitRunnable() {
 //            @Override
@@ -106,6 +110,14 @@ public class GamePlayer implements Listener {
             event.setCancelled(true);
         }
     }
+
+//    @EventHandler
+//    public void onEntityDamage(EntityDamageEvent event) {
+//        if (event.getEntity() != player) return;
+//        if (event.getCause() == EntityDamageEvent.DamageCause.LAVA) {
+//            event.setCancelled(true);
+//        }
+//    }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {

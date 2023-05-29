@@ -45,7 +45,7 @@ public class SpPlayer extends MinigamePlayer {
         if (!projectile) {
             addBalls(1);
         }
-        player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 1.0f, 1.0f);
+//        player.getPlayer().playSound(player.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, SoundCategory.MASTER, 0.7f, 1.0f);
     }
 
     public void addBalls(int amount) {

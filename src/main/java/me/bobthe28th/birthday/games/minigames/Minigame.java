@@ -34,18 +34,35 @@ public abstract class Minigame implements Listener {
         Main.damageRule = DamageRule.NONE;
         Main.breakBlocks = false;
         status = MinigameStatus.END;
+        Main.gameController.setMinigame(null,plugin);
         //todo
     }
 
     public void end(MinigamePlayer winner) {
         end();
+        Bukkit.broadcastMessage(winner.getPlayer().getDisplayName() + " won");
         //todo
     }
 
-//    public void end(MinigamePlayer[] winners) {
-//        disable();
-//        //todo
-//    }
+    public void end(List<GamePlayer> winners) {
+        end();
+        World w = plugin.getServer().getWorld("world");
+        if (w == null) return;
+        Location winLoc = new Location(w,-119.5, 143, -302.5);
+        Location loseLoc = new Location(w,-123.5, 142, -302.5);
+
+        for (GamePlayer g : plugin.getGamePlayers().values()) {
+            g.getPlayer().getInventory().clear();
+            if (winners.contains(g)) {
+                g.getPlayer().teleport(winLoc);
+            } else {
+                g.getPlayer().teleport(loseLoc);
+            }
+            g.getPlayer().setGameMode(GameMode.ADVENTURE);
+            g.getPlayer().setHealth(20.0);
+        }
+        Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("winnersong"));
+    }
 
     public void endTop3(List<GamePlayer> winners) {
         end();

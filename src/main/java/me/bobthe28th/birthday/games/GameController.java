@@ -9,6 +9,7 @@ import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import me.bobthe28th.birthday.games.minigames.prophunt.PropHunt;
 import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
+import me.bobthe28th.birthday.games.minigames.survive.Survive;
 import me.bobthe28th.birthday.games.minigames.tntrun.TntRun;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -37,6 +38,7 @@ public class GameController {
         minigames.put("prophunt", PropHunt.class);
         minigames.put("tntrun", TntRun.class);
         minigames.put("ctfsmall", CtfSmall.class);
+        minigames.put("survive", Survive.class);
     }
 
     public void addNewPlayer(Player p) {
@@ -51,12 +53,16 @@ public class GameController {
         if (currentGame != null) {
             currentGame.disable();
         }
-        try {
-            Constructor<?> constructor = minigame.getConstructor(Main.class);
-            currentGame = (Minigame) constructor.newInstance(plugin);
-            currentGame.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (minigame != null) {
+            try {
+                Constructor<?> constructor = minigame.getConstructor(Main.class);
+                currentGame = (Minigame) constructor.newInstance(plugin);
+                currentGame.start();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            currentGame = null;
         }
     }
 

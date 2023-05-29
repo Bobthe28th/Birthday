@@ -7,6 +7,8 @@ import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardObjective;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -20,6 +22,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 
@@ -35,8 +39,10 @@ public class Oitc extends BonusRound {
     public OiMap[] oiMaps;
     public OiMap currentMap;
 
-    public int maxKills = 10;
-    public int killsPostMax = 5;
+    public int killStreakToKing = 3;
+    public int kingTime = 20;
+//    public int maxKills = 10;
+//    public int killsPostMax = 5;
 
     public boolean cross = true;
     public boolean pickup = false;
@@ -46,16 +52,18 @@ public class Oitc extends BonusRound {
     ScoreboardObjective objective;
     ScoreboardTeam gTeam;
     ScoreboardTeam kTeam;
+    BukkitTask timerTask;
+    int time = 90;
 
-    public Oitc(Main plugin) { //todos add timer for bmsts
+    public Oitc(Main plugin) {
         super(plugin);
 
         World w = plugin.getServer().getWorld("world");
         oiMaps = new OiMap[]{
-                new OiMap("temp",w,new BoundingBox(-15, 109, -328, 26, 131, -377)),
-                new OiMap("temp2",w,new BoundingBox(28, 104, -328, 69, 131, -377))
+                new OiMap("temp",w,new BoundingBox(28, 104, -328, 69, 131, -377)),
+                new OiMap("temp2",w,new BoundingBox(-155, 127, -350, -114, 78, -399))
         };
-        oiMaps[1].addBlackListedSpawnOnBlocks(new Material[]{Material.WHITE_WOOL,Material.RED_WOOL,Material.CACTUS,Material.SPRUCE_FENCE,Material.OAK_STAIRS});
+        oiMaps[1].addBlackListedSpawnOnBlocks(new Material[]{Material.WHITE_WOOL,Material.RED_WOOL,Material.CACTUS,Material.SPRUCE_FENCE,Material.OAK_STAIRS,Material.OAK_LEAVES});
         oiMaps[1].addBlackListedSpawnInBlocks(new Material[]{Material.REDSTONE_TORCH,Material.FIRE,Material.LAVA,Material.COBWEB});
         currentMap = oiMaps[1];
         status = MinigameStatus.READY;
@@ -95,9 +103,9 @@ public class Oitc extends BonusRound {
         for (int i = 0; i < Math.min(topPoints.size(),3); i++) {
             String data;
             if (isBonusRound) {
-                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + bmsts.getTeamColor(topPoints.get(i).getPlayer(),ChatColor.WHITE) + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + (topPoints.get(i).king ? ChatColor.GOLD + "\ue243 " : "") + bmsts.getTeamColor(topPoints.get(i).getPlayer(),ChatColor.WHITE) + topPoints.get(i).getPlayer().getDisplayName() + ChatColor.WHITE + ": " + topPoints.get(i).points;
             } else {
-                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + ChatColor.WHITE + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
+                data = (topPoints.get(i).king ? ChatColor.GOLD : ChatColor.WHITE) + String.valueOf(i + 1) + ". " + (topPoints.get(i).king ? ChatColor.GOLD + "\ue243 " : "") + ChatColor.WHITE + topPoints.get(i).getPlayer().getDisplayName() + ": " + topPoints.get(i).points;
             }
             if (objective.hasRow(8 - i)) {
                 objective.updateRow(8 - i,data);
@@ -119,7 +127,7 @@ public class Oitc extends BonusRound {
         }
     }
 
-    public void setKing(OiPlayer king) { //todol sound
+    public void setKing(OiPlayer king) {
         if (king.alive) {
             if (!isBonusRound) {
                 gTeam.removeMemberGlobal(king.getPlayer());
@@ -135,8 +143,9 @@ public class Oitc extends BonusRound {
                 }
             }
             king.king = true;
+            king.kingTime = kingTime;
             updateTopPoints(king);
-            king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL", ChatColor.YELLOW + "Get " + killsPostMax + " kills to win!", 10, 20, 10);
+            king.getPlayer().sendTitle(ChatColor.RED + "KILL THEM ALL", ChatColor.YELLOW + "You have " + kingTime + " seconds!", 10, 20, 10);
             king.getPlayer().setGlowing(true);
             king.giveKingItem();
             if (isBonusRound) {
@@ -145,33 +154,51 @@ public class Oitc extends BonusRound {
                 Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is the king!");
             }
         } else {
+//                king.points -= killsPostMax;
+//                objective.updateRow(3,"Points: " + king.points, king.getGamePlayer());
+            updateTopPoints(king);
             if (isBonusRound) {
                 Bukkit.broadcastMessage(bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " was the king but died as they got it lol");
             } else {
-                king.points -= killsPostMax;
-                objective.updateRow(3,"Points: " + king.points, king.getGamePlayer());
-                updateTopPoints(king);
                 Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " was the king but died as they got it lol");
             }
         }
     }
 
-    public void kingDeath(OiPlayer king) { //todol sound
+    public void removeKing(OiPlayer king, boolean killed) {
         if (!isBonusRound) {
             kTeam.removeMemberGlobal(king.getPlayer());
             gTeam.addMemberGlobal(king.getPlayer());
         }
         for (OiPlayer p : OiPlayers.values()) {
             if (p != king) {
-                p.getPlayer().sendTitle("",ChatColor.BLUE + king.getPlayer().getDisplayName() + " was killed!",10,20,10);
+                if (killed) {
+                    if (isBonusRound) {
+                        p.getPlayer().sendTitle("", bmsts.getTeamColor(king.getPlayer(), ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " was killed!", 10, 20, 10);
+                    } else {
+                        p.getPlayer().sendTitle("", ChatColor.BLUE + king.getPlayer().getDisplayName() + " was killed!", 10, 20, 10);
+                    }
+                } else {
+                    if (isBonusRound) {
+                        p.getPlayer().sendTitle("",bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " is no longer the king!",10,20,10);
+                    } else {
+                        p.getPlayer().sendTitle("",ChatColor.BLUE + king.getPlayer().getDisplayName() + " is no longer the king!",10,20,10);
+                    }
+                }
             }
         }
         king.king = false;
         king.getPlayer().setGlowing(false);
-        king.points -= killsPostMax;
-        objective.updateRow(3,"Points: " + king.points, king.getGamePlayer());
+        if (!killed) {
+            king.getPlayer().getInventory().clear();
+            king.giveItems();
+        }
         updateTopPoints(king);
-        Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is no longer the king!");
+        if (isBonusRound) {
+            Bukkit.broadcastMessage(bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " is no longer the king!");
+        } else {
+            Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " is no longer the king!");
+        }
     }
 
     public ScoreboardObjective getObjective() {
@@ -208,6 +235,41 @@ public class Oitc extends BonusRound {
         if (isBonusRound) {
             Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("bonusround" + (new Random().nextInt(bmsts.bonusroundMusicAmount) + 1)));
         }
+        timerTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!this.isCancelled()) {
+                    for (OiPlayer p : OiPlayers.values()) {
+                        if (p.king) {
+                            p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.BLUE + String.valueOf(p.kingTime) + " " + ChatColor.GREEN + time));
+                            p.kingTime --;
+                            if (p.kingTime <= 0) {
+                                removeKing(p,false);
+                            }
+                        } else {
+                            p.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN + String.valueOf(time)));
+                        }
+                    }
+                    if (time <= 0) {
+                        this.cancel();
+                        if (isBonusRound) {
+                            endBonusRound(true);
+                        } else {
+                            List<GamePlayer> winners = new ArrayList<>();
+                            for (int i = 0; i < Math.min(3,topPoints.size()); i++) {
+                                Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitctop3");
+                                if (i == 0) {
+                                    Main.gameController.giveAdvancement(topPoints.get(i).getPlayer(),"oitc/oitcwin");
+                                }
+                                winners.add(topPoints.get(i).getGamePlayer());
+                            }
+                            endTop3(winners);
+                        }
+                    }
+                    time--;
+                }
+            }
+        }.runTaskTimer(plugin, 0, 20);
     }
 
     @Override

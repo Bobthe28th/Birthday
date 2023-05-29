@@ -117,7 +117,7 @@ public class PassiveMeleeAttackGoal extends Goal {
         double reachDist = this.getAttackReachSqr(target);
         if (dist <= reachDist && this.ticksUntilNextAttack <= 0) {
             this.resetAttackCooldown();
-            ((org.bukkit.entity.LivingEntity)target.getBukkitEntity()).damage(1.0F,this.mob.getBukkitEntity());
+            ((org.bukkit.entity.LivingEntity)target.getBukkitEntity()).damage(2.0F,this.mob.getBukkitEntity());
         }
     }
 

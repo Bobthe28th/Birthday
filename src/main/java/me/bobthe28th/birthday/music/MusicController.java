@@ -38,7 +38,8 @@ public class MusicController {
             new Music("bonusround5",2460L),
             new Music("bonusround6",2460L),
             new Music("zombiefun",1640L),
-            new Music("elevator",2400L)
+            new Music("elevator",2400L),
+            new Music("winnersong",1920L)
     );
 
     public MusicController(Main plugin) {
@@ -60,7 +61,11 @@ public class MusicController {
         if (currentlyPlaying != null) {
             Bukkit.broadcastMessage(ChatColor.YELLOW + "Now playing: " + ChatColor.RED + currentlyPlaying.getName());
             for (GamePlayer p : plugin.getGamePlayers().values()) {
-                p.getPlayer().playSound(p.getPlayer().getLocation(), currentlyPlaying.getName(), SoundCategory.MUSIC, 1f, 1);
+                if (currentlyPlaying.getName().equals("winnersong")) {
+                    p.getPlayer().playSound(p.getPlayer().getLocation(), currentlyPlaying.getName(), SoundCategory.MUSIC, 0.3f, 1);
+                } else {
+                    p.getPlayer().playSound(p.getPlayer().getLocation(), currentlyPlaying.getName(), SoundCategory.MUSIC, 1f, 1);
+                }
             }
             musicLength = new BukkitRunnable() {
                 @Override

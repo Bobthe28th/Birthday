@@ -1,7 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t1;
 
-import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.util.RandomSource;
@@ -19,14 +18,12 @@ import java.util.Objects;
 
 public class ZombieEntity extends Zombie implements MinionEntity {
 
-    BmTeam team;
-    Rarity rarity;
-    Boolean preview;
+    Minion minion;
+    boolean preview;
 
-    public ZombieEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+    public ZombieEntity(Location loc, Minion minion, Boolean preview) {
         super(EntityType.ZOMBIE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
-        this.team = team;
-        this.rarity = rarity;
+        this.minion = minion;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
@@ -34,11 +31,6 @@ public class ZombieEntity extends Zombie implements MinionEntity {
         if (!preview) {
             this.setCustomNameVisible(true);
         }
-    }
-
-    @Override
-    public BmTeam getGameTeam() {
-        return team;
     }
 
     @Override
@@ -57,6 +49,11 @@ public class ZombieEntity extends Zombie implements MinionEntity {
     //No armor
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource randomsource, DifficultyInstance difficultydamagescaler) {}
+
+    @Override
+    public Minion getMinion() {
+        return minion;
+    }
 
     @Override
     public boolean isPreview() {

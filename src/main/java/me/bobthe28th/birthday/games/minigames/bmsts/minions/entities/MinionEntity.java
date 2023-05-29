@@ -12,6 +12,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 public interface MinionEntity {
 
     Minion getMinion();
+    boolean isPreview();
 
     default boolean minionHurt(Mob self, boolean hurt, DamageSource damagesource, float f) {
         if (!hurt) {

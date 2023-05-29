@@ -20,6 +20,7 @@ public class MinigameMap {
 
     BoundingBox spawnArea;
     protected Location spectateLoc;
+    Location spawnLoc;
 
     ArrayList<Material> blackListedSpawnOnBlocks = new ArrayList<>();
     ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();
@@ -45,6 +46,13 @@ public class MinigameMap {
         this.spectateLoc = spectateLoc.clone();
     }
 
+    public MinigameMap(String title, World world, Location spawnLoc, Location spectateLoc) {
+        this.title = title;
+        this.world = world;
+        this.spawnLoc = spawnLoc.clone();
+        this.spectateLoc = spectateLoc.clone();
+    }
+
     public void addBlackListedSpawnOnBlocks(Material[] blocks) {
         blackListedSpawnOnBlocks.addAll(List.of(blocks));
     }
@@ -59,6 +67,10 @@ public class MinigameMap {
 
     public World getWorld() {
         return world;
+    }
+
+    public Location getSpawnLoc() {
+        return spawnLoc;
     }
 
     public Location getSpectateLoc() {

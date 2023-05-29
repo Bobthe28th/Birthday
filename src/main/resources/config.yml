@@ -1,4 +1,15 @@
 #tech level 0
+endermite_health: 6
 
-silverfish_health: 200
-silverfish_damage: 400
+#tech level 1
+llama_health: 12
+llama_projectile_damage: 2
+wolf_health: 10
+snow_golem_health: 10
+snow_golem_projectile_damage: 2
+zombie_health: 16
+
+#tech level 2
+skeleton_health: 18
+pillager_health: 20
+pillager_projectile_damage: 7

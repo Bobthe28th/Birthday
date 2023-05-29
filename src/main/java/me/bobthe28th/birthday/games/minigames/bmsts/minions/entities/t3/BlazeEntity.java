@@ -1,7 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t3;
 
-import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -26,14 +25,12 @@ import java.util.Objects;
 
 public class BlazeEntity extends Blaze implements MinionEntity {
 
-    BmTeam team;
-    Rarity rarity;
-    Boolean preview;
+    Minion minion;
+    boolean preview;
 
-    public BlazeEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+    public BlazeEntity(Location loc, Minion minion, Boolean preview) {
         super(EntityType.BLAZE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
-        this.team = team;
-        this.rarity = rarity;
+        this.minion = minion;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
@@ -62,8 +59,8 @@ public class BlazeEntity extends Blaze implements MinionEntity {
     }
 
     @Override
-    public BmTeam getGameTeam() {
-        return team;
+    public Minion getMinion() {
+        return minion;
     }
 
     @Override

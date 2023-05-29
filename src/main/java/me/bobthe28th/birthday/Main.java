@@ -74,7 +74,7 @@ public class Main extends JavaPlugin implements Listener {
         musicController = new MusicController(this);
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            gameController.addNewPlayer(player); //todos uncomment
+            gameController.addNewPlayer(player);
         }
     }
 

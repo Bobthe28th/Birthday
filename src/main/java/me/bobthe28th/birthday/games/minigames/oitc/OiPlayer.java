@@ -14,6 +14,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,11 @@ public class OiPlayer extends MinigamePlayer {
     boolean king = false;
     int points = 0;
     int kills = 0;
+    int killStreak = 0;
+    int kingTime = 0;
     int deaths = 0;
+
+    BukkitTask respawningTask = null;
 
     public OiPlayer(GamePlayer player, Main plugin, Oitc oitc) {
         super(plugin,player,oitc);
@@ -52,6 +57,9 @@ public class OiPlayer extends MinigamePlayer {
     }
 
     public void remove() {
+        if (respawningTask != null) {
+            respawningTask.cancel();
+        }
         Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(20.0);
         player.getPlayer().setHealth(20.0);
         player.getPlayer().setGlowing(false);
@@ -102,7 +110,7 @@ public class OiPlayer extends MinigamePlayer {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
-                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
+                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(), oitc.firework.clone(), oitc.firework.clone()));
                     meta.setLore(List.of("Reloads a firework on kill"));
 
                 }
@@ -116,7 +124,7 @@ public class OiPlayer extends MinigamePlayer {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {
                     meta.addEnchant(Enchantment.MULTISHOT, 3, true);
-                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(),oitc.firework.clone(),oitc.firework.clone()));
+                    meta.setChargedProjectiles(Arrays.asList(oitc.firework.clone(), oitc.firework.clone(), oitc.firework.clone()));
                     meta.setLore(List.of("Reloads a firework on kill"));
 
                 }
@@ -125,7 +133,7 @@ public class OiPlayer extends MinigamePlayer {
                 player.getPlayer().getInventory().setHeldItemSlot(4);
             }
         }
-        
+
         player.getPlayer().updateInventory();
     }
 
@@ -154,7 +162,7 @@ public class OiPlayer extends MinigamePlayer {
         player.getPlayer().updateInventory();
     }
 
-    public void kill(Player killed) {
+    public void kill(Player killed) { //todo play sound
         if (oitc.cross) {
             PlayerInventory inventory = player.getPlayer().getInventory();
             ItemStack crossbow = inventory.getItem(4);
@@ -190,31 +198,32 @@ public class OiPlayer extends MinigamePlayer {
             player.getPlayer().sendTitle("", ChatColor.RED + "☠", 0, 10, 10);
         }
         kills ++;
+        killStreak ++;
         points ++;
         oitc.updateTopPoints(this);
 
         oitc.getObjective().updateRow(2,"Kills: " + kills, player);
         oitc.getObjective().updateRow(3, "Points: " + points, player);
 
-        if (points >= oitc.maxKills && !king) {
+        if (killStreak >= oitc.killStreakToKing && !king) {
             oitc.setKing(this);
         }
-        if (points >= oitc.maxKills + oitc.killsPostMax) {
-            player.getPlayer().setGlowing(false);
-            if (oitc.isBonusRound) {
-                oitc.endBonusRound(true);
-            } else {
-                List<GamePlayer> winners = new ArrayList<>();
-                for (int i = 0; i < Math.min(3,oitc.topPoints.size()); i++) {
-                    Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitctop3");
-                    if (i == 0) {
-                        Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitcwin");
-                    }
-                    winners.add(oitc.topPoints.get(i).getGamePlayer());
-                }
-                oitc.endTop3(winners);
-            }
-        }
+//        if (points >= oitc.maxKills + oitc.killsPostMax) {
+//            player.getPlayer().setGlowing(false);
+//            if (oitc.isBonusRound) {
+//                oitc.endBonusRound(true);
+//            } else {
+//                List<GamePlayer> winners = new ArrayList<>();
+//                for (int i = 0; i < Math.min(3,oitc.topPoints.size()); i++) {
+//                    Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitctop3");
+//                    if (i == 0) {
+//                        Main.gameController.giveAdvancement(oitc.topPoints.get(i).getPlayer(),"oitc/oitcwin");
+//                    }
+//                    winners.add(oitc.topPoints.get(i).getGamePlayer());
+//                }
+//                oitc.endTop3(winners);
+//            }
+//        }
     }
 
     public void death(Player killer) {
@@ -225,6 +234,7 @@ public class OiPlayer extends MinigamePlayer {
         if (oitc.status == MinigameStatus.PLAYING) {
             alive = false;
             deaths ++;
+            killStreak = 0;
             ChatColor teamColor = ChatColor.RED;
             ChatColor enemyColor = ChatColor.RED;
             if (oitc.isBonusRound) {
@@ -248,28 +258,34 @@ public class OiPlayer extends MinigamePlayer {
             player.getPlayer().setGameMode(GameMode.SPECTATOR);
             player.getPlayer().getInventory().clear();
             if (king) {
-                oitc.kingDeath(this);
+                oitc.removeKing(this,true);
             }
 
             ChatColor finalEnemyColor = enemyColor;
-            new BukkitRunnable() {
+            if (respawningTask != null) {
+                respawningTask.cancel();
+                respawningTask = null;
+            }
+            respawningTask = new BukkitRunnable() {
                 int time = 3;
                 final ChatColor[] timeColors = new ChatColor[]{ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED};
 
                 @Override
                 public void run() {
-                    if (time <= 0) {
-                        player.getPlayer().sendTitle("", ChatColor.YELLOW + "Respawned!", 0, 5, 5);
-                        respawn();
-                        this.cancel();
-                    }
                     if (!this.isCancelled()) {
-                        if (oitc.isBonusRound) {
-                            player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + finalEnemyColor + killer.getDisplayName() : ""), 0, 25, 3);
-                        } else {
-                            player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0, 25, 3);
+                        if (time <= 0) {
+                            player.getPlayer().sendTitle("", ChatColor.YELLOW + "Respawned!", 0, 5, 5);
+                            respawn();
+                            this.cancel();
                         }
-                        time--;
+                        if (!this.isCancelled()) {
+                            if (oitc.isBonusRound) {
+                                player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + finalEnemyColor + killer.getDisplayName() : ""), 0, 25, 3);
+                            } else {
+                                player.getPlayer().sendTitle(ChatColor.GRAY + "Respawning in: " + timeColors[time - 1] + time, (killer != null ? ChatColor.DARK_GRAY + "Killed by " + ChatColor.RED + killer.getDisplayName() : ""), 0, 25, 3);
+                            }
+                            time--;
+                        }
                     }
                 }
             }.runTaskTimer(plugin, 0, 20L);

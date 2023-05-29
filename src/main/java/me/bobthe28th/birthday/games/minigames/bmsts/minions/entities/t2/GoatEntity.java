@@ -1,4 +1,4 @@
-package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t0;
+package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t2;
 
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
@@ -7,24 +7,25 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.monster.Endermite;
+import net.minecraft.world.entity.animal.goat.Goat;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
 
-public class EndermiteEntity extends Endermite implements MinionEntity {
+public class GoatEntity extends Goat implements MinionEntity {
 
     Minion minion;
     boolean preview;
 
-    public EndermiteEntity(Location loc, Minion minion, Boolean preview) {
-        super(EntityType.ENDERMITE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+    public GoatEntity(Location loc, Minion minion, Boolean preview) {
+        super(EntityType.GOAT, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.minion = minion;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
+        this.setScreamingGoat(true);
         if (!preview) {
             this.setCustomNameVisible(true);
         }
