@@ -2,6 +2,7 @@ package me.bobthe28th.birthday.games.minigames;
 
 import me.bobthe28th.birthday.DamageRule;
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.MoveOption;
 import me.bobthe28th.birthday.games.GamePlayer;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
 import org.bukkit.*;
@@ -37,10 +38,7 @@ public abstract class Minigame implements Listener {
     }
 
     public void end(MinigamePlayer winner) {
-        disable();
-        Main.damageRule = DamageRule.NONE;
-        Main.breakBlocks = false;
-        status = MinigameStatus.END;
+        end();
         //todo
     }
 
@@ -50,18 +48,15 @@ public abstract class Minigame implements Listener {
 //    }
 
     public void endTop3(List<GamePlayer> winners) {
-        disable();
-        Main.damageRule = DamageRule.NONE;
-        Main.breakBlocks = false;
-        status = MinigameStatus.END;
+        end();
         World w = plugin.getServer().getWorld("world");
         if (w == null) return;
         String[] placeText = new String[]{"first","second","third"};
         ChatColor[] placeColor = new ChatColor[]{ChatColor.GOLD,ChatColor.WHITE,ChatColor.DARK_RED};
-        Location[] placeLocation = new Location[]{new Location(w, -138.5, 81, -416.5),new Location(w, -141.5, 79, -416.5),new Location(w, -135.5, 78, -416.5)};
-        Vector spectateOffset = new Vector(0,1,3);
-        float spectateYaw = 180f;
-        Location endLoc = new Location(w,-138.5, 76, -411.5,spectateYaw,0);
+        Location[] placeLocation = new Location[]{new Location(w, -196, 98, -407),new Location(w, -196, 97, -405),new Location(w, -196, 96, -409)};
+        Vector spectateOffset = new Vector(3,1,0);
+        float spectateYaw = 90f;
+        Location endLoc = new Location(w,-192, 95, -407,spectateYaw,0);
 
         for (GamePlayer g : plugin.getGamePlayers().values()) {
             g.getPlayer().getInventory().clear();
@@ -79,7 +74,7 @@ public abstract class Minigame implements Listener {
         ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket(((CraftEntity) armorStand).getHandle());
 
         for (GamePlayer g : plugin.getGamePlayers().values()) {
-            g.setCanMove(false);
+            g.setMoveOption(MoveOption.NONE);
             g.getPlayer().setInvisible(true);
             g.getPlayer().setVelocity(new Vector(0,0,0));
 //            g.getPlayer().teleport(endLoc);
@@ -93,7 +88,7 @@ public abstract class Minigame implements Listener {
             public void run() {
                 if (p < 0) {
                     for (GamePlayer g : plugin.getGamePlayers().values()) {
-                        g.setCanMove(true);
+                        g.setMoveOption(MoveOption.ALL);
                         g.getPlayer().setInvisible(false);
                         ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket(((CraftPlayer)g.getPlayer()).getHandle());
                         ((CraftPlayer)g.getPlayer()).getHandle().connection.send(packet);
@@ -123,7 +118,7 @@ public abstract class Minigame implements Listener {
                                 ClientboundSetCameraPacket packet = new ClientboundSetCameraPacket(((CraftPlayer)winner.getPlayer()).getHandle());
                                 ((CraftPlayer) winner.getPlayer()).getHandle().connection.send(packet);
                             }
-                            winners.get(p).setCanMove(true);
+                            winners.get(p).setMoveOption(MoveOption.VERTICAL);
                         }
                     }
 
@@ -142,7 +137,5 @@ public abstract class Minigame implements Listener {
     public abstract void onPlayerJoin(GamePlayer player);
 
     public abstract void onPlayerLeave(GamePlayer player);
-
-
 
 }

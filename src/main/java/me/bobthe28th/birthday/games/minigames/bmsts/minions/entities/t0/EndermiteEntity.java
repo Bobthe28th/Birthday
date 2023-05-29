@@ -1,25 +1,30 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t0;
 
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
+import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.monster.Endermite;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
 
-public class SilverfishEntity extends Silverfish implements MinionEntity {
+public class EndermiteEntity extends Endermite implements MinionEntity {
 
-    Minion minion;
+    BmTeam team;
+    Rarity rarity;
+    Boolean preview;
 
-    public SilverfishEntity(Location loc, Minion minion, Boolean preview) {
-        super(EntityType.SILVERFISH, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
-        this.minion = minion;
+    public EndermiteEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+        super(EntityType.ENDERMITE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+        this.team = team;
+        this.rarity = rarity;
+        this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
@@ -41,8 +46,13 @@ public class SilverfishEntity extends Silverfish implements MinionEntity {
     }
 
     @Override
-    public Minion getMinion() {
-        return minion;
+    public BmTeam getGameTeam() {
+        return team;
+    }
+
+    @Override
+    public boolean isPreview() {
+        return preview;
     }
 
 }

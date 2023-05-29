@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -53,6 +55,8 @@ public class Minion implements Listener {
     Mob previewEntity;
     ArmorStand placedArmorStand;
     Location placedLoc;
+
+    Double projectileDamage = null;
 
     public Minion(Main plugin, Bmsts bmsts, String name, Class<? extends MinionEntity> entityType, BmTeam team, Integer techLevel, Rarity rarity, Integer strength, Integer customModel) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -192,22 +196,57 @@ public class Minion implements Listener {
 
     public void spawn(Location location, boolean preview) {
         ServerLevel w = ((CraftWorld) Objects.requireNonNull(location.getWorld())).getHandle();
-        FileConfiguration config = plugin.getConfig();
+        FileConfiguration config = bmsts.getConfig();
         try {
-            Constructor<?> constructor = entityType.getConstructor(Location.class, BmTeam.class, Rarity.class, Boolean.class, FileConfiguration.class);
-            Mob e = (Mob) constructor.newInstance(location.clone(),team,rarity,preview,config);
+            Constructor<?> constructor = entityType.getConstructor(Location.class, BmTeam.class, Rarity.class, Boolean.class);
+            Mob e = (Mob) constructor.newInstance(location.clone(),team,rarity,preview);
             if (preview) {
                 e.setNoAi(true);
                 e.setSilent(true);
                 e.setInvulnerable(true);
                 previewEntity = e;
             }
+            setBaseAttributes(e,config);
+            setRarityAttributes(e);
             w.addFreshEntity(e);
             if (!preview) {
                 e.getBukkitEntity().setCustomName(bmsts.getHealthString(e.getHealth(), team.getColor(), team.getDarkColor()));
                 entities.add(e);
             }
         } catch (Exception ignored) {}
+    }
+
+    public void setRarityAttributes(Mob mob) {
+        AttributeInstance maxHealth = mob.getAttributes().getInstance(Attributes.MAX_HEALTH);
+        if (maxHealth != null) {
+            maxHealth.setBaseValue(maxHealth.getBaseValue() * rarity.getMulti());
+            mob.setHealth((float) maxHealth.getBaseValue());
+        }
+        AttributeInstance damage = mob.getAttributes().getInstance(Attributes.ATTACK_DAMAGE);
+        if (damage != null) {
+            damage.setBaseValue(damage.getBaseValue() * rarity.getMulti());
+        }
+
+    }
+
+    public void setBaseAttributes(Mob mob, FileConfiguration config) {
+        String id = name.toLowerCase().replace(" ", "_");
+        AttributeInstance maxHealth = mob.getAttributes().getInstance(Attributes.MAX_HEALTH);
+        if (maxHealth != null) {
+            if (config.contains(id + "_health")) {
+                maxHealth.setBaseValue(config.getDouble(id + "_health"));
+                mob.setHealth((float) maxHealth.getBaseValue());
+            }
+        }
+        AttributeInstance damage = mob.getAttributes().getInstance(Attributes.ATTACK_DAMAGE);
+        if (damage != null) {
+            if (config.contains(id + "_damage")) {
+                damage.setBaseValue(config.getDouble(id + "_damage"));
+            }
+        }
+        if (config.contains(id + "_projectile_damage")) {
+            projectileDamage = config.getDouble(id + "_projectile_damage");
+        }
     }
 
     public void spawnGroup(Location loc) {
@@ -258,6 +297,17 @@ public class Minion implements Listener {
     public void onEntityDamage(EntityDamageEvent event) {
         if (!event.isCancelled()) {
             if (event.getEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
+                if (event instanceof EntityDamageByEntityEvent byEntityEvent) {
+                    if (byEntityEvent.getDamager() instanceof Projectile p) {
+                        if (p.getShooter() instanceof MinionEntity m) {
+                            if (m.getMinion().getProjectileDamage() != null) {
+                                Bukkit.broadcastMessage("damage set");
+                                event.setDamage(m.getMinion().getProjectileDamage());
+                            }
+                        }
+                    }
+                }
+
                 if (l.getHealth() - event.getFinalDamage() <= 0) {
                     entities.remove(((CraftMob) l).getHandle());
                     l.setCustomName(ChatColor.WHITE + "☠");
@@ -271,12 +321,24 @@ public class Minion implements Listener {
         }
     }
 
+    public Double getProjectileDamage() {
+        return projectileDamage;
+    }
+
+    public BmTeam getTeam() {
+        return team;
+    }
+
+    public Rarity getRarity() {
+        return rarity;
+    }
+
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof Fireball f && f.getShooter() instanceof org.bukkit.entity.Entity s && event.getHitEntity() != null) {
             if (event.getHitEntity() instanceof org.bukkit.entity.LivingEntity l && l instanceof CraftMob && entities.contains(((CraftMob) l).getHandle())) {
                 if (l instanceof Blaze || l instanceof Wither || l instanceof Piglin) { //todo more?
-                    l.damage(3.0, s);
+                    l.damage( projectileDamage != null ? projectileDamage : 3.0, s);
                 }
             }
         }
@@ -326,7 +388,7 @@ public class Minion implements Listener {
                 } catch (Exception ignored) {}
                 team.addResearchPoints(-1,false);
                 remove(true);
-            } else if (team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= -(6 * (techLevel + 1))) {
+            } else if (team.getTechUpgrade().equals(placedLocation) && team.getResearchPoints() >= (6 * (techLevel + 1))) {
                 if (team.techLevel >= techLevel + 1) {
                     if (techLevel < 5) {
                         boolean allMax = true;

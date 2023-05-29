@@ -1,8 +1,10 @@
 package me.bobthe28th.birthday.games;
 
 import me.bobthe28th.birthday.Main;
+import me.bobthe28th.birthday.MoveOption;
 import me.bobthe28th.birthday.scoreboard.ScoreboardController;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -14,13 +16,14 @@ import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.util.Vector;
 
 public class GamePlayer implements Listener {
 
     Player player;
     Main plugin;
     ScoreboardController scoreboardController;
-    boolean canMove = true;
+    MoveOption moveOption = MoveOption.ALL;
 
 //    BukkitTask hotbarTask;
 //    TextComponent hotbar = new TextComponent("\ue241");
@@ -67,8 +70,8 @@ public class GamePlayer implements Listener {
         return scoreboardController;
     }
 
-    public void setCanMove(boolean canMove) {
-        this.canMove = canMove;
+    public void setMoveOption(MoveOption moveOption) {
+        this.moveOption = moveOption;
     }
 
     @EventHandler
@@ -107,8 +110,27 @@ public class GamePlayer implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.getPlayer() != player) return;
-        if (!canMove) {
+        if (moveOption == MoveOption.NONE) {
             event.setCancelled(true);
+        } else {
+            if (event.getTo() != null && event.getTo().toVector().equals(event.getFrom().toVector())) return;
+            if (moveOption == MoveOption.LOOK) {
+                Location l = event.getFrom().clone();
+                l.setYaw(event.getTo().getYaw());
+                l.setPitch(event.getTo().getPitch());
+                event.setTo(l);
+            } else {
+                if (moveOption == MoveOption.VERTICAL) {
+                    Vector diff = event.getTo().toVector().subtract(event.getFrom().toVector());
+                    if (diff.getX() != 0 || diff.getY() != 0) {
+                        Location l = event.getFrom().clone();
+                        l.setYaw(event.getTo().getYaw());
+                        l.setPitch(event.getTo().getPitch());
+                        l.setY(event.getTo().getY());
+                        event.setTo(l);
+                    }
+                }
+            }
         }
     }
 

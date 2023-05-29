@@ -183,6 +183,9 @@ public class Spleef extends BonusRound {
                         }
                     }
                 }
+                if (lastAlive != null) {
+                    Main.gameController.giveAdvancement(lastAlive.getPlayer(), "spleef/spleefwin");
+                }
                 end(lastAlive); //todo top 3?
             }
         }

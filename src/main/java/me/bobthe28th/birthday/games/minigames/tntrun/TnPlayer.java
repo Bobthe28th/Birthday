@@ -15,7 +15,7 @@ public class TnPlayer extends MinigamePlayer {
         super(plugin,player,tntRun);
         this.tntRun = tntRun;
         Main.gameController.giveAdvancement(player.getPlayer(),"tntrun");
-        player.getPlayer().setGameMode(GameMode.SURVIVAL);
+        player.getPlayer().setGameMode(GameMode.ADVENTURE);
     }
 
     public void remove() {

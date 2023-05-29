@@ -1,25 +1,30 @@
-package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t0;
+package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t1;
 
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
+import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.animal.SnowGolem;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
 
-public class SilverfishEntity extends Silverfish implements MinionEntity {
+public class SnowGolemEntity extends SnowGolem implements MinionEntity {
 
-    Minion minion;
+    BmTeam team;
+    Rarity rarity;
+    Boolean preview;
 
-    public SilverfishEntity(Location loc, Minion minion, Boolean preview) {
-        super(EntityType.SILVERFISH, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
-        this.minion = minion;
+    public SnowGolemEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+        super(EntityType.SNOW_GOLEM, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+        this.team = team;
+        this.rarity = rarity;
+        this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
@@ -30,7 +35,7 @@ public class SilverfishEntity extends Silverfish implements MinionEntity {
 
     @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, false));
+        this.goalSelector.addGoal(1, new RangedAttackGoal(this, 1.25, 20, 10.0F));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
         this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
@@ -41,8 +46,13 @@ public class SilverfishEntity extends Silverfish implements MinionEntity {
     }
 
     @Override
-    public Minion getMinion() {
-        return minion;
+    public BmTeam getGameTeam() {
+        return team;
+    }
+
+    @Override
+    public boolean isPreview() {
+        return preview;
     }
 
 }

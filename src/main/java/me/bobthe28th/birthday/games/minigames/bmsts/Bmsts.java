@@ -8,9 +8,14 @@ import me.bobthe28th.birthday.games.minigames.MinigameStatus;
 import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.ChickenMinion;
-import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.LlamaMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.EndermiteMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.LlamaMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t0.SilverfishMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.SkeletonMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.SnowGolemMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.WolfMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t1.ZombieMinion;
+import me.bobthe28th.birthday.games.minigames.bmsts.minions.t4.HoglinMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t2.PillagerMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.BlazeMinion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.t3.WitherSkeletonMinion;
@@ -21,7 +26,9 @@ import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
 import me.bobthe28th.birthday.games.minigames.tntrun.TntRun;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EvokerFangs;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -30,6 +37,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,10 +46,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Bmsts extends Minigame {
 
@@ -61,12 +67,15 @@ public class Bmsts extends Minigame {
 
     public BmStatus bmStatus = BmStatus.MINIONS;
 
+    FileConfiguration config;
+
 
     public Class<?>[][] minionTypes = new Class<?>[][]{
-            {SilverfishMinion.class, LlamaMinion.class, ChickenMinion.class},
-            {ZombieMinion.class},{PillagerMinion.class},
+            {SilverfishMinion.class, ChickenMinion.class, EndermiteMinion.class},
+            {ZombieMinion.class, LlamaMinion.class, WolfMinion.class, SnowGolemMinion.class},
+            {PillagerMinion.class, SkeletonMinion.class},
             {WitherSkeletonMinion.class, BlazeMinion.class},
-            {EvokerMinion.class}
+            {EvokerMinion.class, HoglinMinion.class}
     };
 
     int round = 1;
@@ -75,6 +84,7 @@ public class Bmsts extends Minigame {
 
     public Bmsts(Main plugin) {
         super(plugin);
+        config = plugin.getConfig();
         Main.damageRule = DamageRule.NONE;
         Main.breakBlocks = false;
 
@@ -91,21 +101,46 @@ public class Bmsts extends Minigame {
                 door[x+y*3] = new Location(w,-248, 120 + y, -294 - x);
             }
         }
-        BmTeams.put("yellow",new BmTeam(this,"yellow", Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291), new Location(w,-234, 121, -290),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
-        BmTeams.put("green",BmTeams.get("yellow").copy("green",Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -295,-234.5, 127, -293)));
-        BmTeams.put("red",BmTeams.get("green").copy("red",Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -290,-234.5, 127, -288)));
-        BmTeams.put("blue",BmTeams.get("red").copy("blue",Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -285,-234.5, 127, -283)));
+        BmTeams.put("yellow",new BmTeam(this,"yellow",3, Color.YELLOW,ChatColor.YELLOW,ChatColor.GOLD,plugin,new Location(w,-245.5, 120, -294.5,-90,0),new Location(w,-224, 121, -291),new Location(w,-228, 121, -291), Arrays.asList(l),new Location(w,-226, 121, -291), new Location(w,-234, 121, -290),new Location(w,-231, 120, -290), Arrays.asList(door),new Location(w,-225.5, 121.5, -290),new BoundingBox(-235, 130, -300,-234.5, 127, -298)));
+        BmTeams.put("green",BmTeams.get("yellow").copy("green",2,Color.GREEN,ChatColor.GREEN,ChatColor.DARK_GREEN,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -295,-234.5, 127, -293)));
+        BmTeams.put("red",BmTeams.get("green").copy("red",1,Color.RED,ChatColor.RED,ChatColor.DARK_RED,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -290,-234.5, 127, -288)));
+        BmTeams.put("blue",BmTeams.get("red").copy("blue",0,Color.BLUE,ChatColor.BLUE,ChatColor.DARK_BLUE,plugin,new Vector(0,0,15),new BoundingBox(-235, 130, -285,-234.5, 127, -283)));
 
         playerSpawn = new Location(w,-231.5, 127, -291.5,90,0);
 
-        HashMap<BmTeam,Location> minionSpawn = new HashMap<>();
-        minionSpawn.put(BmTeams.get("yellow"),new Location(w, -233.5, 92, -354.5));
-        minionSpawn.put(BmTeams.get("red"),new Location(w, -255.5, 92, -354.5));
-        minionSpawn.put(BmTeams.get("green"),new Location(w, -255.5, 92, -376.5));
-        minionSpawn.put(BmTeams.get("blue"),new Location(w, -233.5, 92, -376.5));
-
-        bmMaps = new BmMap[]{new BmMap("temp",new Location(w,-244.5, 100, -365.5),minionSpawn)};
-        currentMap = bmMaps[0];
+        bmMaps = new BmMap[]{
+                new BmMap("yellow",new Location(w,-244.5, 100, -365.5),new HashMap<>(Map.of(
+                        BmTeams.get("blue"),new Location(w, -233.5, 92, -376.5),
+                        BmTeams.get("green"),new Location(w, -255.5, 92, -376.5),
+                        BmTeams.get("red"),new Location(w, -255.5, 92, -354.5),
+                        BmTeams.get("yellow"),new Location(w, -233.5, 92, -354.5)
+                ))),
+                new BmMap("rest",new Location(w,-210.5, 100, -365.5), new HashMap<>(Map.of(
+                        BmTeams.get("blue"), new Location(w, -202.5, 95, -373.5),
+                        BmTeams.get("green"), new Location(w, -218.5, 95, -373.5),
+                        BmTeams.get("red"), new Location(w, -218.5, 95, -357.5),
+                        BmTeams.get("yellow"), new Location(w, -202.5, 95, -357.5)
+                ))),
+                new BmMap("ghost",new Location(w,-235, 105, -409), new HashMap<>(Map.of(
+                        BmTeams.get("blue"), new Location(w, -215.5, 94, -428.5),
+                        BmTeams.get("green"), new Location(w, -254.5, 94, -428.5),
+                        BmTeams.get("red"), new Location(w, -254.5, 94, -389.5),
+                        BmTeams.get("yellow"), new Location(w, -215.5, 94, -389.5)
+                ))),
+                new BmMap("garg",new Location(w,-198.5, 116, -322.5), new HashMap<>(Map.of(
+                        BmTeams.get("blue"), new Location(w, -213.5, 98, -307.5),
+                        BmTeams.get("green"), new Location(w, -183.5, 98, -307.5),
+                        BmTeams.get("red"), new Location(w, -183.5, 98, -337.5),
+                        BmTeams.get("yellow"), new Location(w, -213.5, 98, -337.5)
+                ))),
+                new BmMap("train",new Location(w,-234.5, 103, -463.5), new HashMap<>(Map.of(
+                        BmTeams.get("blue"), new Location(w, -225.5, 99, -472.5),
+                        BmTeams.get("green"), new Location(w, -243.5, 99, -472.5),
+                        BmTeams.get("red"), new Location(w, -243.5, 99, -454.5),
+                        BmTeams.get("yellow"), new Location(w, -225.5, 99, -454.5)
+                )))
+        };
+        currentMap = bmMaps[new Random().nextInt(bmMaps.length)];
         status = MinigameStatus.READY;
     }
 
@@ -119,6 +154,9 @@ public class Bmsts extends Minigame {
         }
 
         for (BmPlayer p : BmPlayers.values()) {
+            for (BmTeam t : BmTeams.values()) {
+                t.updateDoor(p,false);
+            }
             p.getPlayer().teleport(currentMap.getPlayerSpawn());
         }
         new BukkitRunnable() {
@@ -147,11 +185,6 @@ public class Bmsts extends Minigame {
                 }
             }
         }
-        bmStatus = BmStatus.MINIONS;
-        for (BmTeam t : BmTeams.values()) {
-            t.removeEntities();
-            t.addResearchPoints(5,false);
-        }
         if (winner != null) { //todo team win sound
             winner.addResearchPoints(1,false);
             Bukkit.broadcastMessage(ChatColor.GRAY + "[" + winner.getTeam().getColor() + "✪" + ChatColor.GRAY + "] " + winner.getTeam().getColor() + winner.getDisplayName() + " won the round");
@@ -166,28 +199,44 @@ public class Bmsts extends Minigame {
         }
 
         setRound(round + 1);
-        if (round % 2 == 1) {
-            Random r = new Random();
-            Class<? extends BonusRound> nextBonusRound = bonusRounds.get(r.nextInt(bonusRounds.size()));
-            try {
-                Constructor<?> constructor = nextBonusRound.getConstructor(Main.class);
-                setBonusRound((BonusRound) constructor.newInstance(plugin));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        currentMap = bmMaps[new Random().nextInt(bmMaps.length)];
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                bmStatus = BmStatus.MINIONS;
+                for (BmTeam t : BmTeams.values()) {
+                    t.removeEntities();
+                    t.addResearchPoints(5,false);
+                }
+                if (round % 2 == 1) {
+                    Random r = new Random();
+                    Class<? extends BonusRound> nextBonusRound = bonusRounds.get(r.nextInt(bonusRounds.size()));
+                    try {
+                        Constructor<?> constructor = nextBonusRound.getConstructor(Main.class);
+                        setBonusRound((BonusRound) constructor.newInstance(plugin));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    for (BmPlayer p : BmPlayers.values()) {
+                        Main.gameController.giveAdvancement(p.getPlayer(),"bmsts/bonusround");
+                    }
+                    getBonusRound().startBonusRound(Bmsts.this);
+                } else {
+                    for (BmPlayer p : BmPlayers.values()) {
+                        p.getPlayer().getInventory().setHeldItemSlot(4);
+                        p.getPlayer().teleport(p.getTeam().getPlayerSpawn());
+                    }
+                    Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
+                }
             }
-            for (BmPlayer p : BmPlayers.values()) {
-                Main.gameController.giveAdvancement(p.getPlayer(),"bmsts/bonusround");
-            }
-            getBonusRound().startBonusRound(this);
-        } else {
-            for (BmPlayer p : BmPlayers.values()) {
-                p.getPlayer().teleport(p.getTeam().getPlayerSpawn());
-            }
-            Main.musicController.clearAndPlayLoop(Main.musicController.getMusicByName("elevator"));
-        }
+        }.runTaskLater(plugin,60);
     }
 
-//    public BmMap getCurrentMap() {
+    public FileConfiguration getConfig() {
+        return config;
+    }
+
+    //    public BmMap getCurrentMap() {
 //        return currentMap;
 //    }
 
@@ -262,6 +311,9 @@ public class Bmsts extends Minigame {
                 }
             }
         }
+        if (event.getEntity() instanceof Arrow) {
+            event.getEntity().remove();
+        }
     }
 
 //    @EventHandler
@@ -285,6 +337,14 @@ public class Bmsts extends Minigame {
             if (bmStatus == BmStatus.MINIONS) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!BmPlayers.containsKey(Bukkit.getPlayer(event.getPlayer().getName()))) return;
+        if (event.getInventory().getType() == InventoryType.HOPPER) {
+            event.setCancelled(true);
         }
     }
 
@@ -373,6 +433,7 @@ public class Bmsts extends Minigame {
         Main.damageRule = DamageRule.NONE;
         bmStatus = BmStatus.MINIONS;
         Main.breakBlocks = false;
+
         if (status != MinigameStatus.END) {
             for (BmPlayer p : BmPlayers.values()) {
                 p.getPlayer().setHealth(20.0);

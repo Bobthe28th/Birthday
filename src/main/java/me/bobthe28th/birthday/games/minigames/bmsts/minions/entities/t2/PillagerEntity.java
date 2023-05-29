@@ -15,7 +15,6 @@ import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class PillagerEntity extends Pillager implements MinionEntity {
     Rarity rarity;
     Boolean preview;
 
-    public PillagerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+    public PillagerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
         super(EntityType.PILLAGER, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
 //        DifficultyInstance d = ((CraftWorld) loc.getWorld()).getHandle().getCurrentDifficultyAt(new BlockPos(loc.getX(),loc.getY(),loc.getZ()));
         this.team = team;

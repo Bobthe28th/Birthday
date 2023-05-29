@@ -77,7 +77,7 @@ public class BmPlayer extends MinigamePlayer implements Listener {
                     team.setReady(true);
                 }
                 event.getClickedBlock().getState().update(true, true);
-            } else if (event.getClickedBlock().getType() == Material.STONE_BUTTON && event.getClickedBlock().getLocation().equals(team.getDropButton())) {
+            } else if (event.getClickedBlock().getType() == Material.STONE_BUTTON && event.getClickedBlock().getLocation().equals(team.getDropButton()) && !team.isReady()) {
                 team.dropAll();
             }
         }

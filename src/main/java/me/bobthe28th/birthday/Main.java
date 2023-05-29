@@ -53,6 +53,11 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Bukkit.broadcastMessage("Man");
+
+        saveResource("config.yml",true);
+
+        saveDefaultConfig();
+
         getServer().getPluginManager().registerEvents(this, this);
 
         String[] commandNames = new String[]{"test","pvp","start","music","join"};
@@ -68,9 +73,9 @@ public class Main extends JavaPlugin implements Listener {
         gameController = new GameController(this);
         musicController = new MusicController(this);
 
-//        for(Player player : Bukkit.getOnlinePlayers()) {
-//            gameController.addNewPlayer(player); //todos uncomment
-//        }
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            gameController.addNewPlayer(player); //todos uncomment
+        }
     }
 
     @Override
@@ -104,9 +109,9 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (event.getPlayer().getName().equals("Bobthe29th")) {
-            event.setFormat(rainbow(event.getPlayer().getDisplayName()) + ChatColor.RESET + ": " + event.getMessage());
+            event.setFormat(rainbow(event.getPlayer().getDisplayName()) + ChatColor.RESET + ": " + event.getMessage().replace("%","%%"));
         } else {
-            event.setFormat(event.getPlayer().getDisplayName() + ": " + event.getMessage());
+            event.setFormat(event.getPlayer().getDisplayName() + ": " + event.getMessage().replace("%","%%"));
         }
     }
 

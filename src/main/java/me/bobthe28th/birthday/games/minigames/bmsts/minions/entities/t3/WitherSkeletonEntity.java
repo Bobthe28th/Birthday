@@ -13,7 +13,6 @@ import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
@@ -24,7 +23,7 @@ public class WitherSkeletonEntity extends WitherSkeleton implements MinionEntity
     Rarity rarity;
     Boolean preview;
 
-    public WitherSkeletonEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+    public WitherSkeletonEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
         super(EntityType.WITHER_SKELETON, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;

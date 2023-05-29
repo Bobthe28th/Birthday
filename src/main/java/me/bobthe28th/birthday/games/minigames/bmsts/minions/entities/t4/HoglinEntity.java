@@ -1,4 +1,4 @@
-package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t0;
+package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t4;
 
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
@@ -6,30 +6,29 @@ import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntit
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.animal.horse.Llama;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
 
-public class LlamaEntity extends Llama implements MinionEntity {
+public class HoglinEntity extends Hoglin implements MinionEntity {
 
     BmTeam team;
     Rarity rarity;
     Boolean preview;
 
-    public LlamaEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
-        super(EntityType.LLAMA, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+    public HoglinEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+        super(EntityType.HOGLIN, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
+        this.setImmuneToZombification(true);
         if (!preview) {
             this.setCustomNameVisible(true);
         }
@@ -37,9 +36,8 @@ public class LlamaEntity extends Llama implements MinionEntity {
 
     @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(3, new RangedAttackGoal(this, 1.25, 40, 15.0F));
+        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, false));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
 
@@ -57,4 +55,5 @@ public class LlamaEntity extends Llama implements MinionEntity {
     public boolean isPreview() {
         return preview;
     }
+
 }

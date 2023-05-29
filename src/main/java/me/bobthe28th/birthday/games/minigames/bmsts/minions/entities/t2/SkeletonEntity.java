@@ -1,4 +1,4 @@
-package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t1;
+package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t2;
 
 import me.bobthe28th.birthday.games.minigames.bmsts.BmTeam;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Rarity;
@@ -6,47 +6,46 @@ import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntit
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.Skeleton;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
-public class ZombieEntity extends Zombie implements MinionEntity {
+public class SkeletonEntity extends Skeleton implements MinionEntity {
 
     BmTeam team;
     Rarity rarity;
     Boolean preview;
 
-    public ZombieEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
-        super(EntityType.ZOMBIE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
+    public SkeletonEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
+        super(EntityType.SKELETON, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;
         this.preview = preview;
         this.setPos(loc.getX(), loc.getY(), loc.getZ());
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
+        this.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(new ItemStack(Material.BOW)));
         if (!preview) {
             this.setCustomNameVisible(true);
         }
     }
 
     @Override
-    public BmTeam getGameTeam() {
-        return team;
-    }
-
-    @Override
     public void registerGoals() {
-        this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0, false));
+        this.goalSelector.addGoal(4, new RangedBowAttackGoal<AbstractSkeleton>(this, 1.0, 20, 15.0F));
         this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this,1F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(3, new NearestEnemyTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestEnemyTargetGoal(this));
     }
 
     @Override
@@ -54,12 +53,17 @@ public class ZombieEntity extends Zombie implements MinionEntity {
         return minionHurt(this,super.hurt(damagesource,f), damagesource, f);
     }
 
-    //No armor
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource randomsource, DifficultyInstance difficultydamagescaler) {}
+
+    @Override
+    public BmTeam getGameTeam() {
+        return team;
+    }
 
     @Override
     public boolean isPreview() {
         return preview;
     }
+
 }

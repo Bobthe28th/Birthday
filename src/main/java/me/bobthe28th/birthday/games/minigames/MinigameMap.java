@@ -19,7 +19,7 @@ public class MinigameMap {
     World world;
 
     BoundingBox spawnArea;
-    Location spectateLoc;
+    protected Location spectateLoc;
 
     ArrayList<Material> blackListedSpawnOnBlocks = new ArrayList<>();
     ArrayList<Material> blackListedSpawnInBlocks = new ArrayList<>();

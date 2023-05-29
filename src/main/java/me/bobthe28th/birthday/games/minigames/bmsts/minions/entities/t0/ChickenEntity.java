@@ -11,7 +11,6 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.Chicken;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
@@ -22,7 +21,7 @@ public class ChickenEntity extends Chicken implements MinionEntity {
     Rarity rarity;
     Boolean preview;
 
-    public ChickenEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+    public ChickenEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
         super(EntityType.CHICKEN, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;

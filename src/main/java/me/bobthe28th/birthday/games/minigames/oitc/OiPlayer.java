@@ -42,8 +42,8 @@ public class OiPlayer extends MinigamePlayer {
     }
 
     public void respawn() {
-        Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(1.0);
-        player.getPlayer().setHealth(0.1);
+        Objects.requireNonNull(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(2.0);
+        player.getPlayer().setHealth(2.0);
         giveItems();
         alive = true;
 
@@ -77,7 +77,8 @@ public class OiPlayer extends MinigamePlayer {
 
             }
             crossbow.setItemMeta(meta);
-            inventory.setItem(3,crossbow);
+            inventory.setItem(4,crossbow);
+            player.getPlayer().getInventory().setHeldItemSlot(4);
         } else {
             ItemStack bow = new ItemStack(Material.BOW);
             ItemMeta meta = bow.getItemMeta();
@@ -88,15 +89,15 @@ public class OiPlayer extends MinigamePlayer {
             bow.setItemMeta(meta);
             inventory.setItem(3,bow);
             inventory.setItem(5,new ItemStack(Material.ARROW));
+            player.getPlayer().getInventory().setHeldItemSlot(3);
         }
-        player.getPlayer().getInventory().setHeldItemSlot(3);
         player.getPlayer().updateInventory();
     }
     
     public void giveKingItem() {
         PlayerInventory inventory = player.getPlayer().getInventory();
         if (oitc.cross) {
-            ItemStack crossbow = inventory.getItem(3);
+            ItemStack crossbow = inventory.getItem(4);
             if (crossbow != null && crossbow.getType() == Material.CROSSBOW) {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {
@@ -106,8 +107,8 @@ public class OiPlayer extends MinigamePlayer {
 
                 }
                 crossbow.setItemMeta(meta);
-                inventory.setItem(3, crossbow);
-                player.getPlayer().getInventory().setHeldItemSlot(3);
+                inventory.setItem(4, crossbow);
+                player.getPlayer().getInventory().setHeldItemSlot(4);
             }
         } else {
             ItemStack crossbow = new ItemStack(Material.CROSSBOW);
@@ -156,7 +157,7 @@ public class OiPlayer extends MinigamePlayer {
     public void kill(Player killed) {
         if (oitc.cross) {
             PlayerInventory inventory = player.getPlayer().getInventory();
-            ItemStack crossbow = inventory.getItem(3);
+            ItemStack crossbow = inventory.getItem(4);
             if (crossbow != null && crossbow.getType() == Material.CROSSBOW) {
                 CrossbowMeta meta = (CrossbowMeta) crossbow.getItemMeta();
                 if (meta != null) {

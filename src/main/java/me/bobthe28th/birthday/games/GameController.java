@@ -1,9 +1,11 @@
 package me.bobthe28th.birthday.games;
 
 import me.bobthe28th.birthday.Main;
-import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
-import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.minigames.Minigame;
+import me.bobthe28th.birthday.games.minigames.MinigameStatus;
+import me.bobthe28th.birthday.games.minigames.bmsts.Bmsts;
+import me.bobthe28th.birthday.games.minigames.ctfsmall.CtfSmall;
+import me.bobthe28th.birthday.games.minigames.ghosts.Ghosts;
 import me.bobthe28th.birthday.games.minigames.oitc.Oitc;
 import me.bobthe28th.birthday.games.minigames.prophunt.PropHunt;
 import me.bobthe28th.birthday.games.minigames.spleef.Spleef;
@@ -34,6 +36,7 @@ public class GameController {
         minigames.put("spleef", Spleef.class);
         minigames.put("prophunt", PropHunt.class);
         minigames.put("tntrun", TntRun.class);
+        minigames.put("ctfsmall", CtfSmall.class);
     }
 
     public void addNewPlayer(Player p) {
@@ -66,13 +69,13 @@ public class GameController {
     }
 
     public void playerJoin(GamePlayer player) {
-        if (currentGame != null) {
+        if (currentGame != null && currentGame.status != MinigameStatus.END) {
             currentGame.onPlayerJoin(player);
         }
     }
 
     public void playerLeave(GamePlayer player) {
-        if (currentGame != null) {
+        if (currentGame != null && currentGame.status != MinigameStatus.END) {
             currentGame.onPlayerLeave(player);
         }
     }

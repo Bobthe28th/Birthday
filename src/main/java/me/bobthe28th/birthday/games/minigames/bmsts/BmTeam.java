@@ -9,6 +9,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Transformation;
@@ -45,15 +46,18 @@ public class BmTeam {
     Location researchPointsDisplayLoc;
     BoundingBox joinPortal;
 
-    int researchPoints = 80;
+    int researchPoints = 4;
     TextDisplay researchPointsDisplay;
 
     ArrayList<Minion> minions = new ArrayList<>();
 
+    int id;
+
     @SuppressWarnings("deprecation")
-    public BmTeam(Bmsts bmsts, String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location dropButton, Location minionItemSpawn, List<Location> doorBlocks, Location researchPointsDisplayLoc, BoundingBox joinPortal) {
+    public BmTeam(Bmsts bmsts, String name, int id, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Location playerSpawn, Location randomizer, Location techUpgrade, List<Location> spawners, Location readySwitch, Location dropButton, Location minionItemSpawn, List<Location> doorBlocks, Location researchPointsDisplayLoc, BoundingBox joinPortal) {
         this.plugin = plugin;
         this.bmsts = bmsts;
+        this.id = id;
         this.playerSpawn = playerSpawn.clone();
         this.randomizer = randomizer.clone();
         this.techUpgrade = techUpgrade.clone();
@@ -89,6 +93,11 @@ public class BmTeam {
         new SilverfishMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
         new SilverfishMinion(plugin,bmsts, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
+
+//        new MagmaCubeMinion(plugin,bmsts, this, Rarity.COMMON,1).drop(minionItemSpawn.clone().add(0.5,0,0.5));
+//        new MagmaCubeMinion(plugin,bmsts, this, Rarity.RARE,2).drop(minionItemSpawn.clone().add(-1.5,0,0.5));
+//        new MagmaCubeMinion(plugin,bmsts, this, Rarity.GODLIKE,3).drop(minionItemSpawn.clone().add(-3.5,0,0.5));
+//        new MagmaCubeMinion(plugin,bmsts, this, Rarity.AWESOME,1).drop(minionItemSpawn.clone().add(-5.5,0,0.5));
 
     }
 
@@ -168,7 +177,12 @@ public class BmTeam {
                 }
             }
             if (allReady) {
-                bmsts.startBattle();
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        bmsts.startBattle();
+                    }
+                }.runTaskLater(plugin,60);
             }
         }
     }
@@ -295,7 +309,11 @@ public class BmTeam {
         return joinPortal;
     }
 
-    public BmTeam copy(String name, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Vector offset, BoundingBox cjoinPortal) {
+    public int getId() {
+        return id;
+    }
+
+    public BmTeam copy(String name, int id, Color bColor, ChatColor color, ChatColor darkColor, Main plugin, Vector offset, BoundingBox cjoinPortal) {
         List<Location> copySpawners = new ArrayList<>();
         for (Location l : spawners) {
             copySpawners.add(l.clone().add(offset));
@@ -304,7 +322,7 @@ public class BmTeam {
         for (Location l : doorBlocks) {
             cloneDoorBlocks.add(l.clone().add(offset));
         }
-        return new BmTeam(bmsts,name,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),dropButton.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,researchPointsDisplayLoc.clone().add(offset),cjoinPortal);
+        return new BmTeam(bmsts,name,id,bColor,color,darkColor,plugin,playerSpawn.clone().add(offset),randomizer.clone().add(offset),techUpgrade.clone().add(offset),copySpawners,readySwitch.clone().add(offset),dropButton.clone().add(offset),minionItemSpawn.clone().add(offset),cloneDoorBlocks,researchPointsDisplayLoc.clone().add(offset),cjoinPortal);
     }
 
 }

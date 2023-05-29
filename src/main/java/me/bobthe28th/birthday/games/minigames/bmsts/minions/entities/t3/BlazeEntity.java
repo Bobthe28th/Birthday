@@ -19,7 +19,6 @@ import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.EnumSet;
@@ -31,7 +30,7 @@ public class BlazeEntity extends Blaze implements MinionEntity {
     Rarity rarity;
     Boolean preview;
 
-    public BlazeEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+    public BlazeEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
         super(EntityType.BLAZE, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;

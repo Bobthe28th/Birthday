@@ -19,7 +19,6 @@ import net.minecraft.world.entity.monster.SpellcasterIllager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.Objects;
@@ -31,7 +30,7 @@ public class EvokerEntity extends Evoker implements MinionEntity {
     Rarity rarity;
     Boolean preview;
 
-    public EvokerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview, FileConfiguration config) {
+    public EvokerEntity(Location loc, BmTeam team, Rarity rarity, Boolean preview) {
         super(EntityType.EVOKER, ((CraftWorld) Objects.requireNonNull(loc.getWorld())).getHandle());
         this.team = team;
         this.rarity = rarity;

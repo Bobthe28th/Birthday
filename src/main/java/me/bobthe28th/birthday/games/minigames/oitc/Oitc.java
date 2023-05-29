@@ -36,7 +36,7 @@ public class Oitc extends BonusRound {
     public OiMap currentMap;
 
     public int maxKills = 10;
-    public int killsPostMax = 3;
+    public int killsPostMax = 5;
 
     public boolean cross = true;
     public boolean pickup = false;
@@ -56,6 +56,7 @@ public class Oitc extends BonusRound {
                 new OiMap("temp2",w,new BoundingBox(28, 104, -328, 69, 131, -377))
         };
         oiMaps[1].addBlackListedSpawnOnBlocks(new Material[]{Material.WHITE_WOOL,Material.RED_WOOL,Material.CACTUS,Material.SPRUCE_FENCE,Material.OAK_STAIRS});
+        oiMaps[1].addBlackListedSpawnInBlocks(new Material[]{Material.REDSTONE_TORCH,Material.FIRE,Material.LAVA,Material.COBWEB});
         currentMap = oiMaps[1];
         status = MinigameStatus.READY;
         removeArrows();
@@ -147,6 +148,9 @@ public class Oitc extends BonusRound {
             if (isBonusRound) {
                 Bukkit.broadcastMessage(bmsts.getTeamColor(king.getPlayer(),ChatColor.BLUE) + king.getPlayer().getDisplayName() + ChatColor.BLUE + " was the king but died as they got it lol");
             } else {
+                king.points -= killsPostMax;
+                objective.updateRow(3,"Points: " + king.points, king.getGamePlayer());
+                updateTopPoints(king);
                 Bukkit.broadcastMessage(ChatColor.BLUE + king.getPlayer().getDisplayName() + " was the king but died as they got it lol");
             }
         }

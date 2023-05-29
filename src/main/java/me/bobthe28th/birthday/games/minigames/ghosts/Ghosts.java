@@ -11,9 +11,7 @@ import me.bobthe28th.birthday.games.minigames.bmsts.bonusrounds.BonusRound;
 import me.bobthe28th.birthday.scoreboard.ScoreboardTeam;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Husk;
 import org.bukkit.entity.Player;
@@ -48,7 +46,8 @@ public class Ghosts extends BonusRound {
         status = MinigameStatus.READY;
         team = new ScoreboardTeam("Ghosts",false,true, Team.OptionStatus.NEVER,ChatColor.WHITE);
         World w = plugin.getServer().getWorld("world");
-        map = new MinigameMap("temp",w,new BoundingBox(-261, 98, -382,-228, 91, -349),new Location(w,-244.5, 99, -365.5));
+        map = new MinigameMap("spooky",w,new BoundingBox(-261, 91, -435,-209, 104, -383),new Location(w,-235, 101, -409));
+        map.addBlackListedSpawnOnBlocks(new Material[]{Material.BARRIER,Material.DEEPSLATE});
     }
 
     public ScoreboardTeam getTeam() {
@@ -70,7 +69,7 @@ public class Ghosts extends BonusRound {
         spawnTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (ghosts.size() < 30 && !this.isCancelled()) {
+                if (ghosts.size() < 100 && !this.isCancelled()) {
                     Husk ghost = map.getWorld().spawn(map.getSpawnLoc(new ArrayList<>(players.values())), Husk.class);
                     ghost.setInvulnerable(true);
                     ghost.setInvisible(true);
@@ -93,7 +92,7 @@ public class Ghosts extends BonusRound {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin,20,40);
+        }.runTaskTimer(plugin,20,10);
 
         timerTask = new BukkitRunnable() {
             @Override
@@ -128,6 +127,7 @@ public class Ghosts extends BonusRound {
             }
             h.remove();
         }
+        team.remove();
         players.clear();
     }
 
@@ -162,6 +162,11 @@ public class Ghosts extends BonusRound {
             if (player.getHealth() - event.getFinalDamage() <= 0) {
                 players.get(player).alive = false;
                 player.setHealth(20.0);
+                ChatColor teamColor = ChatColor.RED;
+                if (isBonusRound) {
+                    teamColor = bmsts.getTeamColor(player,ChatColor.RED);
+                }
+                Bukkit.broadcastMessage(ChatColor.GRAY + "[" + teamColor + "☠" + ChatColor.GRAY + "] " + teamColor + player.getDisplayName() + ChatColor.GRAY + " died");
                 boolean allDead = true;
                 for (GhPlayer p : players.values()) {
                     if (p.isAlive()) {
@@ -176,6 +181,7 @@ public class Ghosts extends BonusRound {
                         end();
                     }
                 } else {
+                    player.setGameMode(GameMode.SPECTATOR);
                     player.teleport(map.getSpectateLoc());
                 }
                 event.setCancelled(true);
