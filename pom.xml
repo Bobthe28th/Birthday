@@ -8,6 +8,13 @@
     <artifactId>birthday</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>ssh-repository</id>-->
+<!--            <url>scpexe://repository.mycompany.com/repository</url>-->
+<!--        </repository>-->
+<!--    </distributionManagement>-->
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -20,31 +27,61 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-<!--        <repository>-->
-<!--            <id>dmulloy2-repo</id>-->
-<!--            <url>https://repo.dmulloy2.net/repository/public/</url>-->
-<!--        </repository>-->
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
+        </repository>
     </repositories>
 
     <build>
+<!--        <extensions>-->
+<!--            &lt;!&ndash; Enabling the use of SSH &ndash;&gt;-->
+<!--            <extension>-->
+<!--                <groupId>org.apache.maven.wagon</groupId>-->
+<!--                <artifactId>wagon-ssh</artifactId>-->
+<!--                <version>1.0-beta-6</version>-->
+<!--            </extension>-->
+<!--        </extensions>-->
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <id>default-jar</id>
-                        <configuration>
-                            <outputDirectory>D:\Projects\Java\Minecraft\birthday\server\plugins</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>wagon-maven-plugin</artifactId>-->
+<!--                <version>1.0-beta-3</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>upload-jar</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>upload-single</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--&lt;!&ndash;                            <serverid>opc</serverid>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <keyfile>D:\SSH\key.ppk</keyfile>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <fromFile>D:\Projects\Java\Minecraft\birthday\test\birthday-1.0-SNAPSHOT.jar</fromFile>&ndash;&gt;-->
+<!--                            <url>scp -i D:\SSH\ssh-key-2023-05-24.key D:\Projects\Java\Minecraft\birthday\test\birthday-1.0-SNAPSHOT.jar opc@138.2.226.126:~/paperserver/plugins</url>-->
+<!--&lt;!&ndash;                            <toDir>.</toDir>&ndash;&gt;-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-jar-plugin</artifactId>-->
+<!--                <version>3.2.2</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>jar</goal>-->
+<!--                        </goals>-->
+<!--                        <id>default-jar</id>-->
+<!--                        <configuration>-->
+<!--                            <outputDirectory>D:\Projects\Java\Minecraft\birthday\server\plugins</outputDirectory>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>net.md-5</groupId>
                 <artifactId>specialsource-maven-plugin</artifactId>
@@ -57,9 +94,9 @@
                         </goals>
                         <id>remap-obf</id>
                         <configuration>
-                            <srgIn>org.spigotmc:minecraft-server:1.19.3-R0.1-SNAPSHOT:txt:maps-mojang</srgIn>
+                            <srgIn>org.spigotmc:minecraft-server:1.19.4-R0.1-SNAPSHOT:txt:maps-mojang</srgIn>
                             <reverse>true</reverse>
-                            <remappedDependencies>org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:jar:remapped-mojang</remappedDependencies>
+                            <remappedDependencies>org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:jar:remapped-mojang</remappedDependencies>
                             <remappedArtifactAttached>true</remappedArtifactAttached>
                             <remappedClassifierName>remapped-obf</remappedClassifierName>
                         </configuration>
@@ -72,8 +109,31 @@
                         <id>remap-spigot</id>
                         <configuration>
                             <inputFile>${project.build.directory}/${project.artifactId}-${project.version}-remapped-obf.jar</inputFile>
-                            <srgIn>org.spigotmc:minecraft-server:1.19.3-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
-                            <remappedDependencies>org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT:jar:remapped-obf</remappedDependencies>
+                            <srgIn>org.spigotmc:minecraft-server:1.19.4-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
+                            <remappedDependencies>org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT:jar:remapped-obf</remappedDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.3.2</version>
+                <executions>
+                    <execution>
+                        <id>scripts-package</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <!-- optional -->
+                            <!--                            <workingDirectory>/Temp</workingDirectory>-->
+                            <executable>powershell.exe</executable>
+                            <arguments>
+                                <argument>-command</argument>
+                                <argument>scp -i D:\SSH\ssh-key-2023-05-24.key ${project.build.directory}/${project.artifactId}-${project.version}.jar opc@138.2.226.126:~/paperserver/plugins</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -86,16 +146,10 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.19.3-R0.1-SNAPSHOT</version>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.comphenix.protocol</groupId>-->
-<!--            <artifactId>ProtocolLib</artifactId>-->
-<!--            <version>5.0.0-SNAPSHOT</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>

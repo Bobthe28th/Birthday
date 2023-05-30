@@ -11,3 +11,12 @@ commands:
   pvp:
     description: Toggles pvp
     usage: /<command>
+  start:
+    description: Starts a minigame
+    usage: /<command> <minigame>
+  music:
+    description: Plays music
+    usage: /<command>
+  join:
+    description: Temporary join in game.
+    usage: /<command>
