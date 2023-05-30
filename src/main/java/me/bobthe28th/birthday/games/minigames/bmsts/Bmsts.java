@@ -69,12 +69,9 @@ public class Bmsts extends Minigame {
     public ChatColor[] strengthColor = new ChatColor[]{ChatColor.WHITE,ChatColor.YELLOW,ChatColor.GOLD,ChatColor.BLACK};
     public ChatColor[] techLevelColor = new ChatColor[]{ChatColor.RED,ChatColor.AQUA,ChatColor.GREEN,ChatColor.LIGHT_PURPLE,ChatColor.WHITE,ChatColor.BLACK};
 
-    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class, Survive.class, Spleef.class, TntRun.class);
-//    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class, Oitc.class);
-//    List<Class<? extends BonusRound>> bonusRounds = List.of(Ghosts.class);
+    List<Class<? extends BonusRound>> bonusRounds = List.of(Survive.class, Spleef.class, TntRun.class, Ghosts.class, Oitc.class);
 
     public BmStatus bmStatus = BmStatus.MINIONS;
-
     FileConfiguration config;
 
 
@@ -238,7 +235,7 @@ public class Bmsts extends Minigame {
                     t.addResearchPoints(5,false);
                 }
                 if (round % 2 == 1) {
-                    Random r = new Random();
+                    Random r = new Random(round);
                     Class<? extends BonusRound> nextBonusRound = bonusRounds.get(r.nextInt(bonusRounds.size()));
                     try {
                         Constructor<?> constructor = nextBonusRound.getConstructor(Main.class);

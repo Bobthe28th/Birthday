@@ -1,5 +1,6 @@
 package me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.t2;
 
+import com.google.common.collect.ImmutableList;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.Minion;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.MinionEntity;
 import me.bobthe28th.birthday.games.minigames.bmsts.minions.entities.NearestEnemyTargetGoal;
@@ -8,8 +9,10 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,10 +35,16 @@ public class PiglinEntity extends Piglin implements MinionEntity {
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
         this.setImmuneToZombification(true);
+        this.setAggressive(true);
         this.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(new ItemStack(Material.GOLDEN_SWORD)));
         if (!preview) {
             this.setCustomNameVisible(true);
         }
+    }
+
+    @Override
+    protected Brain.Provider<Piglin> brainProvider() {
+        return Brain.provider(MEMORY_TYPES, ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS));
     }
 
     @Override

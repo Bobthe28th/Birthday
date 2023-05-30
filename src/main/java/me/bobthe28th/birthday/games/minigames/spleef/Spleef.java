@@ -171,6 +171,7 @@ public class Spleef extends BonusRound {
                         if (players.get(p.getPlayer()).isAlive()) {
                             if (winningTeam == null || winningTeam == t) {
                                 winningTeam = t;
+                                break;
                             } else {
                                 return;
                             }

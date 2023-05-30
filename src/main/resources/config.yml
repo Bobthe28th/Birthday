@@ -11,5 +11,22 @@ zombie_health: 16
 
 #tech level 2
 skeleton_health: 18
-pillager_health: 20
+pillager_health: 18
 pillager_projectile_damage: 7
+goat_health: 16
+goat_damage: 6
+piglin_health: 20
+
+#tech level 3
+blaze_health: 20
+wither_skeleton_damage: 7
+polar_bear_health: 24
+
+#tech tier 4
+hoglin_health: 30
+hoglin_damage: 6
+piglin_brute_health: 34
+
+#tech tier 5
+ravager_health: 50
+iron_golem_health: 50

@@ -267,6 +267,12 @@ public class Minion implements Listener {
                 spawn(loc.add(groupSpawnDist / 2, 0, 0),false);
                 spawn(loc.add(0, 0, groupSpawnDist * 0.866),false);
             }
+            case 4 -> {
+                spawn(loc.add(-groupSpawnDist / 2, 0, -groupSpawnDist / 2),false);
+                spawn(loc.add(groupSpawnDist / 2, 0, groupSpawnDist / 2),false);
+                spawn(loc.add(-groupSpawnDist / 2, 0, groupSpawnDist / 2),false);
+                spawn(loc.add(groupSpawnDist / 2, 0, -groupSpawnDist / 2),false);
+            }
         }
     }
 

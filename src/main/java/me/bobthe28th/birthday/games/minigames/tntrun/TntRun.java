@@ -40,7 +40,14 @@ public class TntRun extends BonusRound {
 
     @Override
     public void awardPoints() {
-
+        if (winningTeam != null) {
+            for (BmPlayer p : winningTeam.getMembers()) {
+                if (players.get(p.getPlayer()).isAlive()) {
+                    Main.gameController.giveAdvancement(p.getPlayer(),"tntrun/tntrunwin");
+                    winningTeam.addResearchPoints(5,true);
+                }
+            }
+        }
     }
 
     @Override
@@ -121,6 +128,7 @@ public class TntRun extends BonusRound {
                         if (players.get(p.getPlayer()).isAlive()) {
                             if (winningTeam == null || winningTeam == t) {
                                 winningTeam = t;
+                                break;
                             } else {
                                 return;
                             }

@@ -29,6 +29,7 @@ public class PiglinBruteEntity extends PiglinBrute implements MinionEntity {
         this.setCanPickUpLoot(false);
         this.setPersistenceRequired(true);
         this.setImmuneToZombification(true);
+        this.setAggressive(true);
         this.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(new ItemStack(Material.GOLDEN_AXE)));
         if (!preview) {
             this.setCustomNameVisible(true);
